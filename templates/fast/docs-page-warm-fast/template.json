@@ -1,0 +1,14 @@
+{
+  "id": "docs-page-warm-fast",
+  "name": "Docs Page Warm",
+  "description": "Deterministic local warm-neutral documentation page.",
+  "category": "fast-local",
+  "aspectHint": "responsive",
+  "recommended": true,
+  "renderer": "markdown-page",
+  "style": "style.css",
+  "title": "Docs Page",
+  "aliases": [
+    "docs-page-warm"
+  ]
+}

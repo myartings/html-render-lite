@@ -1,0 +1,14 @@
+{
+    "id": "deck-simple-fast",
+    "name": "Deck Simple Fast",
+    "description": "Deterministic local 16:9 simple horizontal-swipe HTML deck.",
+    "category": "fast-local",
+    "aspectHint": "16:9 deck",
+    "recommended": true,
+    "renderer": "article-deck-designer",
+    "style": "style.css",
+    "title": "Deck Simple",
+    "aliases": [
+        "deck-simple"
+    ]
+}

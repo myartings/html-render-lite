@@ -1,0 +1,15 @@
+{
+  "id": "kami-parchment-fast",
+  "name": "Kami Parchment",
+  "description": "Deterministic local parchment reading page.",
+  "category": "fast-local",
+  "aspectHint": "responsive",
+  "recommended": true,
+  "renderer": "markdown-page",
+  "style": "style.css",
+  "title": "Kami Parchment",
+  "aliases": [
+    "doc-kami-parchment",
+    "kami-parchment"
+  ]
+}

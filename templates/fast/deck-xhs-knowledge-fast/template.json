@@ -1,0 +1,12 @@
+{
+  "id": "deck-xhs-knowledge-fast",
+  "name": "Deck XHS Knowledge Fast",
+  "description": "Deterministic local 3:4 editorial comparison deck for XHS / WeChat article cards.",
+  "category": "fast-local",
+  "aspectHint": "3:4 vertical deck",
+  "recommended": true,
+  "renderer": "deck-xhs-knowledge",
+  "style": "style.css",
+  "title": "Deck XHS Knowledge",
+  "aliases": []
+}

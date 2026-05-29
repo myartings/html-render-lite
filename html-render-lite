@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """
 html-render-lite: 读取本地模板，输出结构化上下文，当前 LLM 直接写 HTML。
+--fast 模式：确定性本地渲染，不调用 LLM，直接输出完整 HTML。
 
 用法:
   echo "Markdown content" | html-render-lite --template doc-kami-parchment
   html-render-lite --template deck-simple --input source.md --out /tmp/out.html
   html-render-lite --template card-xiaohongshu --package /tmp/pkg/
+  html-render-lite --fast --template docs-page-warm-fast --input source.md --out /tmp/out.html
+  html-render-lite --fast --template kami-parchment-fast --input source.md --package /tmp/pkg/
   html-render-lite --list
 """
 
@@ -14,6 +17,7 @@ import argparse, os, sys, json, re, datetime
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 TEMPLATES_DIR = os.path.join(SCRIPT_DIR, "templates")
 SKILLS = os.path.join(TEMPLATES_DIR, "skills")
+FAST_DIR = os.path.join(TEMPLATES_DIR, "fast")
 SHARED_MD = os.path.join(TEMPLATES_DIR, "shared.md")
 
 # Minimal deck navigation JS (inline, no deps)
@@ -47,12 +51,12 @@ if(t&&s[c])t.innerHTML=s[c].querySelector('.notes')?.innerHTML||'';}
 
 DECK_CATEGORIES = {"slides","deck","video"}
 
+# ── LLM-mode template helpers ─────────────────────────────────────────────────
+
 def template_needs_nav(tid, category):
-    """Check if template category needs keyboard navigation JS"""
     return category in DECK_CATEGORIES or tid.startswith("deck-") or tid.startswith("frame-") or tid.startswith("video-")
 
 def get_template_category(tid):
-    """Read SKILL.md and extract category"""
     smd = os.path.join(SKILLS, tid, "SKILL.md")
     if not os.path.exists(smd):
         return ""
@@ -63,65 +67,45 @@ def get_template_category(tid):
     return ""
 
 def validate_html(html_path, template_id=None):
-    """Validate generated HTML for common issues. Returns list of warnings."""
     warnings = []
     if not os.path.exists(html_path):
         return [f"文件不存在: {html_path}"]
-    
     with open(html_path) as f:
         html = f.read()
-    
-    # Check basic structure
     if not html.strip().startswith("<!DOCTYPE html>") and not html.strip().startswith("<!doctype html>"):
         warnings.append("⚠️ 不以 <!DOCTYPE html> 开头")
     if not html.strip().endswith("</html>"):
         warnings.append("⚠️ 不以 </html> 结束")
-    
-    # Check self-contained (no relative paths to local files)
     if 'href="../' in html or 'src="../' in html:
-        warnings.append("⚠️ 包含相对路径引用 (href=\"../\" 或 src=\"../\")，不是自包含文件")
-    
-    # Check deck templates have keyboard navigation
+        warnings.append("⚠️ 包含相对路径引用，不是自包含文件")
     if template_id:
         cat = get_template_category(template_id)
         needs_js = template_needs_nav(template_id, cat)
         has_js = 'keydown' in html and ('ArrowRight' in html or 'ArrowLeft' in html)
         has_progress = '.bar' in html or 'progress' in html
-        
         if needs_js and not has_js:
-            warnings.append(f"⚠️ {template_id} 是 {cat} 类型，缺少键盘导航 JS（← → 翻页）")
+            warnings.append(f"⚠️ {template_id} 是 {cat} 类型，缺少键盘导航 JS")
         if needs_js and not has_progress:
             warnings.append(f"⚠️ {template_id} 是 {cat} 类型，缺少进度条指示")
-        
-        # Presenter mode
         if template_id == "deck-presenter-mode":
-            has_notes = '.notes' in html
-            has_notes_overlay = 'notes-overlay' in html
-            if not has_notes:
-                warnings.append("⚠️ deck-presenter-mode 缺少 .notes（逐字稿容器）")
-            if not has_notes_overlay:
-                warnings.append("⚠️ deck-presenter-mode 缺少 notes-overlay（提词器浮层）")
-        
-        # Check content completeness
+            if '.notes' not in html:
+                warnings.append("⚠️ deck-presenter-mode 缺少 .notes")
+            if 'notes-overlay' not in html:
+                warnings.append("⚠️ deck-presenter-mode 缺少 notes-overlay")
         slide_count = html.count('<section class="slide')
         if needs_js and slide_count < 3:
             warnings.append(f"⚠️ deck 只有 {slide_count} 页，内容可能不够")
-    
-    # Check for external images
     if re.search(r'src=["\']https?://(?!cdn\.tailwindcss|fonts\.googleapis|cdnjs\.cloudflare|unpkg)', html):
         warnings.append("⚠️ 包含外部图片引用，可能无法离线打开")
-    
     return warnings
 
 def load_shared_directives():
-    """读取 templates/shared.md"""
     if not os.path.exists(SHARED_MD):
         return ""
     with open(SHARED_MD) as f:
         return f.read().strip()
 
 def parse_skill_md(path):
-    """解析 SKILL.md 返回 frontmatter(dict) 和 body(str)"""
     with open(path) as f:
         text = f.read()
     m = re.match(r'^---\s*\n(.*?)\n---\s*\n(.*)', text, re.DOTALL)
@@ -134,30 +118,543 @@ def parse_skill_md(path):
         return fm, m.group(2).strip()
     return {}, text.strip()
 
-def list_templates():
-    """列出所有可用模板"""
-    if not os.path.exists(SKILLS):
-        print(f"错误: 未找到模板目录 {SKILLS}", file=sys.stderr)
-        sys.exit(1)
-    items = []
-    for d in sorted(os.listdir(SKILLS)):
-        smd = os.path.join(SKILLS, d, "SKILL.md")
-        if not os.path.exists(smd):
+# ── Fast rendering (deterministic, no LLM) ───────────────────────────────────
+
+def _esc(text):
+    return str(text or "").replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace('"',"&quot;").replace("'","&#39;")
+
+def _render_inline(text):
+    """Port of render-http.mjs renderInline: handles `code` and [link](url)."""
+    text = str(text or "")
+    out, i = [], 0
+    while i < len(text):
+        if text[i] == '`':
+            end = text.find('`', i + 1)
+            if end != -1:
+                out.append(f'<code>{_esc(text[i+1:end])}</code>')
+                i = end + 1
+                continue
+        if text[i] == '[':
+            close = text.find(']', i + 1)
+            if close != -1 and close + 1 < len(text) and text[close+1] == '(':
+                cparen = text.find(')', close + 2)
+                if cparen != -1:
+                    label = text[i+1:close]
+                    href = text[close+2:cparen].strip()
+                    if re.match(r'^(https?:|mailto:|#|/|\.\.?/)', href):
+                        out.append(f'<a href="{_esc(href)}">{_render_inline(label)}</a>')
+                    else:
+                        out.append(_esc(text[i:cparen+1]))
+                    i = cparen + 1
+                    continue
+        nxt = len(text)
+        for marker in ['`', '[']:
+            idx = text.find(marker, i + 1)
+            if idx != -1: nxt = min(nxt, idx)
+        out.append(_esc(text[i:nxt]))
+        i = nxt
+    return ''.join(out)
+
+def _parse_md(markdown):
+    """Port of render-http.mjs parseMarkdown: Markdown → HTML."""
+    lines = str(markdown or '').replace('\r\n', '\n').replace('\r', '\n').split('\n')
+    html = []
+    used_headings = {}
+    i = 0
+
+    def slugify(text):
+        base = re.sub(r'`([^`]+)`', r'\1', str(text or ''))
+        base = re.sub(r'[^\w\s-]', '', base, flags=re.UNICODE).strip().lower()
+        base = re.sub(r'\s+', '-', base)[:72] or 'section'
+        count = used_headings.get(base, 0)
+        used_headings[base] = count + 1
+        return base if count == 0 else f'{base}-{count+1}'
+
+    while i < len(lines):
+        line = lines[i]
+        trimmed = line.strip()
+
+        if not trimmed:
+            i += 1
             continue
-        fm, _ = parse_skill_md(smd)
-        name = fm.get("zh_name") or fm.get("en_name") or fm.get("name") or d
-        desc = fm.get("description", "")
-        emoji = fm.get("emoji", "📄")
-        cat = fm.get("category", "")
-        items.append((d, emoji, name, cat, desc))
-    print(f"\n📦 html-render-lite 模板目录 ({len(items)} 个)\n")
-    print(f"{'模板ID':<30} {'类别':<12} {'名称':<24} {'说明'}")
-    print("-" * 100)
-    for tid, emoji, name, cat, desc in items:
-        print(f"{tid:<30} {cat:<12} {emoji} {name:<22} {desc}")
+
+        if re.match(r'^```', trimmed):
+            lang = trimmed[3:].strip().split()[0] if trimmed[3:].strip() else ''
+            i += 1
+            code = []
+            while i < len(lines) and not re.match(r'^```', lines[i].strip()):
+                code.append(lines[i])
+                i += 1
+            if i < len(lines): i += 1
+            lang_cls = f' class="language-{_esc(lang)}"' if lang else ''
+            html.append(f'<pre><code{lang_cls}>{_esc(chr(10).join(code))}</code></pre>')
+            continue
+
+        hm = re.match(r'^(#{1,6})\s+(.+?)\s*$', line)
+        if hm:
+            level = len(hm.group(1))
+            text = hm.group(2).strip()
+            html.append(f'<h{level} id="{_esc(slugify(text))}">{_render_inline(text)}</h{level}>')
+            i += 1
+            continue
+
+        if re.match(r'^\s*([-*_])(?:\s*\1){2,}\s*$', line):
+            html.append('<hr>')
+            i += 1
+            continue
+
+        if re.match(r'^\s*>\s?', line):
+            quoted = []
+            while i < len(lines) and re.match(r'^\s*>\s?', lines[i]):
+                quoted.append(re.sub(r'^\s*>\s?', '', lines[i]))
+                i += 1
+            html.append(f'<blockquote>{_parse_md(chr(10).join(quoted))}</blockquote>')
+            continue
+
+        is_unord = bool(re.match(r'^\s*[-*+]\s+', line))
+        is_ord   = bool(re.match(r'^\s*\d+[.)]\s+', line))
+        if is_unord or is_ord:
+            tag = 'ol' if is_ord else 'ul'
+            items = []
+            pat = r'^\s*\d+[.)]\s+(.+)$' if is_ord else r'^\s*[-*+]\s+(.+)$'
+            while i < len(lines):
+                m = re.match(pat, lines[i])
+                if not m: break
+                items.append(f'<li>{_render_inline(m.group(1).strip())}</li>')
+                i += 1
+            html.append(f'<{tag}>\n{"".join(items)}\n</{tag}>')
+            continue
+
+        # paragraph
+        parts = []
+        while i < len(lines):
+            l = lines[i]
+            if (not l.strip()
+                    or re.match(r'^#{1,6}\s', l)
+                    or re.match(r'^```', l.strip())
+                    or re.match(r'^\s*([-*_])(?:\s*\1){2,}\s*$', l)
+                    or re.match(r'^\s*>\s?', l)
+                    or re.match(r'^\s*[-*+]\s+', l)
+                    or re.match(r'^\s*\d+[.)]\s+', l)):
+                break
+            parts.append(l.strip())
+            i += 1
+        if parts:
+            html.append(f'<p>{_render_inline(" ".join(parts))}</p>')
+
+    return '\n'.join(html)
+
+def _doc_title(md, fallback=''):
+    m = re.search(r'^#\s+(.+)$', str(md or ''), re.MULTILINE)
+    return m.group(1).strip() if m else (fallback or '')
+
+def _plain_text(md):
+    text = str(md or '')
+    text = re.sub(r'```[\s\S]*?```', '', text)
+    text = re.sub(r'^#{1,6}\s+', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^>\s?', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^\s*[-*+]\s+', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^\s*\d+[.)]\s+', '', text, flags=re.MULTILINE)
+    text = re.sub(r'`([^`]+)`', r'\1', text)
+    text = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', text)
+    return text.strip()
+
+def _clean_field(value):
+    return str(value or '').strip().strip('"\'')
+
+def _load_fast_template(template_id):
+    """Load fast template.json + style.css, resolving aliases."""
+    if not os.path.exists(FAST_DIR):
+        return None
+    for d in os.listdir(FAST_DIR):
+        tj = os.path.join(FAST_DIR, d, "template.json")
+        if not os.path.exists(tj):
+            continue
+        with open(tj) as f:
+            meta = json.load(f)
+        if meta.get("id") == template_id or template_id in meta.get("aliases", []):
+            css_path = os.path.join(FAST_DIR, d, meta.get("style", "style.css"))
+            css = open(css_path).read() if os.path.exists(css_path) else ""
+            return {**meta, "css": css}
+    return None
+
+# ── article-deck-designer renderer ───────────────────────────────────────────
+
+_DECK_KIND_ALIASES = {
+    "core-thesis":"thesis","main-thesis":"thesis","why-it-matters":"thesis",
+    "finding":"evidence","facts":"evidence","argument":"evidence",
+    "workflow":"process","steps":"process","flow":"process",
+    "risk":"caveat","limits":"caveat","limitation":"caveat",
+    "my-context":"knowledge-link","kb-context":"knowledge-link",
+    "takeaway":"closing","conclusion":"closing",
+}
+
+def _normalize_deck_kind(value, page):
+    raw = str(value or '').strip().lower().replace('_', '-')
+    text = f"{page.get('heading','')} {page.get('title','')} {page.get('takeaway','')}".lower()
+    if raw in _DECK_KIND_ALIASES: return _DECK_KIND_ALIASES[raw]
+    if raw: return raw
+    if page.get('number') == 1 or re.search(r'cover|封面', text): return 'cover'
+    if re.search(r'核心|主张|判断|thesis', text): return 'thesis'
+    if re.search(r'机制|原理|mechanism|why|how', text): return 'mechanism'
+    if re.search(r'时间线|timeline|发生', text): return 'timeline'
+    if re.search(r'对比|compare|vs', text): return 'comparison'
+    if re.search(r'步骤|流程|process|step', text): return 'process'
+    if re.search(r'风险|边界|误读|caveat|risk', text): return 'caveat'
+    if re.search(r'引用|原文|quote', text): return 'quote'
+    if re.search(r'知识库|hermes|我的|关联|knowledge|kb', text): return 'knowledge-link'
+    if re.search(r'下一步|行动|建议|action', text): return 'action'
+    if re.search(r'结论|收束|总结|closing', text): return 'closing'
+    return 'evidence'
+
+def _parse_article_deck(md, fallback_title=''):
+    lines = str(md or '').replace('\r\n','\n').replace('\r','\n').split('\n')
+    title = _doc_title(md, fallback_title)
+    meta, pages = {}, []
+    section, current, current_field = '', None, ''
+    for raw in lines:
+        line = raw.rstrip()
+        trimmed = line.strip()
+        h1 = re.match(r'^#\s+(.+?)\s*$', trimmed)
+        h2 = re.match(r'^##\s+(.+?)\s*$', trimmed)
+        h3 = re.match(r'^###\s+(\d{1,2})\s+(.+?)\s*$', trimmed)
+        if h1: title = _clean_field(h1.group(1)); current = None; continue
+        if trimmed == 'source:': section = 'source'; current = None; continue
+        if h2: section = _clean_field(h2.group(1)).lower(); current = None; current_field = ''; continue
+        if h3:
+            current = {'number':int(h3.group(1)),'heading':_clean_field(h3.group(2)),
+                       'kind':'','title':'','subtitle':'','takeaway':'',
+                       'footer_source':'','quote':'','source_note':'','bullets':[]}
+            pages.append(current); section = 'page content'; current_field = ''; continue
+        if section == 'source':
+            kv = re.match(r'^-\s*([^:]+):\s*(.*)$', trimmed)
+            if kv: meta[kv.group(1).strip().replace('-','_')] = _clean_field(kv.group(2))
+            continue
+        if not current: continue
+        kv = re.match(r'^-\s*([^:]+):\s*(.*)$', trimmed)
+        if kv:
+            key = kv.group(1).strip().replace('-','_')
+            if key in ('bullets','bullet','points'):
+                current_field = 'bullets'
+                if kv.group(2).strip(): current['bullets'].append(_clean_field(kv.group(2)))
+            else:
+                current[key] = _clean_field(kv.group(2)); current_field = key
+            continue
+        bullet = re.match(r'^\s{2,}-\s+(.+?)\s*$', line)
+        if bullet or (current_field == 'bullets' and re.match(r'^-\s+', trimmed)):
+            val = bullet.group(1) if bullet else re.sub(r'^-\s+','',trimmed)
+            current['bullets'].append(_clean_field(val)); continue
+        if trimmed and current_field in ('title','subtitle','takeaway','quote','source_note'):
+            current[current_field] = _clean_field(f"{current[current_field]} {trimmed}")
+    for p in pages:
+        p['kind'] = _normalize_deck_kind(p['kind'], p)
+        p['title'] = p['title'] or p['takeaway'] or p['heading'] or title
+        p['takeaway'] = p['takeaway'] or p['subtitle'] or ''
+        p['bullets'] = [b for b in p['bullets'] if b][:6]
+    if not pages:
+        pages.append({'number':1,'heading':'Cover','kind':'cover','title':title,
+                      'subtitle':'','takeaway':'','bullets':[]})
+    return {'title':title,'meta':meta,'pages':pages}
+
+def _render_article_deck_designer(content, css, fallback_title=''):
+    deck = _parse_article_deck(content, fallback_title)
+    total = len(deck['pages'])
+    LABELS = {'cover':'article briefing','thesis':'core thesis','problem':'problem',
+              'mechanism':'mechanism','evidence':'evidence','timeline':'timeline',
+              'comparison':'compare','process':'process','caveat':'caveat',
+              'quote':'source quote','knowledge-link':'my context','action':'action','closing':'takeaway'}
+
+    def li_list(items, limit=5):
+        if not items: return ''
+        return '<ul>'+''.join(f'<li>{_render_inline(x)}</li>' for x in items[:limit])+'</ul>'
+    def card_grid(items):
+        if not items: return ''
+        cards = ''.join(f'<div class="mini-card"><div class="mini-index">{str(i+1).zfill(2)}</div><p>{_render_inline(x)}</p></div>' for i,x in enumerate(items[:4]))
+        return f'<div class="card-grid">{cards}</div>'
+    def process_flow(items):
+        if not items: return ''
+        steps = ''.join(f'<div class="step"><span>{i+1}</span><p>{_render_inline(x)}</p></div>' for i,x in enumerate(items[:5]))
+        return f'<div class="process-flow">{steps}</div>'
+    def timeline_list(items):
+        if not items: return ''
+        rows = ''.join(f'<div class="timeline-row"><span>{str(i+1).zfill(2)}</span><p>{_render_inline(x)}</p></div>' for i,x in enumerate(items[:5]))
+        return f'<div class="timeline-list">{rows}</div>'
+    def compare_grid(items):
+        mid = max(1, (len(items or [])+1)//2)
+        left, right = (items or [])[:mid], (items or [])[mid:]
+        if not right: right = left[-1:]
+        return (f'<div class="compare-grid">'
+                f'<div class="panel"><div class="panel-label">source</div>{li_list(left,4)}</div>'
+                f'<div class="panel cool"><div class="panel-label">implication</div>{li_list(right,4)}</div>'
+                f'</div>')
+
+    slides = []
+    for idx, page in enumerate(deck['pages']):
+        n = str(idx+1).zfill(2)
+        kind = page['kind'] or 'evidence'
+        tag_cls = 'tag context' if kind=='knowledge-link' else ('tag muted' if kind=='caveat' else 'tag')
+        label = LABELS.get(kind, kind)
+        active = ' active' if idx==0 else ''
+        if kind == 'cover':
+            body = (f'<div class="eyebrow">// {_render_inline(deck["meta"].get("article_type") or deck["meta"].get("source_type") or "article")} · deck</div>'
+                    f'<h1>{_render_inline(page["title"])}</h1>'
+                    f'<p class="subtitle">{_render_inline(page.get("subtitle") or page["takeaway"])}</p>'
+                    f'<p class="source-line">{_render_inline(page.get("footer_source") or deck["meta"].get("url",""))}</p>')
+        elif kind == 'thesis':
+            body = f'<div class="{tag_cls}">{_render_inline(label)}</div><h2>{_render_inline(page["title"])}</h2><p class="big">{_render_inline(page["takeaway"])}</p>{card_grid(page["bullets"])}'
+        elif kind in ('mechanism','process'):
+            body = f'<div class="{tag_cls}">{_render_inline(label)}</div><h2>{_render_inline(page["title"])}</h2><p class="takeaway">{_render_inline(page["takeaway"])}</p>{process_flow(page["bullets"])}'
+        elif kind == 'timeline':
+            body = f'<div class="{tag_cls}">{_render_inline(label)}</div><h2>{_render_inline(page["title"])}</h2><p class="takeaway">{_render_inline(page["takeaway"])}</p>{timeline_list(page["bullets"])}'
+        elif kind == 'comparison':
+            body = f'<div class="{tag_cls}">{_render_inline(label)}</div><h2>{_render_inline(page["title"])}</h2><p class="takeaway">{_render_inline(page["takeaway"])}</p>{compare_grid(page["bullets"])}'
+        elif kind == 'caveat':
+            body = f'<div class="{tag_cls}">{_render_inline(label)}</div><h2>{_render_inline(page["title"])}</h2><p class="takeaway">{_render_inline(page["takeaway"])}</p><div class="caveat">{li_list(page["bullets"])}</div>'
+        elif kind == 'quote':
+            body = f'<div class="{tag_cls}">{_render_inline(label)}</div><h2>{_render_inline(page["title"])}</h2><blockquote class="quote-block">{_render_inline(page.get("quote") or page["takeaway"])}</blockquote>'
+        elif kind in ('action','closing'):
+            lbl2 = "next action" if kind=="action" else "closing"
+            body = f'<div class="eyebrow">// {lbl2}</div><h2>{_render_inline(page["title"])}</h2><p class="big">{_render_inline(page["takeaway"])}</p>{li_list(page["bullets"],4)}'
+        else:
+            blist = card_grid(page["bullets"]) if kind=="knowledge-link" else li_list(page["bullets"])
+            body = f'<div class="{tag_cls}">{_render_inline(label)}</div><h2>{_render_inline(page["title"])}</h2><p class="takeaway">{_render_inline(page["takeaway"])}</p>{blist}'
+        slides.append(f'<section class="slide{active} {_esc(kind)}" data-slide="{idx+1}"><div class="bg"></div><div class="stage"><div class="content">{body}</div></div><div class="pager"><span class="now">{n}</span> / {str(total).zfill(2)}</div></section>')
+
+    nav_js = ("(function(){var s=[].slice.call(document.querySelectorAll('.slide'));var i=0,x=0,y=0;"
+              "function show(n){i=Math.max(0,Math.min(s.length-1,n));s.forEach(function(e,j){e.classList.toggle('active',j===i)})}"
+              "document.addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();show(i+1)}"
+              "else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();show(i-1)}"
+              "else if(e.key==='Home'){show(0)}else if(e.key==='End'){show(s.length-1)}});"
+              "document.addEventListener('click',function(e){if(window.getSelection&&window.getSelection().toString())return;show(e.clientX<innerWidth*.3?i-1:i+1)});"
+              "document.addEventListener('touchstart',function(e){if(e.touches&&e.touches[0]){x=e.touches[0].clientX;y=e.touches[0].clientY}},{passive:true});"
+              "document.addEventListener('touchend',function(e){if(!e.changedTouches||!e.changedTouches[0])return;var dx=e.changedTouches[0].clientX-x,dy=e.changedTouches[0].clientY-y;"
+              "if(Math.abs(dx)>56&&Math.abs(dx)>Math.abs(dy)*1.2)show(i+(dx<0?1:-1))},{passive:true})})();")
+    return (f'<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">'
+            f'<meta name="viewport" content="width=device-width, initial-scale=1">'
+            f'<title>{_esc(deck["title"])}</title><style>{css}</style></head>'
+            f'<body><main class="deck" id="deck">{"".join(slides)}'
+            f'<div class="hint">空格 / 方向键 / 点击翻页</div></main>'
+            f'<script>{nav_js}</script></body></html>')
+
+# ── deck-xhs-knowledge renderer ──────────────────────────────────────────────
+
+def _parse_deck_xhs(md, fallback_title=''):
+    lines = str(md or '').replace('\r\n','\n').replace('\r','\n').split('\n')
+    title = _doc_title(md, fallback_title)
+    meta, pages = {}, []
+    section, current, current_field, current_index_item = '', None, '', None
+    for raw in lines:
+        line = raw.rstrip()
+        trimmed = line.strip()
+        h1 = re.match(r'^#\s+(.+?)\s*$', trimmed)
+        h2 = re.match(r'^##\s+(.+?)\s*$', trimmed)
+        h3 = re.match(r'^###\s+(\d{1,2})\s+(.+?)\s*$', trimmed)
+        if h1: title = _clean_field(h1.group(1)); current = None; section = ''; continue
+        if trimmed == 'source:': section = 'source'; current = None; continue
+        if h2: section = _clean_field(h2.group(1)).lower(); current = None; current_field = ''; continue
+        if h3:
+            current = {'number':int(h3.group(1)),'heading':_clean_field(h3.group(2)),
+                       'title':'','subtitle':'','section':'',
+                       'strip_left':'','strip_right':'','summary':'',
+                       'left_title':'','left':'','right_title':'','right':'',
+                       'note':'','insight':'','closing_line':'','final_hook':'','index':[]}
+            pages.append(current); section = 'page content'; current_field = ''; current_index_item = None; continue
+        if section == 'source':
+            kv = re.match(r'^-\s*([^:]+):\s*(.*)$', trimmed)
+            if kv: meta[kv.group(1).strip().replace('-','_')] = _clean_field(kv.group(2))
+            continue
+        if not current: continue
+        kv = re.match(r'^-\s*([^:]+):\s*(.*)$', trimmed)
+        if kv:
+            key = kv.group(1).strip().replace('-','_')
+            if key == 'index':
+                current_field = 'index'; current_index_item = None
+            else:
+                current[key] = _clean_field(kv.group(2)); current_field = key; current_index_item = None
+            continue
+        nested_kv = re.match(r'^\s{2,}-\s*([^:]+):\s*(.*)$', line)
+        if nested_kv and current_field == 'index':
+            current_index_item = {nested_kv.group(1).strip().replace('-','_'): _clean_field(nested_kv.group(2))}
+            current['index'].append(current_index_item); continue
+        nested_cont = re.match(r'^\s{4,}([^:]+):\s*(.*)$', line)
+        if nested_cont and current_field == 'index' and current_index_item:
+            current_index_item[nested_cont.group(1).strip().replace('-','_')] = _clean_field(nested_cont.group(2)); continue
+        simple_idx = re.match(r'^\s{2,}-\s+(.+?)\s*$', line)
+        if simple_idx and current_field == 'index':
+            current['index'].append({'title':_clean_field(simple_idx.group(1)),'subtitle':''}); current_index_item = None; continue
+        if trimmed and current_field and current_field != 'index':
+            current[current_field] = _clean_field(f"{current[current_field]} {trimmed}")
+    if not pages:
+        pages.append({'number':1,'heading':'Cover','title':title,
+                      'subtitle':_plain_text(md).replace(title,'')[:90],
+                      'strip_left':'Before','strip_right':'After','summary':'','index':[],
+                      'section':'','left_title':'','left':'','right_title':'','right':'',
+                      'note':'','insight':'','closing_line':'','final_hook':''})
+    return {'title':title,'meta':meta,'pages':pages[:8]}
+
+def _render_deck_xhs_knowledge(content, css, opts=None):
+    opts = opts or {}
+    deck = _parse_deck_xhs(content, 'Deck')
+    total = len(deck['pages'])
+    source_title = deck['meta'].get('title') or deck['title']
+    author = deck['meta'].get('author') or opts.get('source_author','') or 'article deck'
+    source_type = deck['meta'].get('source_type') or opts.get('source_type','') or 'article'
+
+    pages_html = []
+    for idx, page in enumerate(deck['pages']):
+        n = str(idx+1).zfill(2)
+        def shell(body, cls='', _n=n, _st=source_type, _total=total, _author=author):
+            return (f'<section class="page {cls}">'
+                    f'<header class="page-header"><span>{_esc(_st)}</span><span>{_n} / {str(_total).zfill(2)}</span></header>'
+                    f'<main class="page-main">{body}</main>'
+                    f'<footer class="page-footer"><span>{_esc(_author)}</span><span>deck-xhs-knowledge-fast</span></footer>'
+                    f'<div class="wm">{_n}</div></section>')
+        if idx == 0 or re.search(r'cover', page['heading'], re.IGNORECASE):
+            idx_items = page.get('index',[])[:4]
+            idx_html = ''.join(
+                f'<div class="index-item"><div class="index-no">{str(i+1).zfill(2)}</div>'
+                f'<div class="index-title">{_render_inline(item.get("title") or f"要点 {i+1}")}</div>'
+                f'{"<div class=\"index-sub\">" + _render_inline(item["subtitle"]) + "</div>" if item.get("subtitle") else ""}'
+                f'</div>' for i,item in enumerate(idx_items))
+            body = (f'<div class="kicker">editorial comparison deck</div>'
+                    f'<h1 class="cover-title">{_render_inline(page.get("title") or deck["title"])}</h1>'
+                    f'<p class="cover-sub">{_render_inline(page.get("subtitle",""))}</p>'
+                    f'<div class="strip"><span class="left">{_render_inline(page.get("strip_left","Before"))}</span>'
+                    f'<span class="vs">VS</span><span class="right">{_render_inline(page.get("strip_right","After"))}</span></div>'
+                    f'<div class="pull">{_render_inline(page.get("summary") or page.get("subtitle",""))}</div>'
+                    f'<div class="index-grid">{idx_html}</div>')
+            pages_html.append(shell(body, 'page-type-cover'))
+        elif re.search(r'closing', page['heading'], re.IGNORECASE) or page.get('final_hook') or idx == total-1:
+            body = (f'<div class="section">{_render_inline(page.get("section") or "closing thesis")}</div>'
+                    f'<h2 class="closing-title">{_render_inline(page.get("title") or page["heading"])}</h2>'
+                    f'<p class="closing-sub">{_render_inline(page.get("subtitle",""))}</p>'
+                    f'<div class="closing-line">{_render_inline(page.get("closing_line") or page.get("note",""))}</div>'
+                    f'<div class="final-hook">{_render_inline(page.get("final_hook",""))}</div>')
+            pages_html.append(shell(body, 'page-type-closing'))
+        else:
+            note = page.get('insight') or page.get('note','')
+            if note:
+                if page.get('insight'):
+                    note_html = f'<div class="insight"><strong>Insight · </strong>{_render_inline(note)}</div>'
+                else:
+                    note_html = f'<div class="note">{_render_inline(note)}</div>'
+            else:
+                note_html = ''
+            body = (f'<div class="section">{_render_inline(page.get("section") or page["heading"])}</div>'
+                    f'<h2 class="page-title">{_render_inline(page["heading"])}</h2>'
+                    f'<div class="compare">'
+                    f'<article class="col"><div class="col-title">{_render_inline(page.get("left_title","旧问题"))}</div>'
+                    f'<div class="col-body">{_render_inline(page.get("left",""))}</div></article>'
+                    f'<article class="col right"><div class="col-title">{_render_inline(page.get("right_title","新判断"))}</div>'
+                    f'<div class="col-body">{_render_inline(page.get("right",""))}</div></article>'
+                    f'</div>{note_html}')
+            pages_html.append(shell(body, 'page-type-compare'))
+
+    return (f'<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">'
+            f'<meta name="viewport" content="width=device-width, initial-scale=1">'
+            f'<title>{_esc(source_title)}</title><style>{css}</style></head>'
+            f'<body><main class="deck">\n{"".join(pages_html)}\n</main></body></html>')
+
+# ── Fast render dispatcher ────────────────────────────────────────────────────
+
+def render_fast(template_id, content, out=None, package=None, caller=None, title=None):
+    """确定性本地渲染，不调用 LLM，直接输出完整 HTML。"""
+    ft = _load_fast_template(template_id)
+    if not ft:
+        available = []
+        if os.path.exists(FAST_DIR):
+            available = sorted(d for d in os.listdir(FAST_DIR)
+                               if os.path.exists(os.path.join(FAST_DIR, d, "template.json")))
+        print(f"错误: fast 模板 '{template_id}' 不存在", file=sys.stderr)
+        if available:
+            print(f"可用 fast 模板: {', '.join(available)}", file=sys.stderr)
+        sys.exit(1)
+
+    css = ft['css']
+    renderer = ft.get('renderer', 'markdown-page')
+    title_str = title or _doc_title(content, ft.get('title', ''))
+
+    if renderer == 'article-deck-designer':
+        html = _render_article_deck_designer(content, css, title_str)
+    elif renderer == 'deck-xhs-knowledge':
+        html = _render_deck_xhs_knowledge(content, css)
+    else:  # markdown-page
+        body = _parse_md(content)
+        html = (f'<!doctype html>\n<html lang="zh-CN">\n<head>\n'
+                f'  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n'
+                f'  <title>{_esc(title_str)}</title>\n  <style>{css}</style>\n</head>\n'
+                f'<body>\n  <div class="page">\n    <main>\n{body}\n    </main>\n  </div>\n</body>\n</html>\n')
+
+    meta = {
+        "template": ft['id'],
+        "render_mode": "fast-local",
+        "generator": "html-render-lite",
+        "caller": caller or "unknown",
+        "title": title_str,
+        "created": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+    }
+
+    if package:
+        os.makedirs(package, exist_ok=True)
+        out_html = os.path.join(package, "output.html")
+        with open(out_html, 'w') as f: f.write(html)
+        with open(os.path.join(package, "source.md"), 'w') as f: f.write(content)
+        with open(os.path.join(package, "meta.json"), 'w') as f: json.dump(meta, f, ensure_ascii=False, indent=2)
+        print(out_html)
+    elif out:
+        os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
+        with open(out, 'w') as f: f.write(html)
+        print(out)
+    else:
+        print(html)
+
+# ── LLM-mode assemble ─────────────────────────────────────────────────────────
+
+def list_templates(fast_only=False, all_templates=False):
+    """列出可用模板"""
+    # Skills templates (LLM mode)
+    if not fast_only:
+        if not os.path.exists(SKILLS):
+            print(f"错误: 未找到模板目录 {SKILLS}", file=sys.stderr)
+            sys.exit(1)
+        items = []
+        for d in sorted(os.listdir(SKILLS)):
+            smd = os.path.join(SKILLS, d, "SKILL.md")
+            if not os.path.exists(smd): continue
+            fm, _ = parse_skill_md(smd)
+            name = fm.get("zh_name") or fm.get("en_name") or fm.get("name") or d
+            desc = fm.get("description", "")
+            emoji = fm.get("emoji", "📄")
+            cat = fm.get("category", "")
+            items.append((d, emoji, name, cat, desc))
+        print(f"\n📦 LLM 模式模板 ({len(items)} 个)\n")
+        print(f"{'模板ID':<30} {'类别':<12} {'名称':<24} {'说明'}")
+        print("-" * 100)
+        for tid, emoji, name, cat, desc in items:
+            print(f"{tid:<30} {cat:<12} {emoji} {name:<22} {desc}")
+
+    # Fast templates (deterministic)
+    if fast_only or all_templates:
+        fast_items = []
+        if os.path.exists(FAST_DIR):
+            for d in sorted(os.listdir(FAST_DIR)):
+                tj = os.path.join(FAST_DIR, d, "template.json")
+                if not os.path.exists(tj): continue
+                with open(tj) as f:
+                    meta = json.load(f)
+                fast_items.append((meta.get('id',d), meta.get('name',d),
+                                   meta.get('description',''), meta.get('renderer',''),
+                                   meta.get('aspectHint','')))
+        print(f"\n⚡ Fast 模式模板 (--fast, {len(fast_items)} 个)\n")
+        print(f"{'模板ID':<35} {'Renderer':<25} {'说明'}")
+        print("-" * 100)
+        for tid, name, desc, renderer, aspect in fast_items:
+            print(f"{tid:<35} {renderer:<25} {desc}")
+        if fast_items:
+            print(f"\n用法: html-render-lite --fast --template <id> --input source.md --out /tmp/out.html")
 
 def assemble(template_id, content, format="markdown", out=None, package=None, caller=None, title=None):
-    """组装上下文字符串"""
+    """组装上下文字符串（LLM 模式）"""
     tdir = os.path.join(SKILLS, template_id)
     smd = os.path.join(tdir, "SKILL.md")
     ex_html = os.path.join(tdir, "example.html")
@@ -237,28 +734,35 @@ ID: {template_id}
     return ctx
 
 def main():
-    parser = argparse.ArgumentParser(description="html-render-lite — 本地模板上下文生成器")
+    parser = argparse.ArgumentParser(description="html-render-lite — 本地模板渲染器")
     parser.add_argument("--template", "-t", help="模板 ID")
     parser.add_argument("--input", "-i", help="输入文件 (默认 stdin)")
-    parser.add_argument("--out", "-o", help="输出 HTML 路径（嵌入写入指令）")
+    parser.add_argument("--out", "-o", help="输出 HTML 路径")
     parser.add_argument("--package", "-p", help="输出包目录（source.md / output.html / meta.json）")
     parser.add_argument("--caller", help="调用方标识，写入 meta.json")
     parser.add_argument("--title", help="标题，写入 meta.json")
-    parser.add_argument("--list", "-l", action="store_true", help="列出可用模板")
+    parser.add_argument("--fast", action="store_true", help="确定性本地渲染模式（不调用 LLM）")
+    parser.add_argument("--list", "-l", action="store_true", help="列出 LLM 模式模板")
+    parser.add_argument("--list-fast", action="store_true", help="列出 fast 模式模板")
+    parser.add_argument("--list-all", action="store_true", help="列出所有模板（LLM + fast）")
     parser.add_argument("--format", "-f", default="markdown", help="输入格式 (default: markdown)")
     parser.add_argument("--validate", "-v", metavar="FILE", help="验证已生成的 HTML 文件")
-    parser.add_argument("--fix", "-x", metavar="FILE", help="自动修复已生成的 HTML（注入缺失的 JS/进度条）")
+    parser.add_argument("--fix", "-x", metavar="FILE", help="自动修复已生成的 HTML")
     args = parser.parse_args()
-    
+
+    if args.list_all:
+        list_templates(all_templates=True)
+        return
+    if args.list_fast:
+        list_templates(fast_only=True)
+        return
     if args.list:
         list_templates()
         return
-    
+
     if not args.template:
-        # Validate mode
         if args.validate:
             tid = None
-            # Try to infer template ID from filename or use direct check
             fname = os.path.basename(args.validate)
             for prefix in ["deck-","frame-","video-","card-","doc-","data-","magazine-"]:
                 if fname.startswith(prefix):
@@ -267,68 +771,64 @@ def main():
             warnings = validate_html(args.validate, tid)
             if warnings:
                 print(f"⚠️  发现 {len(warnings)} 个问题:\n")
-                for w in warnings:
-                    print(f"  {w}")
+                for w in warnings: print(f"  {w}")
             else:
                 print("✅ 验证通过，未发现问题")
             return
-        
-        # Fix mode
         if args.fix:
             fname = os.path.basename(args.fix)
             tid = fname.replace(".html","")
             cat = get_template_category(tid)
             needs_js = template_needs_nav(tid, cat)
-            
             with open(args.fix) as f:
                 html = f.read()
-            
             fixed = False
             if needs_js and 'keydown' not in html:
                 js = PRESENTER_NAV_JS if tid == "deck-presenter-mode" else DECK_NAV_JS
                 html = html.replace('</body>', f'{js}\n</body>')
                 fixed = True
                 print(f"  ✅ 注入键盘导航 JS ({tid} 是 {cat} 类型)")
-            
             if needs_js and '.bar' not in html and '<div class="bar">' not in html:
                 bar = '<div class="bar"><span style="width:12.5%"></span></div>'
                 html = html.replace('<div class="deck">', f'<div class="deck">{bar}')
                 fixed = True
                 print("  ✅ 注入进度条")
-            
             if fixed:
-                with open(args.fix, 'w') as f:
-                    f.write(html)
+                with open(args.fix, 'w') as f: f.write(html)
                 print(f"  ✅ {args.fix} 已修复")
             else:
                 print("  ✅ 无需修复")
             return
-        
         parser.print_help()
-        print("\n使用 --list 查看可用模板", file=sys.stderr)
+        print("\n使用 --list 查看 LLM 模式模板，--list-fast 查看 fast 模式模板", file=sys.stderr)
         sys.exit(1)
-    
+
     # Read content
     if args.input:
         with open(args.input) as f:
             content = f.read()
     else:
+        if sys.stdin.isatty() and not args.fast:
+            print("提示: 等待 stdin 输入... (或使用 --input 指定文件)", file=sys.stderr)
         content = sys.stdin.read()
-    
+
     if not content.strip():
         print("错误: 内容为空", file=sys.stderr)
         sys.exit(1)
-    
+
+    # Fast mode: deterministic render
+    if args.fast:
+        render_fast(args.template, content,
+                    out=args.out, package=args.package,
+                    caller=args.caller, title=args.title)
+        return
+
+    # LLM mode: assemble context
     if args.package:
         os.makedirs(args.package, exist_ok=True)
-
-    result = assemble(
-        args.template, content, args.format,
-        out=args.out,
-        package=args.package,
-        caller=args.caller,
-        title=args.title,
-    )
+    result = assemble(args.template, content, args.format,
+                      out=args.out, package=args.package,
+                      caller=args.caller, title=args.title)
     print(result)
 
 if __name__ == "__main__":

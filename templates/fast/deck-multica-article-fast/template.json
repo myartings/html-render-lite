@@ -1,0 +1,12 @@
+{
+  "id": "deck-multica-article-fast",
+  "name": "Deck Multica Article Fast",
+  "description": "Deterministic local 16:9 Multica-style article briefing deck.",
+  "category": "fast-local",
+  "aspectHint": "16:9 deck + mobile paged",
+  "recommended": true,
+  "renderer": "article-deck-designer",
+  "style": "style.css",
+  "title": "Deck Multica Article",
+  "aliases": []
+}
