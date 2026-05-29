@@ -1,0 +1,301 @@
+#!/usr/bin/env python3
+"""
+html-render-lite: 读取本地 HTML Anything 模板，输出结构化上下文块。
+当前 LLM 直接读此输出写 HTML，不走远端 Agent。
+
+用法:
+  echo "Markdown content" | html-render-lite --template doc-kami-parchment
+  html-render-lite --template deck-simple --input source.md
+  html-render-lite --template card-xiaohongshu --list          # 列出可用模板
+"""
+
+import argparse, os, sys, json, re
+
+REPO = os.path.expanduser("~/workspace/html-anything")
+SKILLS = os.path.join(REPO, "next/src/lib/templates/skills")
+SHARED_TS = os.path.join(REPO, "next/src/lib/templates/shared.ts")
+
+# Minimal deck navigation JS (inline, no deps)
+DECK_NAV_JS = '''<script>
+(function(){var s=document.querySelectorAll('.slide'),p=document.querySelector('.bar span'),c=0;
+function go(n){if(n<0||n>=s.length)return;s[c].classList.remove('is-active');c=n;s[c].classList.add('is-active');
+if(p)p.style.width=((c+1)/s.length*100)+'%';location.hash='#/'+(c+1);}
+document.addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();go(c+1)}
+else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();go(c-1)}
+else if(e.key==='f'||e.key==='F'){if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen()}});
+var m=location.hash.match(/\\/(\\d+)/);if(m)go(parseInt(m[1])-1);
+})();</script>'''
+
+PRESENTER_NAV_JS = '''<script>
+(function(){var s=document.querySelectorAll('.slide'),p=document.querySelector('.bar span'),c=0,
+n=document.getElementById('notes-overlay');
+function go(ni){if(ni<0||ni>=s.length)return;s[c].classList.remove('is-active');c=ni;s[c].classList.add('is-active');
+if(p)p.style.width=((c+1)/s.length*100)+'%';location.hash='#/'+(c+1);
+var nt=s[c].querySelector('.notes');if(n&&nt){var t=n.querySelector('.content');if(t)t.innerHTML=nt.innerHTML||''}}
+document.addEventListener('keydown',function(e){
+if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();go(c+1)}
+else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();go(c-1)}
+else if(e.key==='s'||e.key==='S'){if(n)n.classList.toggle('open')}
+else if(e.key==='f'||e.key==='F'){if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen()}});
+var m=location.hash.match(/\\/(\\d+)/);if(m)go(parseInt(m[1])-1);
+if(!n&&document.querySelector('.notes')){var d=document.createElement('div');d.id='notes-overlay';
+d.className='notes-overlay';d.innerHTML='<div class="label" style="font-size:10px;color:var(--accent,#7c5cfc);font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px">\\u{1F4DD} \\u9010\\u5B57\\u7A3F</div><div class="content" style="font-size:14px;line-height:1.6"></div>';
+document.body.appendChild(d);n=d;var t=n.querySelector('.content');
+if(t&&s[c])t.innerHTML=s[c].querySelector('.notes')?.innerHTML||'';}
+})();</script>'''
+
+DECK_CATEGORIES = {"slides","deck","video"}
+
+def template_needs_nav(tid, category):
+    """Check if template category needs keyboard navigation JS"""
+    return category in DECK_CATEGORIES or tid.startswith("deck-") or tid.startswith("frame-") or tid.startswith("video-")
+
+def get_template_category(tid):
+    """Read SKILL.md and extract category"""
+    smd = os.path.join(SKILLS, tid, "SKILL.md")
+    if not os.path.exists(smd):
+        return ""
+    with open(smd) as f:
+        for line in f:
+            if line.startswith("category:"):
+                return line.split(":",1)[1].strip().strip('"').strip("'")
+    return ""
+
+def validate_html(html_path, template_id=None):
+    """Validate generated HTML for common issues. Returns list of warnings."""
+    warnings = []
+    if not os.path.exists(html_path):
+        return [f"文件不存在: {html_path}"]
+    
+    with open(html_path) as f:
+        html = f.read()
+    
+    # Check basic structure
+    if not html.strip().startswith("<!DOCTYPE html>") and not html.strip().startswith("<!doctype html>"):
+        warnings.append("⚠️ 不以 <!DOCTYPE html> 开头")
+    if not html.strip().endswith("</html>"):
+        warnings.append("⚠️ 不以 </html> 结束")
+    
+    # Check self-contained (no relative paths to local files)
+    if 'href="../' in html or 'src="../' in html:
+        warnings.append("⚠️ 包含相对路径引用 (href=\"../\" 或 src=\"../\")，不是自包含文件")
+    
+    # Check deck templates have keyboard navigation
+    if template_id:
+        cat = get_template_category(template_id)
+        needs_js = template_needs_nav(template_id, cat)
+        has_js = 'keydown' in html and ('ArrowRight' in html or 'ArrowLeft' in html)
+        has_progress = '.bar' in html or 'progress' in html
+        
+        if needs_js and not has_js:
+            warnings.append(f"⚠️ {template_id} 是 {cat} 类型，缺少键盘导航 JS（← → 翻页）")
+        if needs_js and not has_progress:
+            warnings.append(f"⚠️ {template_id} 是 {cat} 类型，缺少进度条指示")
+        
+        # Presenter mode
+        if template_id == "deck-presenter-mode":
+            has_notes = '.notes' in html
+            has_notes_overlay = 'notes-overlay' in html
+            if not has_notes:
+                warnings.append("⚠️ deck-presenter-mode 缺少 .notes（逐字稿容器）")
+            if not has_notes_overlay:
+                warnings.append("⚠️ deck-presenter-mode 缺少 notes-overlay（提词器浮层）")
+        
+        # Check content completeness
+        slide_count = html.count('<section class="slide')
+        if needs_js and slide_count < 3:
+            warnings.append(f"⚠️ deck 只有 {slide_count} 页，内容可能不够")
+    
+    # Check for external images
+    if re.search(r'src=["\']https?://(?!cdn\.tailwindcss|fonts\.googleapis|cdnjs\.cloudflare|unpkg)', html):
+        warnings.append("⚠️ 包含外部图片引用，可能无法离线打开")
+    
+    return warnings
+
+def load_shared_directives():
+    """从 shared.ts 中提取 SHARED_DESIGN_DIRECTIVES 内容"""
+    if not os.path.exists(SHARED_TS):
+        return ""
+    with open(SHARED_TS) as f:
+        text = f.read()
+    m = re.search(r'SHARED_DESIGN_DIRECTIVES\s*=\s*`(.+?)`;', text, re.DOTALL)
+    if m:
+        return m.group(1).strip().replace('\\`', '`')
+    return ""
+
+def parse_skill_md(path):
+    """解析 SKILL.md 返回 frontmatter(dict) 和 body(str)"""
+    with open(path) as f:
+        text = f.read()
+    m = re.match(r'^---\s*\n(.*?)\n---\s*\n(.*)', text, re.DOTALL)
+    if m:
+        fm = {}
+        for line in m.group(1).split('\n'):
+            if ':' in line:
+                k, v = line.split(':', 1)
+                fm[k.strip()] = v.strip().strip('"').strip("'")
+        return fm, m.group(2).strip()
+    return {}, text.strip()
+
+def list_templates():
+    """列出所有可用模板"""
+    if not os.path.exists(SKILLS):
+        print(f"错误: 未找到模板目录 {SKILLS}", file=sys.stderr)
+        sys.exit(1)
+    items = []
+    for d in sorted(os.listdir(SKILLS)):
+        smd = os.path.join(SKILLS, d, "SKILL.md")
+        if not os.path.exists(smd):
+            continue
+        fm, _ = parse_skill_md(smd)
+        name = fm.get("zh_name") or fm.get("en_name") or fm.get("name") or d
+        desc = fm.get("description", "")
+        emoji = fm.get("emoji", "📄")
+        cat = fm.get("category", "")
+        items.append((d, emoji, name, cat, desc))
+    print(f"\n📦 html-render-lite 模板目录 ({len(items)} 个)\n")
+    print(f"{'模板ID':<30} {'类别':<12} {'名称':<24} {'说明'}")
+    print("-" * 100)
+    for tid, emoji, name, cat, desc in items:
+        print(f"{tid:<30} {cat:<12} {emoji} {name:<22} {desc}")
+
+def assemble(template_id, content, format="markdown"):
+    """组装上下文字符串"""
+    tdir = os.path.join(SKILLS, template_id)
+    smd = os.path.join(tdir, "SKILL.md")
+    ex_html = os.path.join(tdir, "example.html")
+    
+    if not os.path.exists(smd):
+        return f"错误: 模板 '{template_id}' 不存在 (路径: {smd})"
+    
+    fm, body = parse_skill_md(smd)
+    shared = load_shared_directives()
+    
+    # Read example.html (truncated for context)
+    example_snippet = ""
+    if os.path.exists(ex_html):
+        with open(ex_html) as f:
+            ex_text = f.read()
+        # Take first 80 lines as reference
+        lines = ex_text.split('\n')
+        example_snippet = "\n".join(lines[:80])
+        if len(lines) > 80:
+            example_snippet += "\n  ... (以下略)"
+    
+    name = fm.get("zh_name") or fm.get("en_name") or fm.get("name") or template_id
+    emoji = fm.get("emoji", "📄")
+    
+    ctx = f"""=== 模板标识 ===
+ID: {template_id}
+名称: {emoji} {name}
+类别: {fm.get("category","")}
+场景: {fm.get("scenario","")}
+比例: {fm.get("aspect_hint","")}
+
+=== 共享设计约束 ===
+{shared}
+
+=== 模板风格定义 ===
+{body}
+
+=== 视觉参考 (example.html 开头) ===
+{example_snippet}
+
+=== 用户内容 ===
+{content}
+
+请严格按照以上模板风格，生成一份完整的自包含单文件 HTML。
+"""
+    return ctx
+
+def main():
+    parser = argparse.ArgumentParser(description="html-render-lite — 本地模板上下文生成器")
+    parser.add_argument("--template", "-t", help="模板 ID")
+    parser.add_argument("--input", "-i", help="输入文件 (默认 stdin)")
+    parser.add_argument("--list", "-l", action="store_true", help="列出可用模板")
+    parser.add_argument("--format", "-f", default="markdown", help="输入格式 (default: markdown)")
+    parser.add_argument("--repo", help="HTML Anything 仓库路径 (默认 ~/workspace/html-anything)")
+    parser.add_argument("--validate", "-v", metavar="FILE", help="验证已生成的 HTML 文件")
+    parser.add_argument("--fix", "-x", metavar="FILE", help="自动修复已生成的 HTML（注入缺失的 JS/进度条）")
+    args = parser.parse_args()
+    
+    global REPO, SKILLS, SHARED_TS
+    if args.repo:
+        REPO = args.repo
+        SKILLS = os.path.join(REPO, "next/src/lib/templates/skills")
+        SHARED_TS = os.path.join(REPO, "next/src/lib/templates/shared.ts")
+    
+    if args.list:
+        list_templates()
+        return
+    
+    if not args.template:
+        # Validate mode
+        if args.validate:
+            tid = None
+            # Try to infer template ID from filename or use direct check
+            fname = os.path.basename(args.validate)
+            for prefix in ["deck-","frame-","video-","card-","doc-","data-","magazine-"]:
+                if fname.startswith(prefix):
+                    tid = fname.replace(".html","")
+                    break
+            warnings = validate_html(args.validate, tid)
+            if warnings:
+                print(f"⚠️  发现 {len(warnings)} 个问题:\n")
+                for w in warnings:
+                    print(f"  {w}")
+            else:
+                print("✅ 验证通过，未发现问题")
+            return
+        
+        # Fix mode
+        if args.fix:
+            fname = os.path.basename(args.fix)
+            tid = fname.replace(".html","")
+            cat = get_template_category(tid)
+            needs_js = template_needs_nav(tid, cat)
+            
+            with open(args.fix) as f:
+                html = f.read()
+            
+            fixed = False
+            if needs_js and 'keydown' not in html:
+                js = PRESENTER_NAV_JS if tid == "deck-presenter-mode" else DECK_NAV_JS
+                html = html.replace('</body>', f'{js}\n</body>')
+                fixed = True
+                print(f"  ✅ 注入键盘导航 JS ({tid} 是 {cat} 类型)")
+            
+            if needs_js and '.bar' not in html and '<div class="bar">' not in html:
+                bar = '<div class="bar"><span style="width:12.5%"></span></div>'
+                html = html.replace('<div class="deck">', f'<div class="deck">{bar}')
+                fixed = True
+                print("  ✅ 注入进度条")
+            
+            if fixed:
+                with open(args.fix, 'w') as f:
+                    f.write(html)
+                print(f"  ✅ {args.fix} 已修复")
+            else:
+                print("  ✅ 无需修复")
+            return
+        
+        parser.print_help()
+        print("\n使用 --list 查看可用模板", file=sys.stderr)
+        sys.exit(1)
+    
+    # Read content
+    if args.input:
+        with open(args.input) as f:
+            content = f.read()
+    else:
+        content = sys.stdin.read()
+    
+    if not content.strip():
+        print("错误: 内容为空", file=sys.stderr)
+        sys.exit(1)
+    
+    result = assemble(args.template, content, args.format)
+    print(result)
+
+if __name__ == "__main__":
+    main()
