@@ -34,8 +34,10 @@ do_linux() {
 
 do_mac() {
   echo "--- mac (ssh -p 2223) ---"
+  # Run via zsh on macOS; avoid echoing git log (commit messages may contain
+  # special chars like parens that zsh glob-expands).
   run ssh -p 2223 myartings@myartings.xyz \
-    "\"cd $REPO_PATH_MAC && git pull --ff-only && echo '  ok: '\$(git log --oneline -1)\""
+    "\"cd $REPO_PATH_MAC && git pull --ff-only\""
 }
 
 do_win() {
@@ -58,7 +60,7 @@ do_wsl() {
   fi
   # cmd.exe doesn't treat single quotes as special; use escaped double quotes for -c arg.
   ssh -p 2224 myartings@myartings.xyz \
-    "wsl bash -i -c \"cd $REPO_PATH_WSL && git pull --ff-only && echo ok: \$(git log --oneline -1)\""
+    "wsl bash -i -c \"cd $REPO_PATH_WSL && git pull --ff-only\""
 }
 
 case "$TARGET" in
