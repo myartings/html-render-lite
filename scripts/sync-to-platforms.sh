@@ -40,17 +40,25 @@ do_mac() {
 
 do_win() {
   echo "--- windows native (ssh -p 2224) ---"
-  # Git pull on Windows native using Git bash
-  run ssh -p 2224 myartings@myartings.xyz \
-    "'C:/Program Files/Git/bin/bash.exe' -c \
-    'cd $REPO_PATH_WIN && git pull --ff-only && echo \"  ok: \$(git log --oneline -1)\"'"
+  if [[ $DRY_RUN == 1 ]]; then
+    echo "  (dry-run) git pull on $REPO_PATH_WIN"
+    return
+  fi
+  # Remote shell is cmd.exe; pass the command via single quotes (no bash processing).
+  # cmd.exe handles "C:\Program Files\..." quoted paths natively.
+  ssh -p 2224 myartings@myartings.xyz \
+    '"C:\Program Files\Git\bin\bash.exe" -c "cd /c/Users/myartings/workspace/html-render-lite && git pull --ff-only && echo ok: $(git log --oneline -1)"'
 }
 
 do_wsl() {
   echo "--- windows wsl2 (ssh -p 2224 + wsl bash -i) ---"
-  run ssh -p 2224 myartings@myartings.xyz \
-    "wsl bash -i -c \
-    'cd $REPO_PATH_WSL && git pull --ff-only && echo \"  ok: \$(git log --oneline -1)\"'"
+  if [[ $DRY_RUN == 1 ]]; then
+    echo "  (dry-run) git pull on WSL $REPO_PATH_WSL"
+    return
+  fi
+  # cmd.exe doesn't treat single quotes as special; use escaped double quotes for -c arg.
+  ssh -p 2224 myartings@myartings.xyz \
+    "wsl bash -i -c \"cd $REPO_PATH_WSL && git pull --ff-only && echo ok: \$(git log --oneline -1)\""
 }
 
 case "$TARGET" in
