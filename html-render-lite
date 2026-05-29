@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 """
-html-render-lite: 读取本地 HTML Anything 模板，输出结构化上下文块。
-当前 LLM 直接读此输出写 HTML，不走远端 Agent。
+html-render-lite: 读取本地模板，输出结构化上下文，当前 LLM 直接写 HTML。
 
 用法:
   echo "Markdown content" | html-render-lite --template doc-kami-parchment
-  html-render-lite --template deck-simple --input source.md
-  html-render-lite --template card-xiaohongshu --list          # 列出可用模板
+  html-render-lite --template deck-simple --input source.md --out /tmp/out.html
+  html-render-lite --template card-xiaohongshu --package /tmp/pkg/
+  html-render-lite --list
 """
 
-import argparse, os, sys, json, re
+import argparse, os, sys, json, re, datetime
 
-REPO = os.path.expanduser("~/workspace/html-anything")
-SKILLS = os.path.join(REPO, "next/src/lib/templates/skills")
-SHARED_TS = os.path.join(REPO, "next/src/lib/templates/shared.ts")
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+TEMPLATES_DIR = os.path.join(SCRIPT_DIR, "templates")
+SKILLS = os.path.join(TEMPLATES_DIR, "skills")
+SHARED_MD = os.path.join(TEMPLATES_DIR, "shared.md")
 
 # Minimal deck navigation JS (inline, no deps)
 DECK_NAV_JS = '''<script>
@@ -113,15 +114,11 @@ def validate_html(html_path, template_id=None):
     return warnings
 
 def load_shared_directives():
-    """从 shared.ts 中提取 SHARED_DESIGN_DIRECTIVES 内容"""
-    if not os.path.exists(SHARED_TS):
+    """读取 templates/shared.md"""
+    if not os.path.exists(SHARED_MD):
         return ""
-    with open(SHARED_TS) as f:
-        text = f.read()
-    m = re.search(r'SHARED_DESIGN_DIRECTIVES\s*=\s*`(.+?)`;', text, re.DOTALL)
-    if m:
-        return m.group(1).strip().replace('\\`', '`')
-    return ""
+    with open(SHARED_MD) as f:
+        return f.read().strip()
 
 def parse_skill_md(path):
     """解析 SKILL.md 返回 frontmatter(dict) 和 body(str)"""
@@ -159,32 +156,30 @@ def list_templates():
     for tid, emoji, name, cat, desc in items:
         print(f"{tid:<30} {cat:<12} {emoji} {name:<22} {desc}")
 
-def assemble(template_id, content, format="markdown"):
+def assemble(template_id, content, format="markdown", out=None, package=None, caller=None, title=None):
     """组装上下文字符串"""
     tdir = os.path.join(SKILLS, template_id)
     smd = os.path.join(tdir, "SKILL.md")
     ex_html = os.path.join(tdir, "example.html")
-    
+
     if not os.path.exists(smd):
         return f"错误: 模板 '{template_id}' 不存在 (路径: {smd})"
-    
+
     fm, body = parse_skill_md(smd)
     shared = load_shared_directives()
-    
-    # Read example.html (truncated for context)
+
     example_snippet = ""
     if os.path.exists(ex_html):
         with open(ex_html) as f:
             ex_text = f.read()
-        # Take first 80 lines as reference
         lines = ex_text.split('\n')
         example_snippet = "\n".join(lines[:80])
         if len(lines) > 80:
             example_snippet += "\n  ... (以下略)"
-    
+
     name = fm.get("zh_name") or fm.get("en_name") or fm.get("name") or template_id
     emoji = fm.get("emoji", "📄")
-    
+
     ctx = f"""=== 模板标识 ===
 ID: {template_id}
 名称: {emoji} {name}
@@ -203,27 +198,57 @@ ID: {template_id}
 
 === 用户内容 ===
 {content}
-
-请严格按照以上模板风格，生成一份完整的自包含单文件 HTML。
 """
+
+    if package:
+        out_html = os.path.join(package, "output.html")
+        src_md   = os.path.join(package, "source.md")
+        meta_json = os.path.join(package, "meta.json")
+        meta = {
+            "template": template_id,
+            "generator": "html-render-lite",
+            "caller": caller or "unknown",
+            "title": title or "",
+            "created": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+        ctx += f"""
+=== 输出指令（package 模式）===
+请完成以下步骤：
+1. 创建目录（如不存在）: {package}
+2. 用 Write 工具将完整 HTML 写入: {out_html}
+3. 用 Write 工具将以下 JSON 写入 {meta_json}:
+   {json.dumps(meta, ensure_ascii=False, indent=2)}
+4. 用 Write 工具将原始用户内容写入: {src_md}
+5. 运行验证: html-render-lite --validate {out_html} --template {template_id}
+6. 如有问题: html-render-lite --fix {out_html}
+7. 报告: 各文件路径 + output.html 大小 + validate 结果
+"""
+    elif out:
+        ctx += f"""
+=== 输出指令 ===
+1. 用 Write 工具将完整 HTML 写入: {out}
+2. 运行验证: html-render-lite --validate {out} --template {template_id}
+3. 如有问题: html-render-lite --fix {out}
+4. 报告: 路径 + 文件大小 + validate 结果
+"""
+    else:
+        ctx += "\n请严格按照以上模板风格，生成一份完整的自包含单文件 HTML。\n"
+
     return ctx
 
 def main():
     parser = argparse.ArgumentParser(description="html-render-lite — 本地模板上下文生成器")
     parser.add_argument("--template", "-t", help="模板 ID")
     parser.add_argument("--input", "-i", help="输入文件 (默认 stdin)")
+    parser.add_argument("--out", "-o", help="输出 HTML 路径（嵌入写入指令）")
+    parser.add_argument("--package", "-p", help="输出包目录（source.md / output.html / meta.json）")
+    parser.add_argument("--caller", help="调用方标识，写入 meta.json")
+    parser.add_argument("--title", help="标题，写入 meta.json")
     parser.add_argument("--list", "-l", action="store_true", help="列出可用模板")
     parser.add_argument("--format", "-f", default="markdown", help="输入格式 (default: markdown)")
-    parser.add_argument("--repo", help="HTML Anything 仓库路径 (默认 ~/workspace/html-anything)")
     parser.add_argument("--validate", "-v", metavar="FILE", help="验证已生成的 HTML 文件")
     parser.add_argument("--fix", "-x", metavar="FILE", help="自动修复已生成的 HTML（注入缺失的 JS/进度条）")
     args = parser.parse_args()
-    
-    global REPO, SKILLS, SHARED_TS
-    if args.repo:
-        REPO = args.repo
-        SKILLS = os.path.join(REPO, "next/src/lib/templates/skills")
-        SHARED_TS = os.path.join(REPO, "next/src/lib/templates/shared.ts")
     
     if args.list:
         list_templates()
@@ -294,7 +319,16 @@ def main():
         print("错误: 内容为空", file=sys.stderr)
         sys.exit(1)
     
-    result = assemble(args.template, content, args.format)
+    if args.package:
+        os.makedirs(args.package, exist_ok=True)
+
+    result = assemble(
+        args.template, content, args.format,
+        out=args.out,
+        package=args.package,
+        caller=args.caller,
+        title=args.title,
+    )
     print(result)
 
 if __name__ == "__main__":

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Case Radar · 案例集</title>
+  <style>
+    :root {
+      --bg: #fafaf7;
+      --surface: #ffffff;
+      --ink: #1a1a1a;
+      --muted: #6b6760;
+      --line: #e7e2d8;
+      --accent: #c5530e;
+      --ai: #7c4dff;
+      --fact: #6b7280;
+      --good: #2f7d4a;
+      --risk: #d6336c;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.65 -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif; }
+    .page { max-width: 1180px; margin: 0 auto; padding: 40px 28px 72px; }
+    header { display: grid; grid-template-columns: 1.2fr .8fr; gap: 32px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+    .eyebrow { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+    h1 { margin: 10px 0 12px; font-size: clamp(40px, 6vw, 74px); line-height: .95; letter-spacing: -.04em; }
+    .lede { color: var(--muted); max-width: 58ch; }
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; align-content: start; justify-content: flex-end; }
+    .tag { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 7px 12px; font-size: 12px; font-weight: 650; }
+    .tag.ai { color: var(--ai); }
+    .tag.fact { color: var(--fact); }
+    .tag.user { color: var(--accent); }
+    .toc { position: sticky; top: 0; z-index: 10; margin: 18px 0 28px; display: flex; gap: 10px; padding: 10px; background: rgba(250,250,247,.82); backdrop-filter: blur(14px); border: 1px solid var(--line); border-radius: 14px; }
+    .toc a { color: var(--ink); text-decoration: none; font-size: 13px; padding: 6px 10px; border-radius: 9px; }
+    .toc a:hover { background: var(--surface); }
+    .scan { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
+    .card h3 { margin: 0 0 8px; font-size: 15px; }
+    .card p { margin: 0; color: var(--muted); font-size: 13.5px; }
+    section { margin-top: 36px; }
+    h2 { font-size: 26px; margin: 0 0 16px; letter-spacing: -.02em; }
+    .cases { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .case { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+    .shot { min-height: 180px; background: linear-gradient(135deg, #f4eee3, #fff 50%, #f1e1d5); display: grid; place-items: center; color: var(--muted); border-bottom: 1px solid var(--line); }
+    .body { padding: 18px; }
+    .badge { display: inline-flex; padding: 4px 8px; border-radius: 999px; background: #f6eee7; color: var(--accent); font-size: 11px; font-weight: 700; margin-bottom: 10px; }
+    .facts { margin: 12px 0; padding: 12px; border-left: 3px solid var(--fact); background: #f7f7f4; color: var(--muted); font-size: 13px; }
+    .pick-insight { border-left: 3px solid var(--good); padding-left: 12px; margin-top: 12px; }
+    .pick-risk { border-left: 3px solid var(--risk); padding-left: 12px; margin-top: 12px; }
+    .next { margin-top: 36px; padding: 24px; border-radius: 18px; background: #1a1a1a; color: #fafaf7; }
+    @media (max-width: 800px) { header, .scan, .cases { grid-template-columns: 1fr; } .tags { justify-content: flex-start; } .toc { overflow-x: auto; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div>
+        <div class="eyebrow">Case Radar Gallery</div>
+        <h1>AI Coding 案例集</h1>
+        <p class="lede">把候选案例、精读笔记、截图和判断整理成可分享的研究画廊，保留事实层、AI 推测层和用户判断区。</p>
+      </div>
+      <div class="tags">
+        <span class="tag fact">事实层</span>
+        <span class="tag ai">AI 推测层</span>
+        <span class="tag user">你的判断区</span>
+      </div>
+    </header>
+    <nav class="toc"><a href="#scan">总览</a><a href="#cases">精读案例</a><a href="#compare">横向对比</a><a href="#next">下一步</a></nav>
+    <section id="scan" class="scan">
+      <div class="card"><h3>最强信号</h3><p>真实产品截图和公开源码同时出现，适合进一步复刻。</p></div>
+      <div class="card"><h3>最大机会</h3><p>把案例转成模板策略，提升 HTML 输出稳定性。</p></div>
+      <div class="card"><h3>主要风险</h3><p>不要复制品牌外观，只提取布局和交互模式。</p></div>
+      <div class="card"><h3>下一步</h3><p>优先精读 3 个可验证案例，写入知识库。</p></div>
+    </section>
+    <section id="cases">
+      <h2>精读案例</h2>
+      <div class="cases">
+        <article class="case">
+          <div class="shot">screenshot / source artifact</div>
+          <div class="body">
+            <span class="badge">精读 #1 · 工具</span>
+            <h3>Open Design Workflow</h3>
+            <div class="facts">Facts: URL、作者、指标和原文关键句在这里完整保留。</div>
+            <div class="pick-insight">妙在：把视觉规范和真实例子绑定，减少默认审美漂移。</div>
+            <div class="pick-risk">风险：不要把 AI 推测写成事实。</div>
+          </div>
+        </article>
+        <article class="case">
+          <div class="shot">code snippet / UI capture</div>
+          <div class="body">
+            <span class="badge">精读 #2 · 模式</span>
+            <h3>Template Fidelity Pattern</h3>
+            <div class="facts">Facts: 输入没有的数据标注未提供，不捏造 star、价格或作者身份。</div>
+            <div class="pick-insight">适合 myartings：沉淀成跨 agent 可复用的模板选择策略。</div>
+            <div class="pick-risk">不要输出同质化营销文案。</div>
+          </div>
+        </article>
+      </div>
+    </section>
+    <section id="next" class="next">
+      <h2>Next Step</h2>
+      <p>复刻一个最小版本，并把证据链、判断边界和可复用模板策略写入 KB。</p>
+    </section>
+  </div>
+</body>
+</html>

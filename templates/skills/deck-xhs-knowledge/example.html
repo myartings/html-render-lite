@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Subagent 架构对比 · Editorial Comparison Deck</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;700;900&family=Noto+Serif+SC:wght@500;700;900&family=JetBrains+Mono:wght@500;700&display=swap');
+:root{
+  --paper:#f7f2ec; --paper-2:#f2ebdf; --ink:#1f1a12; --muted:#746f67;
+  --line:#d7d0c5; --accent:#d66f5a; --accent-2:#b85b48; --card:#ece4d7;
+  --dark:#211b12; --dark-2:#2c241a; --soft:#ede5da; --shadow:0 14px 30px rgba(54,39,24,.06);
+  --sans:'Inter','Noto Sans SC',system-ui,sans-serif; --serif:'Noto Serif SC',Songti SC,serif; --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#d8ccbc;color:var(--ink);font-family:var(--sans);overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;opacity:.06;background-image:radial-gradient(rgba(31,26,18,.35) .4px, transparent .4px);background-size:7px 7px;mix-blend-mode:multiply}
+.stage{min-height:100vh;display:flex;align-items:center;gap:24px;padding:32px;overflow-x:auto;scroll-snap-type:x mandatory}
+.page{position:relative;flex:0 0 auto;width:min(92vw,540px);aspect-ratio:3/4;background:var(--paper);border-radius:18px;box-shadow:var(--shadow);padding:38px 42px 32px;overflow:hidden;scroll-snap-align:center;display:grid;grid-template-rows:auto minmax(0,1fr) auto;row-gap:16px}
+.page::before{content:attr(data-bg);position:absolute;right:10px;top:92px;font-family:var(--mono);font-size:206px;font-weight:700;color:rgba(106,93,79,.055);line-height:1;z-index:0}
+.page>*{position:relative;z-index:1}
+.page-header,.page-footer{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-family:var(--mono);font-weight:700;font-size:11px;letter-spacing:.1em}
+.page-header{padding-bottom:15px;position:relative}
+.page-header::after{content:'';position:absolute;left:0;bottom:0;width:72%;height:1px;background:var(--line)}
+.page-footer{padding-top:13px;position:relative;align-self:end}
+.page-footer::before{content:'';position:absolute;left:0;top:0;width:68%;height:1px;background:var(--line)}
+.footer-left{display:flex;align-items:center;gap:10px;min-width:0}
+.footer-dash{width:16px;height:2px;background:var(--accent);flex:0 0 auto}
+.source{max-width:48%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right}
+.page-main{min-height:0;overflow:hidden;padding-bottom:8px}
+.hero{padding-top:48px;display:flex;flex-direction:column;height:100%}
+.kicker,.section-label,.mini-label{font-family:var(--mono);font-size:12px;font-weight:800;letter-spacing:.18em;text-transform:uppercase}
+.kicker{color:var(--accent)}
+.title{font-family:var(--serif);font-size:58px;line-height:1.02;letter-spacing:-.065em;margin:18px 0 14px}
+.subtitle{font-size:18px;line-height:1.68;color:#564d46;margin:0}
+.compare-strip{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;background:var(--dark);color:#f7efe1;border-radius:0;padding:12px 16px;margin:34px 0 22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06), inset 0 -1px 0 rgba(255,255,255,.06)}
+.compare-strip strong{font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:#f2b6a8;text-transform:uppercase}
+.compare-strip span{font-family:var(--serif);font-size:22px;line-height:1.2}
+.compare-strip em{font-family:var(--mono);font-style:normal;font-size:11px;letter-spacing:.2em;color:#cab8aa;text-transform:uppercase}
+.summary-box{border-left:3px solid var(--accent);padding:6px 0 6px 14px;background:transparent;font-size:15px;line-height:1.75;color:#4f453d;max-width:88%}
+.index-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px 28px;margin-top:auto;padding-top:30px;max-width:92%}
+.index-item{padding-top:0}
+.index-item .num{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--muted);margin-bottom:6px}
+.index-item .label{font-family:var(--serif);font-size:21px;line-height:1.18}
+.index-item .sub{display:block;margin-top:4px;font-size:12px;line-height:1.45;color:#6a6259;font-family:var(--sans)}
+.chapter-head{padding-top:8px}
+.chapter-title{font-family:var(--serif);font-size:44px;line-height:1.08;letter-spacing:-.055em;margin:14px 0 10px;max-width:92%}
+.chapter-sub{font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:16px}
+.rule{height:1px;background:var(--line);margin:0 0 20px;width:84%}
+.module{margin-bottom:18px}
+.module-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.module-no{font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:.16em;padding-top:4px;min-width:30px}
+.module-title{font-family:var(--serif);font-size:24px;line-height:1.22}
+.compare-pair,.stat-pair{display:grid;grid-template-columns:1.08fr .92fr;gap:16px}
+.compare-card,.stat-card,.summary-card{padding:14px 0 14px 14px;border-left:1.5px solid var(--line);background:transparent}
+.compare-card.filled{background:linear-gradient(to right, rgba(236,228,215,.88), rgba(236,228,215,.48));padding:14px 14px 14px 14px;border-left:0}.stat-card{background:transparent;border-left:0;border-top:2px solid var(--accent);padding:12px 0 0 0}
+.compare-card h3,.stat-card .meta,.insight-strip .meta,.quote-meta{margin:0 0 8px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.compare-card p,.summary-box p,.summary-card p{margin:0;font-size:15px;line-height:1.68;color:#493f37}
+
+.stat-card .value{font-family:var(--mono);font-size:31px;line-height:1;color:var(--accent);margin:10px 0 8px}
+.stat-card .desc{font-size:14px;line-height:1.6;color:#5b524a}
+.quote-page{display:flex;flex-direction:column;justify-content:center;height:100%;padding-top:8px}
+.quote-rule{height:1px;background:var(--line);width:82%}
+.quote-text{font-family:var(--serif);font-size:36px;line-height:1.46;letter-spacing:-.03em;margin:26px 0 22px;color:var(--ink);max-width:88%}
+.quote-meta{color:var(--muted);margin:0}
+.insight-strip{background:var(--dark);color:#f7efe1;border-radius:0;padding:16px 18px 17px;margin-top:16px;max-width:92%}
+.insight-strip p{margin:0;font-family:var(--serif);font-size:26px;line-height:1.38}
+.summary-card{margin-top:16px;padding:12px 0 0 14px;background:transparent;max-width:88%}
+.closing{height:82%;display:flex;flex-direction:column;justify-content:center;padding-top:12px}
+.closing .title{font-size:51px;margin-bottom:20px;max-width:84%}
+.closing .subtitle{max-width:92%}
+.smallnote{margin-top:22px;color:var(--muted);font-size:14px;line-height:1.7}
+.nav{position:fixed;right:18px;bottom:18px;display:flex;gap:8px;z-index:5}.nav button{border:0;border-radius:999px;background:#1f1a12;color:#fff;padding:10px 13px;font-family:var(--mono);cursor:pointer}
+@media(max-width:640px){.stage{padding:14px;gap:14px}.page{width:92vw;border-radius:16px;padding:28px 26px 28px;row-gap:12px}.hero{padding-top:38px}.title{font-size:44px}.chapter-title{font-size:34px}.quote-text{font-size:29px}.compare-pair,.stat-pair,.index-grid{grid-template-columns:1fr}.source{max-width:42%}.page::before{font-size:144px;top:94px;right:8px}.compare-strip{margin:28px 0 20px}.summary-box,.insight-strip,.summary-card,.quote-text,.chapter-title,.rule,.quote-rule{max-width:100%;width:100%}.nav{display:none}}
+@media print{body{background:white}.stage{display:block;padding:0}.page{break-after:page;margin:0 auto 24px;box-shadow:none;width:1080px;height:1440px}}
+</style>
+</head>
+<body>
+<main class="stage" id="deck">
+  <section class="page page-type-cover-index" data-bg="01">
+    <div class="page-header"><span>Subagent 架构对比</span><span>01 / 06</span></div>
+    <div class="page-main hero">
+      <div class="kicker">Editorial Comparison Deck</div>
+      <h1 class="title">谁在替你<br>思考</h1>
+      <p class="subtitle">当 AI 开始自己开子线程，真正的分野不在数量，而在计划权、执行权和上下文边界。</p>
+      <div class="compare-strip"><strong>CodeX</strong><em>vs</em><span>Claude Code</span></div>
+      <div class="summary-box">这不是一场“谁会更多功能”的对比，而是两种 agent 组织哲学：一个偏执行闭环，一个偏长期工作室式治理。</div>
+      <div class="index-grid">
+        <div class="index-item"><span class="num">01</span><div class="label">核心判断</div><span class="sub">为什么拆开责任边界</span></div>
+        <div class="index-item"><span class="num">02</span><div class="label">定义差异</div><span class="sub">执行闭环 vs 治理框架</span></div>
+        <div class="index-item"><span class="num">03</span><div class="label">运行模式</div><span class="sub">结构化对比与摘句</span></div>
+        <div class="index-item"><span class="num">04</span><div class="label">落地原则</div><span class="sub">先拆职责，再谈数量</span></div>
+      </div>
+    </div>
+    <div class="page-footer"><div class="footer-left"><span class="footer-dash"></span><span>Kenny Wu · 公众号·肯玩 AI</span></div><span class="source">codex-vs-cc-subagent.md</span></div>
+  </section>
+
+  <section class="page page-type-chapter-compare" data-bg="02">
+    <div class="page-header"><span>核心判断</span><span>02 / 06</span></div>
+    <div class="page-main">
+      <div class="chapter-head">
+        <div class="kicker">Main Thesis</div>
+        <h2 class="chapter-title">Subagent 的价值，不在更多 AI 说话，而在切开责任边界。</h2>
+        <div class="chapter-sub">Attention / Authority / Accountability</div>
+        <div class="rule"></div>
+      </div>
+      <div class="module">
+        <div class="module-head"><span class="module-no">01</span><div class="module-title">为什么要拆开</div></div>
+        <div class="compare-pair">
+          <div class="compare-card filled"><h3>Attention</h3><p>把研究、实现、审查分离，避免一个主 Agent 同时背负所有上下文噪音。</p></div>
+          <div class="compare-card"><h3>Authority</h3><p>不同子任务拥有不同工具边界与权限半径，降低误操作扩散。</p></div>
+        </div>
+      </div>
+      <div class="module">
+        <div class="module-head"><span class="module-no">02</span><div class="module-title">最终看什么</div></div>
+        <div class="compare-pair">
+          <div class="compare-card filled"><h3>Accountability</h3><p>每个执行单元都要有清晰输入、输出和验收条件。</p></div>
+          <div class="compare-card"><h3>Boundary</h3><p>真正的性能提升来自边界清晰，而不是简单堆 Agent 数量。</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="page-footer"><div class="footer-left"><span class="footer-dash"></span><span>Kenny Wu · 公众号·肯玩 AI</span></div><span class="source">codex-vs-cc-subagent.md</span></div>
+  </section>
+
+  <section class="page page-type-stat-pair" data-bg="03">
+    <div class="page-header"><span>定义与触发</span><span>03 / 06</span></div>
+    <div class="page-main">
+      <div class="chapter-head">
+        <div class="kicker">Definition & Trigger</div>
+        <h2 class="chapter-title">两种框架，先天关注点不同。</h2>
+        <div class="chapter-sub">Execution Loop vs Studio Governance</div>
+        <div class="rule"></div>
+      </div>
+      <div class="stat-pair">
+        <div class="stat-card"><div class="meta">CodeX</div><div class="value">执行闭环</div><div class="desc">围绕当前任务拆分、执行、验证、汇报，服务于一次性目标完成。</div></div>
+        <div class="stat-card"><div class="meta">Claude Code</div><div class="value">工作室治理</div><div class="desc">更强调长期角色、Skills、Hooks、Worktrees 和项目边界组织。</div></div>
+      </div>
+      <div class="insight-strip"><div class="meta">Key Difference</div><p>一个优先回答“这次任务怎么做完”，另一个优先回答“这类任务以后怎么稳定做”。</p></div>
+      <div class="summary-card"><p>所以二者不是简单强弱关系，而是偏不同任务半径与治理深度。</p></div>
+    </div>
+    <div class="page-footer"><div class="footer-left"><span class="footer-dash"></span><span>Kenny Wu · 公众号·肯玩 AI</span></div><span class="source">codex-vs-cc-subagent.md</span></div>
+  </section>
+
+  <section class="page page-type-quote-excerpt" data-bg="04">
+    <div class="page-header"><span>运行与控制</span><span>04 / 06</span></div>
+    <div class="page-main quote-page">
+      <div class="quote-rule"></div>
+      <div class="quote-text">真正的升级，不是让更多 Agent 同时说话，而是让研究、实现、测试、审查各自有清楚边界。</div>
+      <p class="quote-meta">摘句 / 结构化理解</p>
+      <div class="quote-rule"></div>
+      <div class="summary-card"><p>把所有问题塞进一个超大主线程，通常只会让上下文变得更浑、更难验收。</p></div>
+    </div>
+    <div class="page-footer"><div class="footer-left"><span class="footer-dash"></span><span>Kenny Wu · 公众号·肯玩 AI</span></div><span class="source">codex-vs-cc-subagent.md</span></div>
+  </section>
+
+  <section class="page page-type-before-after" data-bg="05">
+    <div class="page-header"><span>落地原则</span><span>05 / 06</span></div>
+    <div class="page-main">
+      <div class="chapter-head">
+        <div class="kicker">Before / After</div>
+        <h2 class="chapter-title">先拆职责，再谈 Agent 数量。</h2>
+        <div class="chapter-sub">Old Pattern vs Better Pattern</div>
+        <div class="rule"></div>
+      </div>
+      <div class="module">
+        <div class="module-head"><span class="module-no">01</span><div class="module-title">旧做法</div></div>
+        <div class="compare-pair">
+          <div class="compare-card filled"><h3>Before</h3><p>一个超大主 Agent 包办研究、编码、测试、文档，所有风险混在同一上下文里。</p></div>
+          <div class="compare-card"><h3>After</h3><p>把研究、实现、审查、测试拆给不同执行单元，再由主 Agent 用验收门汇总。</p></div>
+        </div>
+      </div>
+      <div class="insight-strip"><div class="meta">Implementation Rule</div><p>先问有几个责任边界，再决定需要几个 Agent；顺序反了，架构通常会变形。</p></div>
+    </div>
+    <div class="page-footer"><div class="footer-left"><span class="footer-dash"></span><span>Kenny Wu · 公众号·肯玩 AI</span></div><span class="source">codex-vs-cc-subagent.md</span></div>
+  </section>
+
+  <section class="page page-type-closing-thesis" data-bg="06">
+    <div class="page-header"><span>边界与差异</span><span>06 / 06</span></div>
+    <div class="page-main closing">
+      <div class="kicker">Final Thesis</div>
+      <h2 class="title">不要先问<br>“我要几个 Agent”。</h2>
+      <p class="subtitle">先问：这个任务究竟有几个不同的责任边界？</p>
+      <p class="smallnote">Source: codex-vs-cc-subagent.md · 公众号·肯玩 AI</p>
+    </div>
+    <div class="page-footer"><div class="footer-left"><span class="footer-dash"></span><span>Kenny Wu · 公众号·肯玩 AI</span></div><span class="source">codex-vs-cc-subagent.md</span></div>
+  </section>
+</main>
+<div class="nav"><button onclick="document.getElementById('deck').scrollBy({left:-560,behavior:'smooth'})">←</button><button onclick="document.getElementById('deck').scrollBy({left:560,behavior:'smooth'})">→</button></div>
+<script>window.addEventListener('keydown',e=>{const d=document.getElementById('deck');if(e.key==='ArrowRight')d.scrollBy({left:560,behavior:'smooth'});if(e.key==='ArrowLeft')d.scrollBy({left:-560,behavior:'smooth'});});</script>
+</body>
+</html>

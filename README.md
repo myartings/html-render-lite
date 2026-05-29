@@ -1,55 +1,59 @@
 # html-render-lite
 
-读取本地 [HTML Anything](https://github.com/nexu-io/html-anything) 模板，输出结构化上下文块。当前 LLM 直接读此输出写 HTML，不走远端 Agent。
+81 套本地模板（SKILL.md + 设计约束 + example.html）拼成结构化上下文，当前 LLM 直接在同一进程内写 HTML。无服务依赖，无网络请求。
 
 ## 原理
 
-把 HTML Anything 的 75 套本地模板（SKILL.md + 共享设计指令 + example.html 视觉参考 + 用户内容）拼成结构化上下文。当前 LLM 在读到此上下文的进程中直接写 HTML —— 不启动 Codex/Claude Code 子进程，不走 Cloudflare Tunnel。
-
-## 速度对比
-
-| 路径 | 延迟 | 链路 |
-|------|------|------|
-| formal HTML Anything | 30-120s | agent → Node.js → HTTPS → Tunnel → gateway → spawn Codex → LLM → SSE → 回传 |
-| **html-render-lite** | **1-3s** | 当前 agent → 读本地模板 → 直接写 HTML（同一进程） |
+```
+content.md
+  → html-render-lite --template X --out out.html
+  → 输出模板上下文（设计约束 + 风格定义 + 视觉参考 + 用户内容 + 输出指令）
+  → 当前 LLM 读到上下文，用 Write 工具写 HTML
+  → validate + fix
+```
 
 ## 依赖
 
 - Python 3.x
-- 本地克隆的 HTML Anything 仓库：`git clone https://github.com/nexu-io/html-anything.git ~/workspace/html-anything`
+- 模板已内置在 `templates/` 目录，无需额外克隆
+
+## 安装
+
+```bash
+git clone https://github.com/... html-render-lite
+cd html-render-lite
+ln -s $(pwd)/html-render-lite ~/.local/bin/html-render-lite  # 或加入 PATH
+```
 
 ## 用法
 
 ```bash
-# 列出 75 个模板
-./html-render-lite --list
+# 列出 81 个模板
+html-render-lite --list
 
-# 从文件输入
-./html-render-lite --template doc-kami-parchment -i source.md
+# 生成 HTML（agent 写入 --out 路径）
+html-render-lite --template doc-kami-parchment -i source.md --out /tmp/page.html
 
 # 管道输入
-echo "Markdown content" | ./html-render-lite --template card-xiaohongshu
+echo "Markdown content" | html-render-lite --template card-xiaohongshu --out /tmp/card.html
+
+# package 模式（source.md + output.html + meta.json）
+html-render-lite --template deck-simple -i source.md --package /tmp/pkg/ --caller claude-code --title "My Deck"
 
 # 验证已生成的 HTML
-./html-render-lite --validate output.html
+html-render-lite --validate output.html --template deck-simple
 
-# 自动修复（注入键盘导航 JS + 进度条）
-./html-render-lite --fix output.html
-
-# 指定 HTML Anything 仓库路径
-./html-render-lite --template deck-simple -i source.md --repo /path/to/html-anything
+# 自动修复（注入缺失的键盘导航 JS + 进度条）
+html-render-lite --fix output.html
 ```
 
-## 工作流
+## 模板
 
-```
-用户说："用 doc-kami-parchment 模板生成一份报告"
-  → 调用 html-render-lite --template doc-kami-parchment -i content.md
-  → 获得结构化上下文（模板约束 + 设计指令 + 视觉参考 + 用户内容）
-  → 当前 agent 读到此上下文
-  → 在同一进程内直接写 HTML
-  → 1-3 秒出成品
-```
+`templates/skills/` 下 81 个模板，每个包含：
+- `SKILL.md`：模板风格定义（frontmatter + 布局约束）
+- `example.html`：视觉参考（前 80 行作为 context）
+
+共享设计约束在 `templates/shared.md`。
 
 ## 许可证
 

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KB 学习材料 · AI Coding</title>
+  <style>
+    :root {
+      --bg: #fafaf7;
+      --sidebar: #f2f2ec;
+      --surface: #ffffff;
+      --ink: #1f1f1f;
+      --muted: #4a4a48;
+      --weak: #6b6b68;
+      --line: #e4e1d8;
+      --accent: #2563eb;
+      --warn: #b7791f;
+      --gold: #956400;
+      --insight: #2f7d4a;
+      --rose: #be3455;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.72 -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
+    .layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); min-height: 100vh; }
+    aside { position: sticky; top: 0; height: 100vh; overflow: auto; background: var(--sidebar); border-right: 1px solid var(--line); padding: 28px 20px; }
+    aside h2 { font-size: 14px; margin: 0 0 16px; letter-spacing: .12em; text-transform: uppercase; color: var(--weak); }
+    aside a { display: block; color: var(--muted); text-decoration: none; padding: 8px 10px; border-radius: 8px; font-size: 14px; }
+    aside a.active, aside a:hover { background: var(--surface); color: var(--accent); }
+    main { max-width: 920px; padding: 48px 56px 80px; }
+    .eyebrow { color: var(--accent); font-size: 12px; font-weight: 750; letter-spacing: .18em; text-transform: uppercase; }
+    h1 { margin: 10px 0 16px; font-size: clamp(40px, 6vw, 68px); line-height: 1; letter-spacing: -.04em; }
+    .lead { color: var(--muted); font-size: 18px; max-width: 42em; }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 34px; }
+    .meta span { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 10px; color: var(--weak); font-size: 12px; }
+    section { margin-top: 42px; }
+    h2 { font-size: 27px; margin: 0 0 14px; letter-spacing: -.02em; }
+    h3 { margin: 22px 0 8px; }
+    p { max-width: 44em; }
+    .route { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 18px; }
+    .step { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+    .step strong { display: block; margin-bottom: 6px; }
+    .callout { border: 1px solid var(--line); border-left-width: 4px; border-radius: 12px; padding: 14px 16px; background: var(--surface); margin: 14px 0; }
+    .callout.warn { border-left-color: var(--warn); background: #fff8e8; }
+    .callout.gold { border-left-color: var(--gold); background: #fbf3db; }
+    .callout.insight { border-left-color: var(--insight); background: #edf7ee; }
+    .callout.rose { border-left-color: var(--rose); background: #fff0f3; }
+    details { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin: 10px 0; }
+    summary { cursor: pointer; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--weak); font-size: 12px; }
+    code, pre { font-family: "SF Mono", "JetBrains Mono", Menlo, monospace; }
+    pre { background: #1f1f1f; color: #fafaf7; padding: 16px; border-radius: 12px; overflow: auto; }
+    .next { background: #1f1f1f; color: #fafaf7; border-radius: 18px; padding: 24px; }
+    @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } aside { position: static; height: auto; } main { padding: 32px 22px 64px; } .route { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <h2>学习导航</h2>
+      <a class="active" href="#overview">Overview</a>
+      <a href="#concepts">核心概念</a>
+      <a href="#cases">案例</a>
+      <a href="#debate">争议</a>
+      <a href="#cheatsheet">Cheat Sheet</a>
+    </aside>
+    <main>
+      <div class="eyebrow">系统学习材料</div>
+      <h1>AI Coding 系统学习</h1>
+      <p class="lead">这份材料把知识库主题页、长调研和实践案例整理成可长期复习的学习路径，保留来源、争议和可执行下一步。</p>
+      <div class="meta"><span>2026-05-23</span><span>12 个来源</span><span>5 个案例</span><span>3 个争议</span></div>
+      <section id="overview">
+        <h2>学习路线</h2>
+        <div class="route">
+          <div class="step"><strong>入门</strong>建立术语表</div>
+          <div class="step"><strong>概念</strong>理解工作流</div>
+          <div class="step"><strong>实战</strong>复刻案例</div>
+          <div class="step"><strong>争议</strong>识别边界</div>
+          <div class="step"><strong>下一步</strong>写入 KB</div>
+        </div>
+      </section>
+      <section id="concepts">
+        <h2>核心概念</h2>
+        <p>TL;DR: 好的 AI coding 流程不是一次性 prompt，而是上下文、约束、验证和交接的组合。</p>
+        <div class="callout insight">对 myartings 的启示：把可复用结论沉淀到 skill、playbook 和模板规范中。</div>
+        <pre><code>html-render --template auto --intent study --out /tmp/page.html</code></pre>
+      </section>
+      <section id="cases">
+        <h2>案例折叠</h2>
+        <details open><summary>案例 1: 模板视觉签名</summary><p>来源、背景、事实片段、点评、可复用技巧和不要照抄什么。</p></details>
+        <details><summary>案例 2: 跨平台 agent workflow</summary><p>保留证据链和适用范围，避免把局部修复当全局规范。</p></details>
+      </section>
+      <section id="debate">
+        <h2>争议双轨</h2>
+        <table><tr><th>主流观点</th><th>反方观点</th><th>我的初判</th></tr><tr><td>模板越强越稳定</td><td>模板太强会限制创造</td><td>倾向 7/10: 高频模板强约束，探索模板保留自由度。</td></tr></table>
+      </section>
+      <section id="cheatsheet" class="next">
+        <h2>Next Step</h2>
+        <p>做一个 30 分钟原型复刻实验，把成功约束写回 KB 页面，并生成一份可分享 HTML 学习页。</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
