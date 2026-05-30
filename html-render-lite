@@ -275,7 +275,9 @@ def _load_fast_template(template_id):
         if meta.get("id") == template_id or template_id in meta.get("aliases", []):
             css_path = os.path.join(FAST_DIR, d, meta.get("style", "style.css"))
             css = open(css_path).read() if os.path.exists(css_path) else ""
-            return {**meta, "css": css}
+            spec_path = os.path.join(FAST_DIR, d, "source_spec.md")
+            spec = open(spec_path).read() if os.path.exists(spec_path) else ""
+            return {**meta, "css": css, "source_spec": spec}
     return None
 
 # ── article-deck-designer renderer ───────────────────────────────────────────
@@ -577,6 +579,9 @@ def render_fast(template_id, content, out=None, package=None, caller=None, title
 
     if renderer == 'article-deck-designer':
         html = _render_article_deck_designer(content, css, title_str)
+        if html.count('<section class="slide') <= 1 and ft.get("source_spec"):
+            print(f"⚠️  输入格式不符，只生成了 1 页。此模板需要特定输入格式。", file=sys.stderr)
+            print(f"   运行查看格式说明: html-render-lite --fast --template {template_id} --describe", file=sys.stderr)
     elif renderer == 'deck-xhs-knowledge':
         html = _render_deck_xhs_knowledge(content, css)
     else:  # markdown-page
@@ -743,6 +748,7 @@ def main():
     parser.add_argument("--caller", help="调用方标识，写入 meta.json")
     parser.add_argument("--title", help="标题，写入 meta.json")
     parser.add_argument("--fast", action="store_true", help="确定性本地渲染模式（不调用 LLM）")
+    parser.add_argument("--describe", action="store_true", help="输出 fast 模板的输入格式说明（source_spec.md）")
     parser.add_argument("--list", "-l", action="store_true", help="列出 LLM 模式模板")
     parser.add_argument("--list-fast", action="store_true", help="列出 fast 模式模板")
     parser.add_argument("--list-all", action="store_true", help="列出所有模板（LLM + fast）")
@@ -803,6 +809,19 @@ def main():
         parser.print_help()
         print("\n使用 --list 查看 LLM 模式模板，--list-fast 查看 fast 模式模板", file=sys.stderr)
         sys.exit(1)
+
+    # Fast mode: --describe prints source_spec.md (no content needed)
+    if args.fast and args.describe:
+        ft = _load_fast_template(args.template)
+        if not ft:
+            print(f"错误: fast 模板 '{args.template}' 不存在", file=sys.stderr)
+            sys.exit(1)
+        spec = ft.get("source_spec", "")
+        if spec:
+            print(spec)
+        else:
+            print(f"模板 {args.template} 没有 source_spec.md，输入格式无特殊要求（普通 Markdown 即可）。")
+        return
 
     # Read content
     if args.input:
