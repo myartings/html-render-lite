@@ -55,6 +55,29 @@ html-render-lite --fix output.html
 
 共享设计约束在 `templates/shared.md`。
 
+## 跨平台同步规范
+
+repo 部署在 Linux / macOS / Windows WSL2 三台机器，通过 GitHub 同步。
+
+**改动后必须 push：**
+
+```bash
+git add <files>
+git commit -m "..."
+git push origin main
+```
+
+**其他平台同步：**
+
+```bash
+git pull origin main
+```
+
+规则：
+- 任意平台做了模板、shared.md、脚本改动后，当次会话结束前 push 到 GitHub
+- 不要用 scp 手动传文件代替 git push/pull，否则会产生 drift
+- 如果本地有未提交改动导致 pull 失败，先 `git stash` 或 `git checkout -- .`，再 pull，再判断是否需要把本地改动合并回来
+
 ## 许可证
 
 MIT
