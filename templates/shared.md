@@ -28,3 +28,20 @@
 - **必须使用用户提供的真实数据**, 不要编造、不要 lorem ipsum、不要 "Your text here"。
 - 如果用户数据是结构化数据 (CSV/JSON), 请提取关键洞察并以图表/表格呈现。
 - 中文与英文混排时, 中英文之间留半角空格 (盘古之白)。
+
+【移动端后置适配 — 最后执行，不影响已有设计】
+完成模板指定的完整 HTML 设计后，在 `</body>` 前追加：
+1. 如 `<head>` 中尚未包含 viewport meta，补充：`<meta name="viewport" content="width=device-width, initial-scale=1">`
+2. 追加一个 `<style>` 块，内容为 `@media (max-width: 768px)` 覆写。根据你刚才生成的 CSS，识别在窄屏上会导致问题的样式（固定宽度容器、过大字号、多列网格、溢出元素），写最小化的针对性覆写，让内容在手机上可读可操作。不要重新设计，不要修改已有样式，只做让内容可读的最少改动。桌面端体验不变。
+3. 如果页面包含翻页/导航 JS（如 `scrollIntoView`、`showPage`、`scrollBy`、scroll-snap 控制、deck 方向键监听），必须在该脚本的入口处加宽度守卫：`if (window.innerWidth <= 768) return;`（或等价判断），确保窄屏上 JS 不强制滚动或跳页。resize 监听器中同样须加宽度守卫，避免手机地址栏收起时触发意外的强制滚动。
+
+【移动端硬性验收 — 不满足则继续修 CSS】
+- 设计完成后必须按 390px 与 768px 两个宽度自查移动端布局。核心验收条件是：
+  `document.documentElement.scrollWidth <= window.innerWidth + 1`。
+- 全局页面不能横向滚动；如内容确实需要横向查看，只允许在局部容器内滚动，例如 `.table-wrap`, `pre`, `.code-wrap`。
+- `html, body` 和主布局容器必须防止全局横向溢出：使用 `max-width: 100%` / `max-width: 100vw` / `overflow-x: hidden` 等明确护栏。
+- 固定宽度容器、桌面侧边栏、absolute deck、固定画布、过宽 grid、过大标题，必须在移动端降级为单列、顶部导航、折叠菜单或纵向自然流。
+- 长 URL、inline code、长英文 token、路径、命令必须能断行：使用 `overflow-wrap: anywhere` / `word-break: break-word` 等策略。
+- `pre`, `code`, `table`, SVG, canvas, iframe, img, video 必须有移动端处理：要么 `max-width: 100%`，要么包在可横向滚动的局部容器里。
+- 移动端字号和间距必须针对 390px 可读：H1/H2 不得撑破容器；按钮、导航、卡片文字不能重叠或被遮挡。
+- 如果模板包含 sticky/fixed 导航，移动端必须确保它不遮挡正文锚点；为 `html` 或 `section` 设置合适的 `scroll-padding-top` / `scroll-margin-top`。

@@ -40,6 +40,7 @@ example_desc: "适合承接 system-study / KB 主题页 / 长调研材料"
    - 左侧 sidebar: sticky，宽 280px，100vh，可滚动。
    - 主内容 main: 最大宽度 920px，中文行长优先。
    - 可选右侧 mini TOC: 仅当章节非常多时使用。
+   - 移动端必须降级为单栏。左侧 sidebar 不得作为普通大块目录堆在正文前面；必须改为顶部 sticky 横向导航、折叠菜单，或隐藏为轻量 TOC 按钮。
 
 2. Hero
    - eyebrow: `系统学习材料`
@@ -94,6 +95,22 @@ example_desc: "适合承接 system-study / KB 主题页 / 长调研材料"
 - 当前章节高亮；可以用 IntersectionObserver。
 - `details` 使用原生折叠，默认只展开最重要的 1-2 个案例。
 - 表格在小屏幕上允许横向滚动。
+- 移动端若保留 sticky 顶部导航，必须设置 `scroll-padding-top` / `scroll-margin-top`，避免锚点跳转后标题被遮挡。
+- 移动端不允许全局横向滚动；只有表格、代码块、长流程图可以在自己的局部容器内横向滚动。
+
+【移动端硬性规则】
+- 本模板虽然是桌面长页面 / 左侧导航，但输出必须 mobile-readable。最低支持 390px 宽度。
+- 必须包含 `<meta name="viewport" content="width=device-width, initial-scale=1">`。
+- 必须包含 `@media (max-width: 768px)`，并明确处理：
+  - `.layout` 单列化，`main` 宽度为 `100%`，左右 padding 收敛到 14-18px。
+  - `aside` 从桌面 sticky sidebar 改为顶部横向导航 / `<details>` 折叠菜单 / 隐藏轻量目录，不得占用一整屏后才进入正文。
+  - `.route`, `.grid2`, `.grid3`, 双栏争议区全部改为单列。
+  - H1/H2 使用移动端字号，中文长标题不能撑破容器。
+  - `p`, `li`, `code`, `a` 使用 `overflow-wrap: anywhere` 或等价断行策略。
+  - `pre` 需要 `max-width: 100%`，并在知识地图、命令、路径较长时允许 `white-space: pre-wrap` 或局部横向滚动。
+  - `table` 必须包在 `.table-wrap` 等局部横向滚动容器中；不要让整个页面横向滚动。
+  - `img`, `svg`, `canvas`, `iframe`, `video` 必须 `max-width: 100%`。
+- 移动端验收标准：390px viewport 下 `document.documentElement.scrollWidth <= window.innerWidth + 1`。
 
 【反模式】
 - 不要做成 PPT deck；这是学习材料，不是演示稿。
