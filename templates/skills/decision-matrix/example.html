@@ -1,58 +1,44 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Decision Matrix Example</title>
   <style>
-    body{margin:0;background:#f7f2ea;color:#19140f;font-family:Inter,system-ui,sans-serif}
-    .page{max-width:1240px;margin:auto;padding:34px 22px}
-    .hero{display:grid;grid-template-columns:1.2fr 360px;gap:16px}
-    .panel{background:#fffaf1;border:1px solid #dfd2c1;border-radius:8px;padding:24px}
-    .verdict{position:sticky;top:18px;background:#25160f;color:#fff7ed}
-    .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#c96442;font-weight:900}
-    h1{font-size:64px;line-height:.94;margin:12px 0;max-width:11ch}
-    .matrix-wrap{margin-top:18px;border:1px solid #dfd2c1;border-radius:8px;overflow:auto;background:#fffdf8}
-    table{width:100%;min-width:880px;border-collapse:collapse}
-    th,td{padding:14px;border-bottom:1px solid #dfd2c1;text-align:left;vertical-align:top}
-    thead th{background:#ecdfd0;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#5a4636}
-    .score{font:900 24px ui-monospace,monospace;color:#c96442}
-    .badge{border:1px solid #dfd2c1;border-radius:999px;padding:5px 8px;font-size:11px;text-transform:uppercase}
-    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
-    .card{background:#fffdf8;border:1px solid #dfd2c1;border-left:5px solid #c96442;border-radius:8px;padding:16px}
-    .uncertainty{margin-top:18px;background:#211710;color:#fff8ee;border-radius:8px;padding:20px}
+    :root{--ivory:#FAF9F5;--paper:#fff;--slate:#141413;--clay:#D97757;--oat:#E3DACC;--olive:#788C5D;--g150:#F0EEE6;--g300:#D1CFC5;--g500:#87867F;--g700:#3D3D3A;--serif:ui-serif,Georgia,"Times New Roman",serif;--sans:system-ui,-apple-system,"Segoe UI",sans-serif;--mono:ui-monospace,"SF Mono",Menlo,monospace}
+    *{box-sizing:border-box}body{margin:0;background:var(--ivory);color:var(--g700);font:15px/1.6 var(--sans);-webkit-font-smoothing:antialiased}.page{max-width:1120px;margin:auto;padding:56px 24px 96px}.hero{display:grid;grid-template-columns:1fr 320px;gap:28px;border-bottom:1.5px solid var(--g300);padding-bottom:34px;margin-bottom:32px}.panel,.card,.matrix{background:var(--paper);border:1.5px solid var(--g300);border-radius:12px}.panel{padding:24px 26px}.eyebrow{font:11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--g500);display:flex;gap:10px;align-items:center;margin-bottom:12px}.eyebrow:before{content:"";width:22px;height:1.5px;background:var(--clay)}h1,h2,h3{font-family:var(--serif);font-weight:500;color:var(--slate)}h1{font-size:52px;line-height:1.08;margin:0 0 18px;max-width:15ch}.verdict{position:sticky;top:24px;background:var(--g150);border-left:3px solid var(--clay);border-radius:0 12px 12px 0}.matrix{overflow:auto}.matrix table{width:100%;min-width:820px;border-collapse:collapse}.matrix th,.matrix td{padding:13px 15px;border-bottom:1px solid var(--g150);text-align:left;vertical-align:top}.matrix thead th{background:var(--g150);color:var(--g500);font:11px var(--mono);letter-spacing:.08em;text-transform:uppercase}.score{font:600 20px var(--mono);color:#B85C3E}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}.card{padding:18px;border-top:3px solid var(--clay)}.card.best{border-top-color:var(--olive)}.badge{font:11px var(--mono);letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--g300);border-radius:999px;padding:4px 8px;background:var(--g150);color:var(--g500)}
+    @media(max-width:820px){.page{padding:32px 16px}.hero,.cards{grid-template-columns:1fr}.verdict{position:static}h1{font-size:36px;max-width:none}}
   </style>
 </head>
 <body>
 <main class="page">
   <section class="hero">
     <article class="panel">
-      <div class="eyebrow">Decision Surface</div>
+      <div class="eyebrow">Decision surface</div>
       <h1>选择首发 iOS App 方向</h1>
-      <p>结论先行，下面用同一组 criteria 横向比较选项。</p>
+      <p>结论放在右侧，主体用同一组 criteria 横向比较。页面像一张安静的决策备忘录，而不是 dashboard。</p>
     </article>
     <aside class="panel verdict">
       <div class="eyebrow">Recommendation</div>
       <h2>英语口语微练习</h2>
-      <p>高频痛点、MVP 可控、订阅路径自然。</p>
+      <p>高频痛点、MVP 可控、订阅路径自然。先用一周 dogfood 验证。</p>
     </aside>
   </section>
-  <section class="matrix-wrap">
+  <section class="matrix">
     <table>
-      <thead><tr><th>Option</th><th>Score</th><th>Decision</th><th>Best signal</th><th>Key risk</th></tr></thead>
+      <thead><tr><th>Option</th><th>Score</th><th>Decision</th><th>Best signal</th><th>Risk</th></tr></thead>
       <tbody>
         <tr><th>英语口语微练习</th><td><span class="score">8</span></td><td><span class="badge">recommended</span></td><td>自用痛点强</td><td>语音反馈质量</td></tr>
-        <tr><th>健身打卡</th><td><span class="score">6</span></td><td><span class="badge">watch</span></td><td>MVP 快</td><td>差异化弱</td></tr>
-        <tr><th>AI 工作日报</th><td><span class="score">7</span></td><td><span class="badge">risky</span></td><td>dogfood 强</td><td>权限和隐私复杂</td></tr>
+        <tr><th>AI 工作日报</th><td><span class="score">7</span></td><td><span class="badge">watch</span></td><td>dogfood 强</td><td>权限和隐私复杂</td></tr>
+        <tr><th>健身打卡</th><td><span class="score">6</span></td><td><span class="badge">defer</span></td><td>MVP 快</td><td>差异化弱</td></tr>
       </tbody>
     </table>
   </section>
   <section class="cards">
-    <article class="card"><h3>Trade-off</h3><p>速度 vs 差异化。</p></article>
-    <article class="card"><h3>Trigger</h3><p>1 周 dogfood 后改判。</p></article>
-    <article class="card"><h3>Next step</h3><p>做最小口语练习闭环。</p></article>
+    <article class="card best"><h3>Next step</h3><p>做 3 分钟口语练习闭环。</p></article>
+    <article class="card"><h3>Trade-off</h3><p>速度和差异化不能同时最大化。</p></article>
+    <article class="card"><h3>Uncertainty</h3><p>AI 反馈稳定性仍需实测。</p></article>
   </section>
-  <section class="uncertainty"><h2>Uncertainty</h2><p>付费意愿和 AI 反馈稳定性仍需验证。</p></section>
 </main>
 </body>
 </html>

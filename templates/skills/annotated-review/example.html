@@ -1,39 +1,26 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Annotated Review Example</title>
   <style>
-    body{margin:0;background:#11100e;color:#17130f;font-family:Inter,system-ui,sans-serif}
-    .page{max-width:1280px;margin:auto;padding:28px 22px;min-height:100vh;background:linear-gradient(180deg,#f8f4ec,#eee4d7)}
-    .hero{display:grid;grid-template-columns:1fr 340px;gap:14px}
-    .panel,.finding,.list-card{background:#fbf8f1;border:1px solid #ded3c4;border-radius:8px;box-shadow:0 18px 48px rgba(0,0,0,.18)}
-    .panel{padding:20px}
-    .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#c96442;font-weight:900}
-    h1{font-size:58px;line-height:.98;margin:12px 0;max-width:14ch}
-    aside.panel{position:sticky;top:16px;background:#1b1713;color:#fff7ed;border-color:#34251c}
-    .overall{display:inline-flex;border-radius:999px;padding:7px 10px;color:white;background:#b7791f;font-size:12px;text-transform:uppercase;font-weight:900}
-    .findings{display:grid;grid-template-columns:74px 1fr;gap:10px 14px;margin-top:18px}
-    .findings:before{content:"severity";font:900 11px ui-monospace,monospace;text-transform:uppercase;color:#74695d;padding-top:18px}
-    .finding{grid-column:2;position:relative;padding:16px;border-left:7px solid #b7791f}
-    .finding.high{border-left-color:#9c2a25}
-    .finding:before{content:attr(data-sev);position:absolute;left:-88px;top:16px;width:70px;text-align:right;font:900 11px ui-monospace,monospace;text-transform:uppercase;color:#74695d}
-    code{font:700 12px ui-monospace,monospace;background:#f1ece4;border:1px solid #ded3c4;border-radius:6px;padding:7px 9px}
-    .recommend{background:#eef8ef;border:1px solid #bde5c2;border-radius:7px;padding:10px;color:#123d20}
+    :root{--ivory:#FAF9F5;--paper:#fff;--slate:#141413;--clay:#D97757;--rust:#B04A3F;--olive:#788C5D;--g150:#F0EEE6;--g300:#D1CFC5;--g500:#87867F;--g700:#3D3D3A;--serif:ui-serif,Georgia,"Times New Roman",serif;--sans:system-ui,-apple-system,"Segoe UI",sans-serif;--mono:ui-monospace,"SF Mono",Menlo,monospace}
+    *{box-sizing:border-box}body{margin:0;background:var(--ivory);color:var(--g700);font:15px/1.6 var(--sans);-webkit-font-smoothing:antialiased}.page{max-width:960px;margin:auto;padding:52px 24px 92px}.hero{display:grid;grid-template-columns:1fr 280px;gap:26px;border-bottom:1.5px solid var(--g300);padding-bottom:32px;margin-bottom:34px}.panel,.finding,.list-card{background:var(--paper);border:1.5px solid var(--g300);border-radius:12px}.panel{padding:24px 26px}.eyebrow{font:11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--g500);display:flex;gap:10px;align-items:center;margin-bottom:12px}.eyebrow:before{content:"";width:22px;height:1.5px;background:var(--clay)}h1,h2,h3{font-family:var(--serif);font-weight:500;color:var(--slate)}h1{font-size:52px;line-height:1.08;margin:0;max-width:16ch}.summary{position:sticky;top:24px;background:var(--g150);border-left:3px solid var(--clay);border-radius:0 12px 12px 0}.pill{display:inline-flex;font:11px var(--mono);letter-spacing:.06em;text-transform:uppercase;border:1.5px solid rgba(217,119,87,.45);border-radius:999px;padding:5px 9px;background:rgba(217,119,87,.1);color:#B85C3E}.finding{border-left:3px solid var(--clay);border-radius:0 12px 12px 0;padding:18px;margin-bottom:16px}.finding.high{border-left-color:var(--rust)}.finding.low{border-left-color:var(--olive)}.finding-head{display:flex;justify-content:space-between;gap:16px}.loc{display:inline-block;background:var(--g150);border:1.5px solid var(--g300);border-radius:6px;padding:5px 8px;font:12px var(--mono)}.recommend{border:1.5px solid rgba(120,140,93,.42);border-radius:8px;background:rgba(120,140,93,.1);padding:11px 12px;color:var(--slate)}.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}.list-card{padding:18px}
+    @media(max-width:860px){.page{padding:36px 16px}.hero,.two{grid-template-columns:1fr}.summary{position:static}h1{font-size:36px;max-width:none}.finding-head{display:block}.pill{margin-top:8px}}
   </style>
 </head>
 <body>
 <main class="page">
   <section class="hero">
-    <article class="panel"><div class="eyebrow">Annotated Review</div><h1>HTML workflow 变更审查</h1><p>Findings first，不写温和总结。</p></article>
-    <aside class="panel"><span class="overall">Caution</span><p>风险集中在发布并发和视觉漂移。</p></aside>
+    <article class="panel"><div class="eyebrow">Annotated review</div><h1>HTML workflow 变更审查</h1><p>Findings first，先讲风险和建议，再讲背景。</p></article>
+    <aside class="panel summary"><span class="pill">Caution</span><p>风险集中在发布并发和视觉漂移。</p></aside>
   </section>
-  <section class="findings">
-    <article class="finding high" data-sev="high"><h2>并行 publish 会撞 public export</h2><code>html-artifact-publish</code><p>多个发布同时导出 public 目录时会 502。</p><div class="recommend">Recommendation: artifact publish sequential only。</div></article>
-    <article class="finding" data-sev="medium"><h2>新模板视觉还像旧文档</h2><code>templates/fast/*.css</code><p>capability 已补，但 visual identity 不够。</p><div class="recommend">Recommendation: 给每个模板独立 example.html 和 CSS。</div></article>
+  <section>
+    <article class="finding high"><div class="finding-head"><h2>并行 publish 会撞 public export</h2><span class="pill">High</span></div><p><span class="loc">html-artifact-publish</span></p><p>多个发布同时导出 public 目录时会出现 502。</p><div class="recommend">Recommendation: artifact publish sequential only。</div></article>
+    <article class="finding"><div class="finding-head"><h2>模板视觉滑回旧文档风格</h2><span class="pill">Medium</span></div><p><span class="loc">templates/fast/*.css</span></p><p>应该使用官方 paper token 和细边框体系，而不是重 dashboard。</p><div class="recommend">Recommendation: 以 Anthropic-style examples 作为视觉基准。</div></article>
   </section>
-  <section class="list-card"><h2>Test Gaps</h2><p>需要用真实 PR / feature / decision 三类输入做视觉回归。</p></section>
+  <section class="two"><article class="list-card"><h2>Test gaps</h2><p>需要真实 PR / feature / decision 输入回归。</p></article><article class="list-card"><h2>Next steps</h2><p>先修 CSS token，再修 route examples。</p></article></section>
 </main>
 </body>
 </html>
