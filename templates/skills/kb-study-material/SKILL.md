@@ -27,6 +27,13 @@ example_desc: "适合承接 /html learn 选 1、system-study、KB 主题页和�
 - 概念解释、实践步骤、反例、争议议题。
 - system-study 的阶段性调研结论。
 - 用户已有判断和待验证问题。
+- `/html learn` 的 focus 标记，例如 `topic_focus=subject` 或 `learning_focus=true`。
+
+【学习焦点规则】
+- 如果输入是普通主题，例如 `独立 App UI 设计`，输出应以主题理解、概念边界、案例判断和行动迁移为主。
+- 如果输入包含 `learning_focus=true`，或主题明显是 `怎么学 X` / `X 学习` / `X 学习路线` / `X 训练` / `X 练习计划`，不要只解释 X；必须把页面写成“学习 X 的训练系统”。
+- `learning_focus=true` 时，保留主题形状，但主轴改成：阶段路线、每阶段练习、输出物标准、反馈检查、复习节奏、生产任务。
+- 同一主题的 subject-focused artifact 和 learning-focused artifact 不应完全相同；后者要更像 deliberate practice plan。
 
 【Learning Pack v2 模块边界】
 本模板是 `/html learn` 选择 1 的默认主模板。它必须服务完整学习闭环：
@@ -48,6 +55,12 @@ example_desc: "适合承接 /html learn 选 1、system-study、KB 主题页和�
 9. Review Cards：复习卡片，用于间隔复习和二次调用。
 10. Transfer Task：迁移练习，把主题放到新场景里做一个小输出。
 11. KB Links：知识库回链 / 项目回链 / 来源回链。
+
+当 `learning_focus=true` 时，必须额外强化：
+
+12. Learning Route：阶段学习路线，例如 Day 0、Week 1、Week 2、Month 1。
+13. Practice Plan：每阶段的输入材料、练习输出、反馈方法、通过标准。
+14. Review Cadence：间隔复习节奏，例如当天、3 天后、7 天后、14 天后。
 
 【矩阵分工】
 - 本模板里的矩阵必须叫 `Contrast Matrix` 或 `Practice Matrix`。
