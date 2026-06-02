@@ -1,0 +1,14 @@
+{
+  "id": "blog-post-fast",
+  "name": "Blog Post Fast",
+  "description": "Deterministic local editorial blog post page with masthead, hero, readable article body, pull quotes, code, and endnote styling.",
+  "category": "fast-local",
+  "aspectHint": "responsive long page",
+  "recommended": true,
+  "renderer": "markdown-page",
+  "style": "style.css",
+  "title": "Blog Post",
+  "aliases": [
+    "blog-post"
+  ]
+}
