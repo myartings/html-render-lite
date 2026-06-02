@@ -8,6 +8,13 @@ category: decision
 scenario: planning
 aspect_hint: "桌面长页面 / 响应式表格"
 featured: 31
+example_id: sample-decision-matrix-ios-app
+example_name: "Decision Matrix · iOS App 方向"
+example_format: markdown
+example_tagline: "推荐结论 + criteria matrix + trade-off"
+example_desc: "把多个 iOS App 方向整理成可截图、可复盘的决策页面"
+example_source_url: "https://github.com/ThariqS/html-effectiveness"
+example_source_label: "Anthropic PBC html-effectiveness"
 tags: ["decision", "matrix", "compare", "tradeoff", "决策", "比较"]
 ---
 
@@ -65,13 +72,14 @@ tags: ["decision", "matrix", "compare", "tradeoff", "决策", "比较"]
    - 什么证据会改变结论。
    - 下一步用什么小实验验证。
 
-【硬性视觉签名】
-- 专业、冷静、决策面板感，不要 landing page / marketing hero。
-- 背景 warm neutral `#fafaf7` 或接近色；正文 `#15140f`；边框 `#e7e5e0`。
-- 主强调色用陶土橙 `#c96442`；风险用克制红 `#9c2a25`；正向用绿 `#1f7a3a`。
-- 卡片圆角 8-12px，边框为主，阴影很轻。
-- 可以使用 sticky summary 或 sticky first column，但移动端必须可读。
-- 不要蓝紫渐变、玻璃拟态、hero 大图、花哨装饰。
+【硬性视觉签名 — 贴近 example.html】
+- 这是 Anthropic-style paper artifact，不是通用 dashboard，也不是 landing page / marketing hero。
+- 使用 example.html 的官方纸面色系：页面 `#FAF9F5`，surface `#FFFFFF`，主文字 `#141413`，正文 `#3D3D3A`，muted `#87867F`，边框 `#D1CFC5`，浅底 `#F0EEE6`。
+- 主强调色用 clay `#D97757`；辅助正向用 olive `#788C5D`；辅助块可用 oat `#E3DACC`。
+- 标题用 serif (`ui-serif`, Georgia)，正文用 system sans，metadata / score / badge / path 用 mono。
+- 边框以 `1.5px solid #D1CFC5` 为主，圆角 8-12px，shadow 极轻或不用。
+- 结构要像一张安静的决策备忘录：paper header + sticky/reusable verdict + 局部横向滚动 matrix + option/trade-off cards。
+- 不要黑色面板、霓虹、蓝紫渐变、玻璃拟态、hero 大图、KPI dashboard 堆叠、装饰性网格背景。
 
 【内容规则】
 - 不要伪造数据、价格、市场结论或用户偏好。

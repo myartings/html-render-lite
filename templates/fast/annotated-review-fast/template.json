@@ -3,7 +3,7 @@
   "name": "Annotated Review Fast",
   "description": "Deterministic local review surface for findings, severity, risk map, affected files, test gaps, and next steps.",
   "category": "fast-local",
-  "aspectHint": "responsive review dashboard",
+  "aspectHint": "responsive paper review board",
   "recommended": true,
   "renderer": "annotated-review",
   "style": "style.css",

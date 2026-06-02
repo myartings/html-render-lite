@@ -8,6 +8,13 @@ category: review
 scenario: engineering
 aspect_hint: "桌面长页面 / findings board"
 featured: 33
+example_id: sample-annotated-review-html-workflow
+example_name: "Annotated Review · HTML Workflow"
+example_format: markdown
+example_tagline: "Findings first + risk map + test gaps"
+example_desc: "把 PR/diff/方案审查整理成可操作的 findings-first 页面"
+example_source_url: "https://github.com/ThariqS/html-effectiveness"
+example_source_label: "Anthropic PBC html-effectiveness"
 tags: ["review", "diff", "pr", "risk", "findings", "审查"]
 ---
 
@@ -66,17 +73,15 @@ tags: ["review", "diff", "pr", "risk", "findings", "审查"]
    - Follow-up improvements。
    - Optional cleanup。
 
-【硬性视觉签名】
-- 审查工具感，密度比文章高，但不能乱。
-- 背景 `#fafaf7`；文字 `#15140f`；边框 `#e7e5e0`；强调 `#c96442`。
-- Severity 颜色克制：
-  - Critical/High: `#9c2a25`
-  - Medium: `#b7791f`
-  - Low/Info: `#5a564e`
-  - Pass/OK: `#1f7a3a`
-- Findings 卡片圆角 8px 左右，左侧可用 severity 色条。
-- 顶部 verdict 可以 sticky，但不得遮挡正文。
-- 移动端单栏，finding 字段不要挤成难读表格。
+【硬性视觉签名 — 贴近 example.html】
+- 这是 Anthropic-style paper review board，密度比文章高，但不能变成深色 dashboard。
+- 使用 example.html 的官方纸面色系：页面 `#FAF9F5`，surface `#FFFFFF`，主文字 `#141413`，正文 `#3D3D3A`，muted `#87867F`，边框 `#D1CFC5`，浅底 `#F0EEE6`。
+- 主强调色用 clay `#D97757`；辅助正向用 olive `#788C5D`；辅助块可用 oat `#E3DACC`。
+- 标题用 serif (`ui-serif`, Georgia)，正文用 system sans，severity / file path / metadata 用 mono。
+- Severity 颜色克制：High/Critical 用 warm rust `#B04A3F`，Medium 用 clay `#D97757`，Low/Info 用 muted gray `#87867F`，Pass/OK 用 olive `#788C5D`。
+- Findings 卡片以 1.5px 细边框和左侧 severity 色条为主，圆角 8-12px，shadow 极轻或不用。
+- 顶部 verdict 可以 sticky，但不得遮挡正文；移动端单栏，finding 字段不要挤成难读表格。
+- 不要黑色面板、霓虹、蓝紫渐变、玻璃拟态、通用 KPI dashboard、过度控制台 UI。
 
 【内容规则】
 - 不要为了显得有用而编造 bug。

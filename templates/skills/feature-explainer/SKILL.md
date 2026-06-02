@@ -8,6 +8,13 @@ category: doc
 scenario: engineering
 aspect_hint: "桌面长页面 / 路径图"
 featured: 32
+example_id: sample-feature-explainer-artifact-publish
+example_name: "Feature Explainer · Artifact Publish"
+example_format: markdown
+example_tagline: "Files read rail + numbered flow + gotchas"
+example_desc: "把一个工程流程解释成带 provenance 的机制图"
+example_source_url: "https://github.com/ThariqS/html-effectiveness"
+example_source_label: "Anthropic PBC html-effectiveness"
 tags: ["feature", "explainer", "repo", "codebase", "mechanism", "源码"]
 ---
 
@@ -63,13 +70,15 @@ tags: ["feature", "explainer", "repo", "codebase", "mechanism", "源码"]
    - 如果要继续深挖，下一步读哪些文件。
    - 如果要改代码，建议先改哪里、跑什么验证。
 
-【硬性视觉签名】
-- 工程解释界面，不要博客杂志风。
-- 背景 warm docs `#fafaf9`；正文 `#1c1b1a`；muted `#6b6964`；边框 `#e6e4e0`；强调 `#c96442`。
-- 左侧可有 source map/sidebar，主区域是 flow steps，右侧可有 mini TOC 或 risk notes。
-- 代码路径用 mono，小号但清晰。
-- Callout 左边框用陶土橙；风险用红；验证状态用绿/黄。
-- 移动端必须单栏，source map 不得把正文挤没。
+【硬性视觉签名 — 贴近 example.html】
+- 这是 Anthropic-style paper explainer，不要博客杂志风，也不要深色 dev console。
+- 使用 example.html 的官方纸面色系：页面 `#FAF9F5`，surface `#FFFFFF`，主文字 `#141413`，正文 `#3D3D3A`，muted `#87867F`，边框 `#D1CFC5`，浅底 `#F0EEE6`。
+- 主强调色用 clay `#D97757`；辅助正向用 olive `#788C5D`；辅助块可用 oat `#E3DACC`。
+- 标题用 serif (`ui-serif`, Georgia)，正文用 system sans，文件路径 / metadata / step no. 用 mono。
+- 布局优先用左侧 `Files Read` rail + 右侧机制正文；主区域是 numbered flow，不是普通长文章。
+- Callout / gotcha 使用 1.5px 细边框或 clay 左边框；阴影极轻或不用。
+- 移动端必须单栏，source map 不得把正文挤没；长路径必须 `overflow-wrap:anywhere`。
+- 不要黑色面板、霓虹、蓝紫渐变、玻璃拟态、dashboard KPI、花哨 diagram 装饰。
 
 【内容规则】
 - 文件路径必须来自输入或实际读取结果，不要编造。
