@@ -1,0 +1,291 @@
+{
+  "title": "存在主义学习知识图谱 Demo",
+  "topic": "existentialism",
+  "version": "demo-1",
+  "nodes": [
+    {
+      "id": "existentialism",
+      "label": "存在主义",
+      "type": "center",
+      "summary": "人在没有预设意义的世界中，通过选择与行动创造意义的思想传统。",
+      "memory": "没有现成意义 → 人必须选择 → 选择意味着责任。"
+    },
+    {
+      "id": "god_is_dead",
+      "label": "上帝死了",
+      "type": "concept",
+      "summary": "尼采用来描述传统宗教/形而上价值权威崩塌的说法。",
+      "memory": "旧价值不再自动有效。"
+    },
+    {
+      "id": "collapse_values",
+      "label": "旧价值崩塌",
+      "type": "problem",
+      "summary": "当传统价值失去约束力，人不再能直接从外部获得人生答案。",
+      "memory": "没人替你回答人生。"
+    },
+    {
+      "id": "nihilism",
+      "label": "虚无主义",
+      "type": "concept",
+      "summary": "既有价值失效后，人可能认为一切都没有意义。",
+      "memory": "意义真空。"
+    },
+    {
+      "id": "freedom",
+      "label": "自由",
+      "type": "concept",
+      "summary": "存在主义中的自由不是轻松随便，而是人无法逃避选择。",
+      "memory": "你总是在选择。"
+    },
+    {
+      "id": "responsibility",
+      "label": "责任",
+      "type": "concept",
+      "summary": "既然选择来自自己，就必须承担选择带来的后果。",
+      "memory": "自由的背面是责任。"
+    },
+    {
+      "id": "anxiety",
+      "label": "焦虑",
+      "type": "experience",
+      "summary": "面对自由与责任时产生的不安；不是病态，而是存在处境的信号。",
+      "memory": "焦虑说明你知道选择重要。"
+    },
+    {
+      "id": "authenticity",
+      "label": "真实存在",
+      "type": "concept",
+      "summary": "不把选择完全交给社会脚本、他人期待或借口，而是承认并承担自己的选择。",
+      "memory": "承认这是我的选择。"
+    },
+    {
+      "id": "absurd",
+      "label": "荒诞",
+      "type": "concept",
+      "summary": "加缪强调：人渴望意义，但世界沉默，由此产生荒诞。",
+      "memory": "人要答案，世界不回答。"
+    },
+    {
+      "id": "create_meaning",
+      "label": "创造意义",
+      "type": "outcome",
+      "summary": "存在主义不是摆烂，而是在没有现成答案时通过行动创造自己的意义。",
+      "memory": "意义不是发现，是创造。"
+    },
+    {
+      "id": "kierkegaard",
+      "label": "克尔凯郭尔",
+      "type": "person",
+      "summary": "存在主义先驱，强调个体选择、信仰与焦虑。",
+      "memory": "个体选择与信仰跳跃。"
+    },
+    {
+      "id": "nietzsche",
+      "label": "尼采",
+      "type": "person",
+      "summary": "提出“上帝死了”、虚无主义与价值重估，深刻影响存在主义。",
+      "memory": "旧价值崩了，要重估价值。"
+    },
+    {
+      "id": "heidegger",
+      "label": "海德格尔",
+      "type": "person",
+      "summary": "分析此在、真实存在、向死而生等存在问题。",
+      "memory": "人如何存在。"
+    },
+    {
+      "id": "sartre",
+      "label": "萨特",
+      "type": "person",
+      "summary": "把存在主义系统化，提出“存在先于本质”。",
+      "memory": "先存在，再定义自己。"
+    },
+    {
+      "id": "camus",
+      "label": "加缪",
+      "type": "person",
+      "summary": "用文学与随笔表达荒诞处境，代表作《局外人》《西西弗神话》。",
+      "memory": "承认荒诞，仍然行动。"
+    },
+    {
+      "id": "existence_before_essence",
+      "label": "存在先于本质",
+      "type": "claim",
+      "summary": "人不是先有固定本质再生活，而是在生活和选择中定义自己。",
+      "memory": "你不是预设角色。"
+    },
+    {
+      "id": "the_stranger",
+      "label": "《局外人》",
+      "type": "book",
+      "summary": "通过默尔索的故事呈现荒诞、疏离与社会审判。",
+      "memory": "荒诞的文学入口。"
+    },
+    {
+      "id": "sisyphus",
+      "label": "《西西弗神话》",
+      "type": "book",
+      "summary": "加缪讨论荒诞与反抗，提出“必须想象西西弗是幸福的”。",
+      "memory": "知道无意义，仍推石头。"
+    },
+    {
+      "id": "humanism",
+      "label": "《存在主义是一种人道主义》",
+      "type": "book",
+      "summary": "萨特的入门演讲文本，适合理解自由、责任和存在先于本质。",
+      "memory": "萨特入门。"
+    },
+    {
+      "id": "misread",
+      "label": "误区：摆烂哲学",
+      "type": "pitfall",
+      "summary": "存在主义不是“人生无意义所以随便”，而是“没有现成意义，所以更要承担选择”。",
+      "memory": "不是摆烂，是负责。"
+    }
+  ],
+  "edges": [
+    {
+      "source": "nietzsche",
+      "target": "god_is_dead",
+      "relation": "提出",
+      "explanation": "尼采用“上帝死了”概括传统价值权威的崩塌。"
+    },
+    {
+      "source": "god_is_dead",
+      "target": "collapse_values",
+      "relation": "导致",
+      "explanation": "最高价值不再稳定，旧价值体系随之动摇。"
+    },
+    {
+      "source": "collapse_values",
+      "target": "nihilism",
+      "relation": "引出",
+      "explanation": "旧答案失效后，人容易滑向虚无主义。"
+    },
+    {
+      "source": "nihilism",
+      "target": "existentialism",
+      "relation": "构成问题背景",
+      "explanation": "存在主义回应的是现代人如何面对虚无与意义危机。"
+    },
+    {
+      "source": "existentialism",
+      "target": "freedom",
+      "relation": "强调",
+      "explanation": "人必须自己选择，没有外部答案可以完全替代。"
+    },
+    {
+      "source": "freedom",
+      "target": "responsibility",
+      "relation": "带来",
+      "explanation": "自由不是没有后果，而是必须承担后果。"
+    },
+    {
+      "source": "responsibility",
+      "target": "anxiety",
+      "relation": "产生",
+      "explanation": "选择重要且不可逃避，因此带来焦虑。"
+    },
+    {
+      "source": "anxiety",
+      "target": "authenticity",
+      "relation": "推动",
+      "explanation": "焦虑可以逼迫人承认自己的处境和选择。"
+    },
+    {
+      "source": "authenticity",
+      "target": "create_meaning",
+      "relation": "通向",
+      "explanation": "真实存在不是找到标准答案，而是在承担中创造意义。"
+    },
+    {
+      "source": "camus",
+      "target": "absurd",
+      "relation": "文学化呈现",
+      "explanation": "加缪以荒诞描述人的意义渴望与世界沉默的冲突。"
+    },
+    {
+      "source": "absurd",
+      "target": "create_meaning",
+      "relation": "要求反抗",
+      "explanation": "承认荒诞后仍然行动，是加缪式反抗。"
+    },
+    {
+      "source": "sartre",
+      "target": "existence_before_essence",
+      "relation": "提出/普及",
+      "explanation": "萨特用它表达人的自我定义来自选择。"
+    },
+    {
+      "source": "existence_before_essence",
+      "target": "freedom",
+      "relation": "支持",
+      "explanation": "没有预设本质，所以人要通过选择定义自己。"
+    },
+    {
+      "source": "kierkegaard",
+      "target": "anxiety",
+      "relation": "早期讨论",
+      "explanation": "克尔凯郭尔把焦虑视为个体面对可能性时的状态。"
+    },
+    {
+      "source": "heidegger",
+      "target": "authenticity",
+      "relation": "分析",
+      "explanation": "海德格尔讨论真实存在与非真实存在。"
+    },
+    {
+      "source": "sartre",
+      "target": "existentialism",
+      "relation": "系统化表达",
+      "explanation": "萨特让存在主义成为更明确的哲学立场。"
+    },
+    {
+      "source": "camus",
+      "target": "the_stranger",
+      "relation": "创作",
+      "explanation": "《局外人》是荒诞处境的文学入口。"
+    },
+    {
+      "source": "camus",
+      "target": "sisyphus",
+      "relation": "创作",
+      "explanation": "《西西弗神话》是荒诞哲学的入门文本。"
+    },
+    {
+      "source": "sartre",
+      "target": "humanism",
+      "relation": "演讲文本",
+      "explanation": "《存在主义是一种人道主义》适合快速理解萨特。"
+    },
+    {
+      "source": "misread",
+      "target": "existentialism",
+      "relation": "误读",
+      "explanation": "把存在主义理解成摆烂，会丢失“自由与责任”的核心。"
+    },
+    {
+      "source": "existentialism",
+      "target": "create_meaning",
+      "relation": "目标",
+      "explanation": "存在主义最终关心人在无预设意义中如何活出意义。"
+    }
+  ],
+  "memory_chain": [
+    "上帝死了",
+    "旧价值崩塌",
+    "虚无主义",
+    "自由",
+    "责任",
+    "焦虑",
+    "真实存在",
+    "创造意义"
+  ],
+  "learning_path": [
+    "先读加缪《局外人》感受荒诞",
+    "再读《西西弗神话》理解荒诞与反抗",
+    "读萨特《存在主义是一种人道主义》抓住自由与责任",
+    "回到尼采理解旧价值崩塌与价值重估"
+  ]
+}
