@@ -60,25 +60,31 @@
     <aside>
       <h2>学习导航</h2>
       <a class="active" href="#overview">Overview</a>
+      <a href="#shape">Shape Snapshot</a>
       <a href="#concepts">核心概念</a>
+      <a href="#matrix">Contrast Matrix</a>
+      <a href="#action">Action Ladder</a>
       <a href="#cases">案例</a>
-      <a href="#debate">争议</a>
-      <a href="#cheatsheet">Cheat Sheet</a>
+      <a href="#cheatsheet">Review</a>
     </aside>
     <main>
       <div class="eyebrow">系统学习材料</div>
       <h1>AI Coding 系统学习</h1>
-      <p class="lead">这份材料把知识库主题页、长调研和实践案例整理成可长期复习的学习路径，保留来源、争议和可执行下一步。</p>
+      <p class="lead">这份材料把知识库主题页、长调研和实践案例整理成可行动、可反馈、可复习的学习路径，保留来源、边界、验证和下一步。</p>
       <div class="meta"><span>2026-05-23</span><span>12 个来源</span><span>5 个案例</span><span>3 个争议</span></div>
       <section id="overview">
         <h2>学习路线</h2>
         <div class="route">
-          <div class="step"><strong>入门</strong>建立术语表</div>
-          <div class="step"><strong>概念</strong>理解工作流</div>
-          <div class="step"><strong>实战</strong>复刻案例</div>
-          <div class="step"><strong>争议</strong>识别边界</div>
-          <div class="step"><strong>下一步</strong>写入 KB</div>
+          <div class="step"><strong>形状化</strong>看到核心结构</div>
+          <div class="step"><strong>概念</strong>理解边界</div>
+          <div class="step"><strong>行动</strong>做低难度输出</div>
+          <div class="step"><strong>反馈</strong>用测试纠错</div>
+          <div class="step"><strong>复习</strong>写入 KB</div>
         </div>
+      </section>
+      <section id="shape">
+        <h2>Shape Snapshot</h2>
+        <p>Agent 负责执行，Harness 负责约束，Verification 负责检查，Knowledge Base 负责沉淀。这里只放轻量结构，不展开完整 Study Map。</p>
       </section>
       <section id="concepts">
         <h2>核心概念</h2>
@@ -86,17 +92,21 @@
         <div class="callout insight">对 myartings 的启示：把可复用结论沉淀到 skill、playbook 和模板规范中。</div>
         <pre><code>html-render --template auto --intent study --out /tmp/page.html</code></pre>
       </section>
+      <section id="matrix">
+        <h2>Contrast Matrix</h2>
+        <table><tr><th>概念</th><th>作用</th><th>易混点</th><th>检验题</th></tr><tr><td>Harness</td><td>工程化约束</td><td>误以为只是 prompt</td><td>有日志、测试和回滚吗？</td></tr><tr><td>Spec</td><td>验收标准</td><td>误以为是长需求文档</td><td>能直接判断完成/失败吗？</td></tr></table>
+      </section>
+      <section id="action">
+        <h2>Action Ladder / Feedback Test</h2>
+        <p>10 分钟写输入输出和验收标准；1 小时让 Agent 小步实现并跑测试；1 天沉淀失败样本；1 周固化成 skill / playbook / KB 页面。</p>
+      </section>
       <section id="cases">
         <h2>案例折叠</h2>
         <details open><summary>案例 1: 模板视觉签名</summary><p>来源、背景、事实片段、点评、可复用技巧和不要照抄什么。</p></details>
         <details><summary>案例 2: 跨平台 agent workflow</summary><p>保留证据链和适用范围，避免把局部修复当全局规范。</p></details>
       </section>
-      <section id="debate">
-        <h2>争议双轨</h2>
-        <table><tr><th>主流观点</th><th>反方观点</th><th>我的初判</th></tr><tr><td>模板越强越稳定</td><td>模板太强会限制创造</td><td>倾向 7/10: 高频模板强约束，探索模板保留自由度。</td></tr></table>
-      </section>
       <section id="cheatsheet" class="next">
-        <h2>Next Step</h2>
+        <h2>Review Cards / Transfer Task</h2>
         <p>做一个 30 分钟原型复刻实验，把成功约束写回 KB 页面，并生成一份可分享 HTML 学习页。</p>
       </section>
     </main>

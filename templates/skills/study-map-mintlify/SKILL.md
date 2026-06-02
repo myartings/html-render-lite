@@ -3,7 +3,7 @@ name: study-map-mintlify
 zh_name: "Study Map 学习地图"
 en_name: "Study Map Learning Board"
 emoji: "🧭"
-description: "Mintlify 风格学习地图：思维导图 + 概念图 + 流程图 + 矩阵 + 来源，适合知识库主题页和研究学习材料"
+description: "Mintlify 风格学习地图：思维导图 + 概念图 + Learning Flow + Structure Matrix + 来源，适合知识库主题页和研究学习材料"
 category: doc
 scenario: education
 aspect_hint: "桌面长页面 / 顶部 sticky nav"
@@ -12,12 +12,18 @@ tags: ["study", "learning", "mind-map", "concept-map", "flowchart", "matrix", "k
 example_id: sample-vibe-coding-study-map
 example_name: "Study Map · Vibe Coding"
 example_format: markdown
-example_tagline: "思维导图 + 概念图 + 流程图 + 矩阵"
-example_desc: "Mintlify 文档风学习地图，适合知识库主题、系统学习材料、公众号研究整理"
+example_tagline: "思维导图 + 概念图 + Learning Flow + Structure Matrix"
+example_desc: "Mintlify 文档风学习地图，适合知识库主题、路线结构、概念关系和多来源研究整理"
 ---
 
 【模板: Study Map 学习地图 · Mintlify 风格】
-【意图】把一个学习主题做成固定结构的学习看板 HTML，不是文章页、不是 PPT、不是 dashboard。适用场景：知识库主题页可视化、研究材料整理、公众号/网页搜索结果合成学习地图。
+【意图】把一个学习主题做成固定结构的学习看板 HTML，不是文章页、不是 PPT、不是 dashboard，也不是完整 Learning Pack。适用场景：知识库主题页可视化、研究材料整理、公众号/网页搜索结果合成学习地图。
+
+【定位边界】
+- 本模板是 `/html learn` 选择 3 的默认模板，负责“看见形状”：路线、分区、概念关系、学习顺序。
+- 它是 `kb-study-material` 中 `Shape Snapshot` 的专门展开版。
+- 不默认加入自测题、行动阶梯、复习卡片、迁移任务；这些属于 `kb-study-material`。
+- 本模板里的矩阵必须叫 `Structure Matrix`，服务主题空间结构，不服务概念辨析训练。
 
 【固定页面结构】
 必须严格按以下 7 个 section 依次输出，每个 section 都独立成卡片/区块，之间用大留白分隔：
@@ -45,17 +51,18 @@ example_desc: "Mintlify 文档风学习地图，适合知识库主题、系统�
    - 回路（如右下节点回到左下节点）必须用曲线/折线，不允许用水平线横穿中间节点。
    - 图形优先 clean、可读、逻辑正确。
 
-5. **Flow**
+5. **Learning Flow**
    - 实践流程/学习流程，用编号 step 卡片排布。
    - 4-8 个步骤。
    - 每个步骤：编号、标题、一行说明。
    - 用 grid 排布，桌面 4 列，移动端单列。
 
-6. **Matrix**
-   - 优先级/对比矩阵，4 个象限。
-   - 每个象限：维度标签、标题、3-5 个 bullet。
+6. **Structure Matrix**
+   - 结构矩阵，4 个象限或 2-4 个维度，用来回答“这个领域怎么分区、概念怎么排列、先后顺序是什么”。
+   - 每个象限：结构维度标签、标题、3-5 个 bullet。
    - 用 2x2 grid 排布。
    - 象限背景色用柔和色区分，不用纯白。
+   - 不要写成 `Contrast Matrix` / `Practice Matrix`；不要放检验题、自测题或行动优先级。
 
 7. **Sources / Notes**
    - 来源列表（知识库文章、公众号搜索摘要、网页）。
@@ -70,7 +77,7 @@ example_desc: "Mintlify 文档风学习地图，适合知识库主题、系统�
 - 字体: 系统无衬线，中文优先 `PingFang SC`，英文优先 `Inter`。
 - 卡片: 白色底、1px 浅边框 `rgba(0,0,0,.07)`、`border-radius: 22-26px`、柔和阴影 `0 2px 4px rgba(0,0,0,.03)`。
 - 布局: 居中 max-width 1180px，顶部 sticky nav，section 之间用 `border-top: 1px solid var(--line)` 分隔。
-- 导航: 顶部 sticky 栏，6 个锚点链接（Overview / Mind / Concept / Flow / Matrix / Sources）。
+- 导航: 顶部 sticky 栏，6 个锚点链接（Overview / Mind / Concept / Flow / Structure / Sources）。
 - 不使用：彩色便签、重阴影、玻璃拟态、大面积渐变、纯黑纯白、霓虹色、Tailwind CDN、Google Fonts 外链。
 
 【SVG 图形规范】
@@ -98,4 +105,6 @@ example_desc: "Mintlify 文档风学习地图，适合知识库主题、系统�
 - 不要用任何外部 CDN 或框架。
 - 不要伪造来源；公众号搜索摘要必须标注。
 - Concept Map 连线不能横穿中间节点。
+- 不要把 `Structure Matrix` 写成概念辨析、反例判断或训练矩阵。
+- 不要加入完整 Learning Pack 的自测、复习卡片、Action Ladder、Transfer Task。
 - 不要把整体做成白板风或便签风（那是 Miro 风格，不是 Mintlify）。
