@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Decision Matrix Example</title>
+  <style>
+    body{margin:0;background:#f7f2ea;color:#19140f;font-family:Inter,system-ui,sans-serif}
+    .page{max-width:1240px;margin:auto;padding:34px 22px}
+    .hero{display:grid;grid-template-columns:1.2fr 360px;gap:16px}
+    .panel{background:#fffaf1;border:1px solid #dfd2c1;border-radius:8px;padding:24px}
+    .verdict{position:sticky;top:18px;background:#25160f;color:#fff7ed}
+    .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#c96442;font-weight:900}
+    h1{font-size:64px;line-height:.94;margin:12px 0;max-width:11ch}
+    .matrix-wrap{margin-top:18px;border:1px solid #dfd2c1;border-radius:8px;overflow:auto;background:#fffdf8}
+    table{width:100%;min-width:880px;border-collapse:collapse}
+    th,td{padding:14px;border-bottom:1px solid #dfd2c1;text-align:left;vertical-align:top}
+    thead th{background:#ecdfd0;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#5a4636}
+    .score{font:900 24px ui-monospace,monospace;color:#c96442}
+    .badge{border:1px solid #dfd2c1;border-radius:999px;padding:5px 8px;font-size:11px;text-transform:uppercase}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+    .card{background:#fffdf8;border:1px solid #dfd2c1;border-left:5px solid #c96442;border-radius:8px;padding:16px}
+    .uncertainty{margin-top:18px;background:#211710;color:#fff8ee;border-radius:8px;padding:20px}
+  </style>
+</head>
+<body>
+<main class="page">
+  <section class="hero">
+    <article class="panel">
+      <div class="eyebrow">Decision Surface</div>
+      <h1>选择首发 iOS App 方向</h1>
+      <p>结论先行，下面用同一组 criteria 横向比较选项。</p>
+    </article>
+    <aside class="panel verdict">
+      <div class="eyebrow">Recommendation</div>
+      <h2>英语口语微练习</h2>
+      <p>高频痛点、MVP 可控、订阅路径自然。</p>
+    </aside>
+  </section>
+  <section class="matrix-wrap">
+    <table>
+      <thead><tr><th>Option</th><th>Score</th><th>Decision</th><th>Best signal</th><th>Key risk</th></tr></thead>
+      <tbody>
+        <tr><th>英语口语微练习</th><td><span class="score">8</span></td><td><span class="badge">recommended</span></td><td>自用痛点强</td><td>语音反馈质量</td></tr>
+        <tr><th>健身打卡</th><td><span class="score">6</span></td><td><span class="badge">watch</span></td><td>MVP 快</td><td>差异化弱</td></tr>
+        <tr><th>AI 工作日报</th><td><span class="score">7</span></td><td><span class="badge">risky</span></td><td>dogfood 强</td><td>权限和隐私复杂</td></tr>
+      </tbody>
+    </table>
+  </section>
+  <section class="cards">
+    <article class="card"><h3>Trade-off</h3><p>速度 vs 差异化。</p></article>
+    <article class="card"><h3>Trigger</h3><p>1 周 dogfood 后改判。</p></article>
+    <article class="card"><h3>Next step</h3><p>做最小口语练习闭环。</p></article>
+  </section>
+  <section class="uncertainty"><h2>Uncertainty</h2><p>付费意愿和 AI 反馈稳定性仍需验证。</p></section>
+</main>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Annotated Review Example</title>
+  <style>
+    body{margin:0;background:#11100e;color:#17130f;font-family:Inter,system-ui,sans-serif}
+    .page{max-width:1280px;margin:auto;padding:28px 22px;min-height:100vh;background:linear-gradient(180deg,#f8f4ec,#eee4d7)}
+    .hero{display:grid;grid-template-columns:1fr 340px;gap:14px}
+    .panel,.finding,.list-card{background:#fbf8f1;border:1px solid #ded3c4;border-radius:8px;box-shadow:0 18px 48px rgba(0,0,0,.18)}
+    .panel{padding:20px}
+    .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#c96442;font-weight:900}
+    h1{font-size:58px;line-height:.98;margin:12px 0;max-width:14ch}
+    aside.panel{position:sticky;top:16px;background:#1b1713;color:#fff7ed;border-color:#34251c}
+    .overall{display:inline-flex;border-radius:999px;padding:7px 10px;color:white;background:#b7791f;font-size:12px;text-transform:uppercase;font-weight:900}
+    .findings{display:grid;grid-template-columns:74px 1fr;gap:10px 14px;margin-top:18px}
+    .findings:before{content:"severity";font:900 11px ui-monospace,monospace;text-transform:uppercase;color:#74695d;padding-top:18px}
+    .finding{grid-column:2;position:relative;padding:16px;border-left:7px solid #b7791f}
+    .finding.high{border-left-color:#9c2a25}
+    .finding:before{content:attr(data-sev);position:absolute;left:-88px;top:16px;width:70px;text-align:right;font:900 11px ui-monospace,monospace;text-transform:uppercase;color:#74695d}
+    code{font:700 12px ui-monospace,monospace;background:#f1ece4;border:1px solid #ded3c4;border-radius:6px;padding:7px 9px}
+    .recommend{background:#eef8ef;border:1px solid #bde5c2;border-radius:7px;padding:10px;color:#123d20}
+  </style>
+</head>
+<body>
+<main class="page">
+  <section class="hero">
+    <article class="panel"><div class="eyebrow">Annotated Review</div><h1>HTML workflow 变更审查</h1><p>Findings first，不写温和总结。</p></article>
+    <aside class="panel"><span class="overall">Caution</span><p>风险集中在发布并发和视觉漂移。</p></aside>
+  </section>
+  <section class="findings">
+    <article class="finding high" data-sev="high"><h2>并行 publish 会撞 public export</h2><code>html-artifact-publish</code><p>多个发布同时导出 public 目录时会 502。</p><div class="recommend">Recommendation: artifact publish sequential only。</div></article>
+    <article class="finding" data-sev="medium"><h2>新模板视觉还像旧文档</h2><code>templates/fast/*.css</code><p>capability 已补，但 visual identity 不够。</p><div class="recommend">Recommendation: 给每个模板独立 example.html 和 CSS。</div></article>
+  </section>
+  <section class="list-card"><h2>Test Gaps</h2><p>需要用真实 PR / feature / decision 三类输入做视觉回归。</p></section>
+</main>
+</body>
+</html>

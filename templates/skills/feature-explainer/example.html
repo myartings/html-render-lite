@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Feature Explainer Example</title>
+  <style>
+    body{margin:0;background:#f7f8f5;color:#151815;font-family:Inter,system-ui,sans-serif}
+    .page{max-width:1320px;margin:auto;padding:26px 22px}
+    .hero{display:grid;grid-template-columns:290px 1fr;gap:18px;margin-bottom:18px}
+    .source-block{background:#132119;color:#d9eadb;border-radius:10px;padding:20px;display:flex;align-items:end;text-transform:uppercase;letter-spacing:.12em;font:800 13px ui-monospace,monospace}
+    h1{font-size:58px;line-height:.96;margin:8px 0;max-width:14ch}
+    .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#c96442;font-weight:900}
+    .layout{display:grid;grid-template-columns:290px 1fr;gap:18px}
+    .card,.step{background:#fff;border:1px solid #dfe5dc;border-radius:10px;box-shadow:0 18px 42px rgba(22,35,26,.08)}
+    .card{padding:18px}
+    aside.card{position:sticky;top:18px;max-height:calc(100vh - 36px);overflow:auto}
+    code{font:800 12px ui-monospace,monospace;color:#10231a;overflow-wrap:anywhere}
+    .flow{position:relative;display:grid;gap:12px}
+    .step{display:grid;grid-template-columns:54px 1fr;gap:14px;padding:18px}
+    .num{width:42px;height:42px;border-radius:999px;background:#163324;color:#d8ffe4;display:grid;place-items:center;font:900 13px ui-monospace,monospace}
+    .bottom{display:grid;grid-template-columns:.9fr 1.1fr;gap:18px;margin-top:18px}
+    .gotchas{border-left:5px solid #c96442}
+  </style>
+</head>
+<body>
+<main class="page">
+  <section class="hero">
+    <div class="source-block">Files read</div>
+    <div><div class="eyebrow">Feature Explainer</div><h1>Artifact publish 怎么工作</h1><p>从 package 到 public URL 的路径图。</p></div>
+  </section>
+  <section class="layout">
+    <aside class="card"><h2>Files Read</h2><p><code>html-render-lite</code><br>负责生成 source/output/meta。</p><p><code>artifact-publish-http.mjs</code><br>导入 package 并 export public。</p></aside>
+    <div class="flow">
+      <article class="step"><div class="num">01</div><div><h3>Render package</h3><p>生成稳定的 source.md、output.html、meta.json。</p></div></article>
+      <article class="step"><div class="num">02</div><div><h3>Validate</h3><p>检查 HTML 自包含、deck nav、progress 和基本结构。</p></div></article>
+      <article class="step"><div class="num">03</div><div><h3>Publish</h3><p>导入 Artifact Library，再导出 public index.html。</p></div></article>
+    </div>
+  </section>
+  <section class="bottom"><article class="card gotchas"><h2>Gotchas</h2><p>不要并行 publish，会撞 public export。</p></article><article class="card"><h2>FAQ</h2><p>标准 /html 是 LLM-mode，/htmlq 才是 fast deterministic。</p></article></section>
+</main>
+</body>
+</html>

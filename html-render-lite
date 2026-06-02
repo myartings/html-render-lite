@@ -648,12 +648,19 @@ def _render_decision_matrix(content, css, fallback_title=''):
     def list_html(items):
         return '<ul>' + ''.join(f'<li>{_render_inline(x)}</li>' for x in items[:5]) + '</ul>' if items else '<p>—</p>'
     option_html = ''
+    matrix_rows = ''
     for opt in data['options']:
         verdict = (opt.get('verdict') or '').lower() or 'watch'
         try:
             score = max(0, min(10, float(opt.get('score') or 0)))
         except ValueError:
             score = 0
+        key_strength = (opt.get("pros") or ["—"])[0]
+        key_risk = (opt.get("risks") or ["—"])[0]
+        matrix_rows += (
+            f'<tr><th>{_render_inline(opt["name"])}</th><td><span class="matrix-score">{_esc(opt.get("score") or "—")}</span></td>'
+            f'<td><span class="badge {_esc(verdict)}">{_render_inline(verdict)}</span></td>'
+            f'<td>{_render_inline(key_strength)}</td><td>{_render_inline(key_risk)}</td></tr>')
         option_html += (
             f'<article class="option {_esc(verdict)}"><div class="option-head"><div><h3>{_render_inline(opt["name"])}</h3>'
             f'<p>{_render_inline(opt.get("summary",""))}</p></div><span class="badge">{_render_inline(verdict)}</span></div>'
@@ -663,12 +670,17 @@ def _render_decision_matrix(content, css, fallback_title=''):
             f'<div class="mini"><h4>Cons</h4>{list_html(opt.get("cons",[]))}</div></div>'
             f'<div class="risks"><h4>Risks</h4>{list_html(opt.get("risks",[]))}</div></article>')
     uncertainty_html = list_html(data['uncertainty'])
+    matrix_html = (
+        f'<div class="matrix-wrap"><table class="matrix"><thead><tr><th>Option</th><th>Score</th><th>Decision</th>'
+        f'<th>Best signal</th><th>Key risk</th></tr></thead><tbody>{matrix_rows}</tbody></table></div>'
+        if matrix_rows else '')
     return (f'<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
             f'<title>{_esc(data["title"])}</title><style>{css}</style></head><body><main class="page">'
             f'<section class="hero"><article class="panel"><div class="eyebrow">decision surface</div><h1>{_render_inline(data["title"])}</h1>'
             f'<p class="summary">{_render_inline(reason)}</p></article><article class="panel rec"><span class="confidence">confidence · {_render_inline(confidence)}</span>'
             f'<h2>{_render_inline(rec)}</h2><p>{_render_inline(reason)}</p></article></section>'
             f'<section class="section"><h2>Criteria</h2><div class="criteria">{criteria_html}</div></section>'
+            f'<section class="section matrix-shell"><h2>Decision Matrix</h2>{matrix_html}</section>'
             f'<section class="section"><h2>Options</h2><div class="options">{option_html}</div></section>'
             f'<section class="section uncertainty"><h2>Uncertainty / Change Triggers</h2>{uncertainty_html}</section>'
             f'</main></body></html>')
