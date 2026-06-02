@@ -1,6 +1,6 @@
 # html-render-lite
 
-81 套本地模板（SKILL.md + 设计约束 + example.html）拼成结构化上下文，当前 LLM 直接在同一进程内写 HTML。无服务依赖，无网络请求。
+本地模板（SKILL.md + 设计约束 + example.html）拼成结构化上下文，当前 LLM 直接在同一进程内写 HTML。另有 fast templates 可确定性本地渲染。无服务依赖，无网络请求。
 
 ## 原理
 
@@ -28,11 +28,14 @@ ln -s $(pwd)/html-render-lite ~/.local/bin/html-render-lite  # 或加入 PATH
 ## 用法
 
 ```bash
-# 列出 81 个模板
+# 列出 LLM 模式模板
 html-render-lite --list
 
 # 生成 HTML（agent 写入 --out 路径）
 html-render-lite --template doc-kami-parchment -i source.md --out /tmp/page.html
+html-render-lite --template decision-matrix -i source.md --out /tmp/decision.html
+html-render-lite --template feature-explainer -i source.md --out /tmp/explainer.html
+html-render-lite --template annotated-review -i source.md --out /tmp/review.html
 
 # 管道输入
 echo "Markdown content" | html-render-lite --template card-xiaohongshu --out /tmp/card.html
@@ -45,15 +48,26 @@ html-render-lite --validate output.html --template deck-simple
 
 # 自动修复（注入缺失的键盘导航 JS + 进度条）
 html-render-lite --fix output.html
+
+# fast templates（不调用 LLM）
+html-render-lite --list-fast
+html-render-lite --fast --template decision-matrix-fast -i source.md --out /tmp/decision.html
+html-render-lite --fast --template feature-explainer-fast -i source.md --out /tmp/explainer.html
+html-render-lite --fast --template annotated-review-fast -i source.md --out /tmp/review.html
 ```
 
 ## 模板
 
-`templates/skills/` 下 81 个模板，每个包含：
+`templates/skills/` 下是 LLM 模式模板，通常包含：
 - `SKILL.md`：模板风格定义（frontmatter + 布局约束）
-- `example.html`：视觉参考（前 80 行作为 context）
+- `example.html`：视觉参考（如存在，前 80 行作为 context）
 
 共享设计约束在 `templates/shared.md`。
+
+Fast templates 在 `templates/fast/`，每个包含：
+- `template.json`：模板 id、renderer、alias
+- `source_spec.md`：输入 Markdown 结构说明
+- `style.css`：自包含样式
 
 ## 跨平台同步规范
 

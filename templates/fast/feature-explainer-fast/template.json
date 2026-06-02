@@ -1,0 +1,14 @@
+{
+  "id": "feature-explainer-fast",
+  "name": "Feature Explainer Fast",
+  "description": "Deterministic local feature/system explainer with files read, flow steps, gotchas, and FAQ.",
+  "category": "fast-local",
+  "aspectHint": "responsive explainer",
+  "recommended": true,
+  "renderer": "feature-explainer",
+  "style": "style.css",
+  "title": "Feature Explainer",
+  "aliases": [
+    "feature-explainer"
+  ]
+}

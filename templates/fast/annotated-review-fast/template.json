@@ -1,0 +1,14 @@
+{
+  "id": "annotated-review-fast",
+  "name": "Annotated Review Fast",
+  "description": "Deterministic local review surface for findings, severity, risk map, affected files, test gaps, and next steps.",
+  "category": "fast-local",
+  "aspectHint": "responsive review dashboard",
+  "recommended": true,
+  "renderer": "annotated-review",
+  "style": "style.css",
+  "title": "Annotated Review",
+  "aliases": [
+    "annotated-review"
+  ]
+}

@@ -558,6 +558,225 @@ def _render_deck_xhs_knowledge(content, css, opts=None):
             f'<title>{_esc(source_title)}</title><style>{css}</style></head>'
             f'<body><main class="deck">\n{"".join(pages_html)}\n</main></body></html>')
 
+# ── decision / explainer / review renderers ──────────────────────────────────
+
+def _section_text(md, name):
+    m = re.search(rf'^##\s+{re.escape(name)}\s*$(.*?)(?=^##\s+|\Z)', str(md or ''), re.M | re.S | re.I)
+    return m.group(1).strip() if m else ''
+
+def _list_items(text):
+    items = []
+    for line in str(text or '').splitlines():
+        m = re.match(r'^\s*[-*+]\s+(.+?)\s*$', line)
+        if m:
+            items.append(_clean_field(m.group(1)))
+    return items
+
+def _kv_lines(text):
+    data = {}
+    for line in str(text or '').splitlines():
+        m = re.match(r'^\s*[-*+]\s*([^:]+):\s*(.*?)\s*$', line)
+        if m:
+            data[m.group(1).strip().replace('-', '_').lower()] = _clean_field(m.group(2))
+    return data
+
+def _nested_list_after(lines, start):
+    items, j = [], start + 1
+    while j < len(lines):
+        raw = lines[j]
+        if re.match(r'^\s*[-*+]\s*[^:]+:\s*', raw) or re.match(r'^###\s+', raw) or re.match(r'^##\s+', raw):
+            break
+        m = re.match(r'^\s{2,}[-*+]\s+(.+?)\s*$', raw)
+        if m:
+            items.append(_clean_field(m.group(1)))
+        elif raw.strip():
+            break
+        j += 1
+    return items, j
+
+def _parse_decision_matrix(md, fallback_title=''):
+    title = _doc_title(md, fallback_title or 'Decision Matrix')
+    decision = _kv_lines(_section_text(md, 'Decision'))
+    criteria = []
+    for raw in _section_text(md, 'Criteria').splitlines():
+        m = re.match(r'^\s*[-*+]\s*([^:]+):\s*(.*)$', raw)
+        if not m:
+            continue
+        name, rest = _clean_field(m.group(1)), _clean_field(m.group(2))
+        weight, desc = '', rest
+        wm = re.match(r'^(\d+(?:\.\d+)?)\s*[-–—]\s*(.*)$', rest)
+        if wm:
+            weight, desc = wm.group(1), wm.group(2)
+        criteria.append({'name': name, 'weight': weight, 'desc': desc})
+    options_text = _section_text(md, 'Options')
+    parts = re.split(r'^###\s+\d{0,2}\s*', options_text, flags=re.M)
+    options = []
+    for part in parts:
+        part = part.strip()
+        if not part:
+            continue
+        lines = part.splitlines()
+        name = _clean_field(lines[0])
+        opt = {'name': name, 'summary': '', 'score': '', 'verdict': '', 'pros': [], 'cons': [], 'risks': []}
+        i = 1
+        while i < len(lines):
+            line = lines[i]
+            m = re.match(r'^\s*[-*+]\s*([^:]+):\s*(.*?)\s*$', line)
+            if m:
+                key = m.group(1).strip().replace('-', '_').lower()
+                val = _clean_field(m.group(2))
+                if key in ('pros', 'cons', 'risks'):
+                    nested, j = _nested_list_after(lines, i)
+                    opt[key] = nested or ([val] if val else [])
+                    i = j
+                    continue
+                opt[key] = val
+            i += 1
+        options.append(opt)
+    uncertainty = _list_items(_section_text(md, 'Uncertainty'))
+    return {'title': title, 'decision': decision, 'criteria': criteria, 'options': options, 'uncertainty': uncertainty}
+
+def _render_decision_matrix(content, css, fallback_title=''):
+    data = _parse_decision_matrix(content, fallback_title)
+    rec = data['decision'].get('recommendation') or (data['options'][0]['name'] if data['options'] else '待定')
+    confidence = data['decision'].get('confidence') or 'unknown'
+    reason = data['decision'].get('reason') or '需要结合标准和风险继续判断。'
+    criteria_html = ''.join(
+        f'<article class="criterion"><div class="criterion-top"><strong>{_render_inline(c["name"])}</strong>'
+        f'<span class="weight">{_esc(c.get("weight") or "·")}</span></div><p>{_render_inline(c.get("desc",""))}</p></article>'
+        for c in data['criteria'])
+    def list_html(items):
+        return '<ul>' + ''.join(f'<li>{_render_inline(x)}</li>' for x in items[:5]) + '</ul>' if items else '<p>—</p>'
+    option_html = ''
+    for opt in data['options']:
+        verdict = (opt.get('verdict') or '').lower() or 'watch'
+        try:
+            score = max(0, min(10, float(opt.get('score') or 0)))
+        except ValueError:
+            score = 0
+        option_html += (
+            f'<article class="option {_esc(verdict)}"><div class="option-head"><div><h3>{_render_inline(opt["name"])}</h3>'
+            f'<p>{_render_inline(opt.get("summary",""))}</p></div><span class="badge">{_render_inline(verdict)}</span></div>'
+            f'<div class="score"><div class="score-row"><span>score</span><span>{_esc(opt.get("score") or "—")} / 10</span></div>'
+            f'<div class="bar"><span style="width:{score*10:.0f}%"></span></div></div>'
+            f'<div class="cols"><div class="mini"><h4>Pros</h4>{list_html(opt.get("pros",[]))}</div>'
+            f'<div class="mini"><h4>Cons</h4>{list_html(opt.get("cons",[]))}</div></div>'
+            f'<div class="risks"><h4>Risks</h4>{list_html(opt.get("risks",[]))}</div></article>')
+    uncertainty_html = list_html(data['uncertainty'])
+    return (f'<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+            f'<title>{_esc(data["title"])}</title><style>{css}</style></head><body><main class="page">'
+            f'<section class="hero"><article class="panel"><div class="eyebrow">decision surface</div><h1>{_render_inline(data["title"])}</h1>'
+            f'<p class="summary">{_render_inline(reason)}</p></article><article class="panel rec"><span class="confidence">confidence · {_render_inline(confidence)}</span>'
+            f'<h2>{_render_inline(rec)}</h2><p>{_render_inline(reason)}</p></article></section>'
+            f'<section class="section"><h2>Criteria</h2><div class="criteria">{criteria_html}</div></section>'
+            f'<section class="section"><h2>Options</h2><div class="options">{option_html}</div></section>'
+            f'<section class="section uncertainty"><h2>Uncertainty / Change Triggers</h2>{uncertainty_html}</section>'
+            f'</main></body></html>')
+
+def _parse_feature_explainer(md, fallback_title=''):
+    title = _doc_title(md, fallback_title or 'Feature Explainer')
+    tldr = _section_text(md, 'TL;DR') or _section_text(md, 'Summary')
+    files = []
+    for item in _list_items(_section_text(md, 'Files Read')):
+        if ':' in item:
+            path, note = item.split(':', 1)
+        else:
+            path, note = item, ''
+        files.append({'path': path.strip().strip('`'), 'note': note.strip()})
+    flow_text = _section_text(md, 'Flow')
+    parts = re.split(r'^###\s+\d{0,2}\s*', flow_text, flags=re.M)
+    steps = []
+    for part in parts:
+        part = part.strip()
+        if not part:
+            continue
+        lines = part.splitlines()
+        step = {'heading': _clean_field(lines[0]), 'title': '', 'detail': '', 'files': []}
+        i = 1
+        while i < len(lines):
+            m = re.match(r'^\s*[-*+]\s*([^:]+):\s*(.*?)\s*$', lines[i])
+            if m:
+                key = m.group(1).strip().replace('-', '_').lower()
+                val = _clean_field(m.group(2))
+                if key == 'files':
+                    nested, j = _nested_list_after(lines, i)
+                    step['files'] = [x.strip('`') for x in (nested or ([val] if val else []))]
+                    i = j
+                    continue
+                step[key] = val
+            i += 1
+        if not step['title']:
+            step['title'] = step['heading']
+        steps.append(step)
+    gotchas = _list_items(_section_text(md, 'Gotchas'))
+    faq_text = _section_text(md, 'FAQ')
+    faq = []
+    for part in re.split(r'^###\s+', faq_text, flags=re.M):
+        part = part.strip()
+        if not part:
+            continue
+        lines = part.splitlines()
+        faq.append({'q': _clean_field(lines[0]), 'a': '\n'.join(lines[1:]).strip()})
+    return {'title': title, 'tldr': tldr.strip(), 'files': files, 'steps': steps, 'gotchas': gotchas, 'faq': faq}
+
+def _render_feature_explainer(content, css, fallback_title=''):
+    data = _parse_feature_explainer(content, fallback_title)
+    files_html = ''.join(f'<div class="file"><code class="path">{_esc(f["path"])}</code><div class="note">{_render_inline(f["note"])}</div></div>' for f in data['files'])
+    steps_html = ''
+    for i, s in enumerate(data['steps']):
+        chips = ''.join(f'<span class="chip">{_esc(x)}</span>' for x in s.get('files', [])[:5])
+        steps_html += (f'<article class="step"><div class="num">{str(i+1).zfill(2)}</div><div><h3>{_render_inline(s.get("title") or s.get("heading"))}</h3>'
+                       f'<p>{_render_inline(s.get("detail",""))}</p><div class="chips">{chips}</div></div></article>')
+    gotchas_html = '<ul>' + ''.join(f'<li>{_render_inline(x)}</li>' for x in data['gotchas']) + '</ul>'
+    faq_html = ''.join(f'<details><summary>{_render_inline(x["q"])}</summary><div class="answer">{_parse_md(x["a"])}</div></details>' for x in data['faq'])
+    return (f'<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+            f'<title>{_esc(data["title"])}</title><style>{css}</style></head><body><main class="page">'
+            f'<section class="hero"><div class="eyebrow">feature explainer</div><h1>{_render_inline(data["title"])}</h1><p class="tldr">{_render_inline(data["tldr"])}</p></section>'
+            f'<section class="layout"><aside class="card"><h2>Files Read</h2>{files_html}</aside><div class="flow">{steps_html}</div></section>'
+            f'<section class="bottom"><article class="card gotchas"><h2>Gotchas</h2>{gotchas_html}</article><article class="card faq"><h2>FAQ</h2>{faq_html}</article></section>'
+            f'</main></body></html>')
+
+def _parse_annotated_review(md, fallback_title=''):
+    title = _doc_title(md, fallback_title or 'Annotated Review')
+    risk = _kv_lines(_section_text(md, 'Risk Map'))
+    findings_text = _section_text(md, 'Findings')
+    findings = []
+    for part in re.split(r'^###\s+', findings_text, flags=re.M):
+        part = part.strip()
+        if not part:
+            continue
+        lines = part.splitlines()
+        f = {'title': _clean_field(lines[0]), 'severity': 'medium', 'file': '', 'line': '', 'problem': '', 'recommendation': ''}
+        for line in lines[1:]:
+            m = re.match(r'^\s*[-*+]\s*([^:]+):\s*(.*?)\s*$', line)
+            if m:
+                f[m.group(1).strip().replace('-', '_').lower()] = _clean_field(m.group(2))
+        findings.append(f)
+    return {'title': title, 'risk': risk, 'findings': findings, 'test_gaps': _list_items(_section_text(md, 'Test Gaps')), 'next_steps': _list_items(_section_text(md, 'Next Steps'))}
+
+def _render_annotated_review(content, css, fallback_title=''):
+    data = _parse_annotated_review(content, fallback_title)
+    overall = (data['risk'].get('overall') or 'medium').lower()
+    risk_html = ''.join(f'<div class="risk-item"><div class="label">{_render_inline(k.replace("_"," "))}</div><div class="value">{_render_inline(v)}</div></div>' for k, v in data['risk'].items() if k != 'overall')
+    findings_html = ''
+    for f in data['findings']:
+        sev = (f.get('severity') or 'medium').lower()
+        loc = ''
+        if f.get('file'):
+            loc = f.get('file','') + ((':' + f.get('line')) if f.get('line') else '')
+        findings_html += (f'<article class="finding {_esc(sev)}"><div class="finding-head"><div><h3>{_render_inline(f["title"])}</h3>'
+                          f'{f"<code class=\"loc\">{_esc(loc)}</code>" if loc else ""}</div><span class="sev {_esc(sev)}">{_render_inline(sev)}</span></div>'
+                          f'<p>{_render_inline(f.get("problem",""))}</p><div class="recommend"><strong>Recommendation: </strong>{_render_inline(f.get("recommendation",""))}</div></article>')
+    gaps = '<ul>' + ''.join(f'<li>{_render_inline(x)}</li>' for x in data['test_gaps']) + '</ul>'
+    steps = '<ul>' + ''.join(f'<li>{_render_inline(x)}</li>' for x in data['next_steps']) + '</ul>'
+    return (f'<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+            f'<title>{_esc(data["title"])}</title><style>{css}</style></head><body><main class="page">'
+            f'<section class="hero"><article class="panel"><div class="eyebrow">annotated review</div><h1>{_render_inline(data["title"])}</h1></article>'
+            f'<aside class="panel"><span class="overall {_esc(overall)}">{_render_inline(overall)}</span><div class="risk-grid">{risk_html}</div></aside></section>'
+            f'<section class="section"><h2>Findings</h2><div class="findings">{findings_html}</div></section>'
+            f'<section class="section two"><article class="list-card"><h2>Test Gaps</h2>{gaps}</article><article class="list-card"><h2>Next Steps</h2>{steps}</article></section>'
+            f'</main></body></html>')
+
 # ── Fast render dispatcher ────────────────────────────────────────────────────
 
 def render_fast(template_id, content, out=None, package=None, caller=None, title=None):
@@ -584,6 +803,12 @@ def render_fast(template_id, content, out=None, package=None, caller=None, title
             print(f"   运行查看格式说明: html-render-lite --fast --template {template_id} --describe", file=sys.stderr)
     elif renderer == 'deck-xhs-knowledge':
         html = _render_deck_xhs_knowledge(content, css)
+    elif renderer == 'decision-matrix':
+        html = _render_decision_matrix(content, css, title_str)
+    elif renderer == 'feature-explainer':
+        html = _render_feature_explainer(content, css, title_str)
+    elif renderer == 'annotated-review':
+        html = _render_annotated_review(content, css, title_str)
     else:  # markdown-page
         body = _parse_md(content)
         html = (f'<!doctype html>\n<html lang="zh-CN">\n<head>\n'
@@ -767,45 +992,48 @@ def main():
         list_templates()
         return
 
-    if not args.template:
-        if args.validate:
-            tid = None
+    if args.validate:
+        tid = args.template
+        if not tid:
             fname = os.path.basename(args.validate)
-            for prefix in ["deck-","frame-","video-","card-","doc-","data-","magazine-"]:
+            for prefix in ["deck-","frame-","video-","card-","doc-","data-","magazine-","decision-","feature-","annotated-"]:
                 if fname.startswith(prefix):
                     tid = fname.replace(".html","")
                     break
-            warnings = validate_html(args.validate, tid)
-            if warnings:
-                print(f"⚠️  发现 {len(warnings)} 个问题:\n")
-                for w in warnings: print(f"  {w}")
-            else:
-                print("✅ 验证通过，未发现问题")
-            return
-        if args.fix:
-            fname = os.path.basename(args.fix)
-            tid = fname.replace(".html","")
-            cat = get_template_category(tid)
-            needs_js = template_needs_nav(tid, cat)
-            with open(args.fix) as f:
-                html = f.read()
-            fixed = False
-            if needs_js and 'keydown' not in html:
-                js = PRESENTER_NAV_JS if tid == "deck-presenter-mode" else DECK_NAV_JS
-                html = html.replace('</body>', f'{js}\n</body>')
-                fixed = True
-                print(f"  ✅ 注入键盘导航 JS ({tid} 是 {cat} 类型)")
-            if needs_js and '.bar' not in html and '<div class="bar">' not in html:
-                bar = '<div class="bar"><span style="width:12.5%"></span></div>'
-                html = html.replace('<div class="deck">', f'<div class="deck">{bar}')
-                fixed = True
-                print("  ✅ 注入进度条")
-            if fixed:
-                with open(args.fix, 'w') as f: f.write(html)
-                print(f"  ✅ {args.fix} 已修复")
-            else:
-                print("  ✅ 无需修复")
-            return
+        warnings = validate_html(args.validate, tid)
+        if warnings:
+            print(f"⚠️  发现 {len(warnings)} 个问题:\n")
+            for w in warnings: print(f"  {w}")
+        else:
+            print("✅ 验证通过，未发现问题")
+        return
+
+    if args.fix:
+        fname = os.path.basename(args.fix)
+        tid = args.template or fname.replace(".html","")
+        cat = get_template_category(tid)
+        needs_js = template_needs_nav(tid, cat)
+        with open(args.fix) as f:
+            html = f.read()
+        fixed = False
+        if needs_js and 'keydown' not in html:
+            js = PRESENTER_NAV_JS if tid == "deck-presenter-mode" else DECK_NAV_JS
+            html = html.replace('</body>', f'{js}\n</body>')
+            fixed = True
+            print(f"  ✅ 注入键盘导航 JS ({tid} 是 {cat} 类型)")
+        if needs_js and '.bar' not in html and '<div class="bar">' not in html:
+            bar = '<div class="bar"><span style="width:12.5%"></span></div>'
+            html = html.replace('<div class="deck">', f'<div class="deck">{bar}')
+            fixed = True
+            print("  ✅ 注入进度条")
+        if fixed:
+            with open(args.fix, 'w') as f: f.write(html)
+            print(f"  ✅ {args.fix} 已修复")
+        else:
+            print("  ✅ 无需修复")
+        return
+
+    if not args.template:
         parser.print_help()
         print("\n使用 --list 查看 LLM 模式模板，--list-fast 查看 fast 模式模板", file=sys.stderr)
         sys.exit(1)
