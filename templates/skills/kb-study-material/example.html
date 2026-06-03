@@ -26,19 +26,29 @@
     aside h2 { font-size: 14px; margin: 0 0 16px; letter-spacing: .12em; text-transform: uppercase; color: var(--weak); }
     aside a { display: block; color: var(--muted); text-decoration: none; padding: 8px 10px; border-radius: 8px; font-size: 14px; }
     aside a.active, aside a:hover { background: var(--surface); color: var(--accent); }
-    main { max-width: 920px; padding: 48px 56px 80px; }
+    main { max-width: 920px; min-width: 0; padding: 48px 56px 80px; }
     .eyebrow { color: var(--accent); font-size: 12px; font-weight: 750; letter-spacing: .18em; text-transform: uppercase; }
     h1 { margin: 10px 0 16px; font-size: clamp(40px, 6vw, 68px); line-height: 1; letter-spacing: -.04em; }
     .lead { color: var(--muted); font-size: 18px; max-width: 42em; }
     .meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 34px; }
     .meta span { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 10px; color: var(--weak); font-size: 12px; }
-    section { margin-top: 42px; }
+    section { min-width: 0; margin-top: 42px; }
     h2 { font-size: 27px; margin: 0 0 14px; letter-spacing: -.02em; }
     h3 { margin: 22px 0 8px; }
     p { max-width: 44em; }
     .route { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 18px; }
     .step { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
     .step strong { display: block; margin-bottom: 6px; }
+    .topology { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+    .topology-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; min-height: 150px; }
+    .topology-card b { display: block; color: var(--accent); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
+    .topology-card strong { display: block; margin-bottom: 8px; font-size: 17px; }
+    .topology-card small { display: block; color: var(--weak); line-height: 1.55; }
+    .loop { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; align-items: stretch; margin-top: 16px; }
+    .loop-node { position: relative; background: #eef4ff; border: 1px solid #dbe7ff; border-radius: 14px; padding: 14px; }
+    .loop-node:not(:last-child)::after { content: "→"; position: absolute; right: -12px; top: 50%; transform: translateY(-50%); color: var(--accent); font-weight: 800; }
+    .loop-node strong { display: block; margin-bottom: 6px; }
+    .table-wrap { display: block; width: 100%; max-width: 100%; min-width: 0; overflow-x: auto; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); }
     .callout { border: 1px solid var(--line); border-left-width: 4px; border-radius: 12px; padding: 14px 16px; background: var(--surface); margin: 14px 0; }
     .callout.warn { border-left-color: var(--warn); background: #fff8e8; }
     .callout.gold { border-left-color: var(--gold); background: #fbf3db; }
@@ -46,13 +56,24 @@
     .callout.rose { border-left-color: var(--rose); background: #fff0f3; }
     details { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin: 10px 0; }
     summary { cursor: pointer; font-weight: 700; }
-    table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); }
+    table { width: 100%; min-width: 680px; border-collapse: collapse; background: var(--surface); }
     th, td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
     th { color: var(--weak); font-size: 12px; }
     code, pre { font-family: "SF Mono", "JetBrains Mono", Menlo, monospace; }
     pre { background: #1f1f1f; color: #fafaf7; padding: 16px; border-radius: 12px; overflow: auto; }
     .next { background: #1f1f1f; color: #fafaf7; border-radius: 18px; padding: 24px; }
-    @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } aside { position: static; height: auto; } main { padding: 32px 22px 64px; } .route { grid-template-columns: 1fr; } }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; }
+      main { padding: 32px 18px 64px; max-width: 100%; }
+      h1 { font-size: 38px; letter-spacing: 0; }
+      .route, .topology, .loop { grid-template-columns: 1fr; }
+      .loop-node:not(:last-child)::after { content: "↓"; right: auto; left: 18px; top: auto; bottom: -18px; transform: none; }
+      p, li, code, a { overflow-wrap: anywhere; }
+      pre { max-width: 100%; white-space: pre-wrap; }
+      img, svg, canvas, iframe, video { max-width: 100%; }
+      table { width: max-content; }
+    }
   </style>
 </head>
 <body>
@@ -61,9 +82,12 @@
       <h2>学习导航</h2>
       <a class="active" href="#overview">Overview</a>
       <a href="#shape">Shape Snapshot</a>
+      <a href="#topology">Concept Topology</a>
       <a href="#concepts">核心概念</a>
       <a href="#matrix">Contrast Matrix</a>
+      <a href="#practice">Practice Matrix</a>
       <a href="#action">Action Ladder</a>
+      <a href="#feedback">Feedback Loop</a>
       <a href="#cases">案例</a>
       <a href="#cheatsheet">Review</a>
     </aside>
@@ -86,6 +110,16 @@
         <h2>Shape Snapshot</h2>
         <p>Agent 负责执行，Harness 负责约束，Verification 负责检查，Knowledge Base 负责沉淀。这里只放轻量结构，不展开完整 Study Map。</p>
       </section>
+      <section id="topology">
+        <h2>Concept Topology</h2>
+        <p>TL;DR: 先把核心、相邻、边界和混淆概念分开，学习才不会变成“看起来都懂”。</p>
+        <div class="topology">
+          <div class="topology-card"><b>Core</b><strong>Harness</strong><small>检验语：有没有把任务、工具、测试、日志、回滚连成闭环？</small></div>
+          <div class="topology-card"><b>Adjacent</b><strong>Prompt / Spec</strong><small>它们是输入和约束，不等于完整工程流程。</small></div>
+          <div class="topology-card"><b>Boundary</b><strong>一次性 vibe coding</strong><small>如果不能复盘、验证、回滚，就还没进入工程化。</small></div>
+          <div class="topology-card"><b>Confusion</b><strong>Artifact = 成果</strong><small>Artifact 只是外化界面，学习成果必须经输出和反馈验证。</small></div>
+        </div>
+      </section>
       <section id="concepts">
         <h2>核心概念</h2>
         <p>TL;DR: 好的 AI coding 流程不是一次性 prompt，而是上下文、约束、验证和交接的组合。</p>
@@ -94,11 +128,25 @@
       </section>
       <section id="matrix">
         <h2>Contrast Matrix</h2>
-        <table><tr><th>概念</th><th>作用</th><th>易混点</th><th>检验题</th></tr><tr><td>Harness</td><td>工程化约束</td><td>误以为只是 prompt</td><td>有日志、测试和回滚吗？</td></tr><tr><td>Spec</td><td>验收标准</td><td>误以为是长需求文档</td><td>能直接判断完成/失败吗？</td></tr></table>
+        <div class="table-wrap"><table><tr><th>概念</th><th>作用</th><th>易混点</th><th>检验题</th></tr><tr><td>Harness</td><td>工程化约束</td><td>误以为只是 prompt</td><td>有日志、测试和回滚吗？</td></tr><tr><td>Spec</td><td>验收标准</td><td>误以为是长需求文档</td><td>能直接判断完成/失败吗？</td></tr></table></div>
+      </section>
+      <section id="practice">
+        <h2>Practice Matrix</h2>
+        <div class="table-wrap"><table><tr><th>练习类型</th><th>难度</th><th>输出物</th><th>反馈方法</th><th>通过标准</th></tr><tr><td>Recall</td><td>低</td><td>2 分钟口头解释</td><td>不看材料复述</td><td>讲清 harness 和 prompt 的区别</td></tr><tr><td>Boundary</td><td>中</td><td>3 个反例判断</td><td>对照验收标准</td><td>指出哪里缺测试 / 日志 / 回滚</td></tr><tr><td>Transfer</td><td>中</td><td>iOS 小功能任务拆解</td><td>让 Agent 执行并 review</td><td>需求能变成可验证小步</td></tr><tr><td>Production</td><td>高</td><td>可复盘任务日志</td><td>测试 + diff + KB 回填</td><td>下次能复用这套流程</td></tr></table></div>
       </section>
       <section id="action">
         <h2>Action Ladder / Feedback Test</h2>
         <p>10 分钟写输入输出和验收标准；1 小时让 Agent 小步实现并跑测试；1 天沉淀失败样本；1 周固化成 skill / playbook / KB 页面。</p>
+      </section>
+      <section id="feedback">
+        <h2>Feedback Loop</h2>
+        <div class="loop">
+          <div class="loop-node"><strong>输入</strong>选一个真实小需求，写清验收标准。</div>
+          <div class="loop-node"><strong>重构</strong>让 Agent 复述任务、风险和文件路径。</div>
+          <div class="loop-node"><strong>输出</strong>小步改代码或生成 artifact。</div>
+          <div class="loop-node"><strong>反馈</strong>跑测试、看 diff、做人工 review。</div>
+          <div class="loop-node"><strong>重复</strong>把失败样本写成下一轮 checklist。</div>
+        </div>
       </section>
       <section id="cases">
         <h2>案例折叠</h2>

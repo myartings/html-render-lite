@@ -15,6 +15,15 @@
 - Verification：把“看起来能跑”变成“可检查、可复盘”。
 - Knowledge Base：沉淀稳定结论，不把 HTML 当知识真源。
 
+## Concept Topology
+
+| 区域 | 概念 | 检验语 |
+|---|---|---|
+| Core | Harness | 有没有把任务、工具、测试、日志、回滚连成闭环？ |
+| Adjacent | Prompt / Spec / Workflow | 它们是输入和流程，不等于完整 harness。 |
+| Boundary | 一次性 vibe coding | 如果不能复盘、验证、回滚，就还没进入工程化。 |
+| Confusion | Artifact = 学习成果 | Artifact 只是外化界面，学习成果必须经输出和反馈验证。 |
+
 ## 核心概念
 
 ### Harness
@@ -78,6 +87,23 @@ AI 生成的交付物不只代码，也包括 Markdown、HTML、PNG、deck、原
 2. 1 小时：让 Agent 小步实现并跑测试。
 3. 1 天：把失败样本写成 regression checklist。
 4. 1 周：沉淀成 skill / playbook / KB 页面。
+
+## Feedback Loop
+
+1. 输入：选一个真实小需求，写清验收标准。
+2. 重构：让 Agent 复述任务、风险和文件路径。
+3. 输出：小步改代码或生成 artifact。
+4. 反馈：跑测试、看 diff、做人工 review。
+5. 重复：把失败样本写成下一轮 checklist。
+
+## Practice Matrix
+
+| 练习类型 | 难度 | 输出物 | 反馈方法 | 通过标准 |
+|---|---|---|---|---|
+| Recall | 低 | 2 分钟口头解释 | 不看材料复述 | 能讲清 harness 和 prompt 的区别 |
+| Boundary | 中 | 3 个反例判断 | 对照验收标准 | 能指出哪里缺测试/日志/回滚 |
+| Transfer | 中 | iOS 小功能任务拆解 | 让 Agent 执行并 review | 需求能变成可验证小步 |
+| Production | 高 | 可复盘任务日志 | 测试 + diff + KB 回填 | 下次能复用这套流程 |
 
 ## Feedback Test
 

@@ -68,10 +68,31 @@ example_desc: "适合承接 /html learn 选 1、system-study、KB 主题页和�
 - 不要把它写成领域分区、学习路线阶段、概念分类总览；那属于 `study-map-mintlify` 的 `Structure Matrix`。
 - 如果输入已经包含完整学习地图，只在本模板里抽取轻量 `Shape Snapshot`，不要复制完整 `Mind Map / Concept Map / Structure Matrix`。
 
-【图形模块要求】
-- `Shape Snapshot`：3-7 个关键节点，强调主题的空间形状；可以用小 SVG、关系卡片或节点列表表达。
-- `Feedback Loop`：展示输入 → 重构 → 输出 → 反馈 → 重复，每个节点必须有具体动作。
-- `Action Ladder`：展示低难度到高难度的行动阶梯，每档都要有完成标准。
+【学习图形语法】
+本模板的图形只服务学习闭环，不做装饰。优先使用以下 4 种：
+
+1. `Shape Snapshot`
+   - 3-7 个关键节点，强调主题的空间形状。
+   - 只做轻量结构，可以用小 SVG、关系卡片或节点列表表达。
+   - 不要展开完整 Mind Map / Concept Map；那属于 `study-map-mintlify`。
+
+2. `Concept Topology`
+   - 用来防止概念混淆。
+   - 必须包含：核心概念、相邻概念、边界概念、常见混淆。
+   - 推荐 4 区布局：Core / Adjacent / Boundary / Confusions。
+   - 每个节点都要给一句检验语，例如“如果 X 不成立，它还算不算这个概念？”
+
+3. `Feedback Loop`
+   - 展示输入 → 重构 → 输出 → 反馈 → 重复。
+   - 每个节点必须是具体 learner action，不是抽象名词。
+   - 至少包含一个可观察通过标准，例如“能不用材料解释 2 分钟”或“完成一个小 demo”。
+
+4. `Practice Matrix`
+   - 用来设计训练，不是结构分类。
+   - 列必须包含：练习类型、难度、输出物、反馈方法、通过标准。
+   - 行建议包含：Recall、Boundary、Transfer、Production。
+
+`Action Ladder` 可以作为独立阶梯图，也可以和 `Practice Matrix` 组合，但必须保留 10 分钟、1 小时、1 天、1 周四档完成标准。
 
 【硬性信息规则】
 - 必须完整覆盖用户输入中的章节、概念、步骤、案例和争议，不要为了版面压缩掉关键内容。
@@ -97,8 +118,9 @@ example_desc: "适合承接 /html learn 选 1、system-study、KB 主题页和�
    - 3-5 个阶段卡片：形状化 → 核心概念 → 例子判断 → 输出行动 → 反馈复习。
    - 每个阶段写“学完能做什么”和“怎么验证”，不要只写目录名。
 
-4. Shape Snapshot / Feedback Loop / Action Ladder
+4. Shape Snapshot / Concept Topology / Feedback Loop / Action Ladder
    - Shape Snapshot：轻量主题结构，不超过 7 个节点。
+   - Concept Topology：核心 / 相邻 / 边界 / 混淆概念。
    - Feedback Loop：输入、重构、输出、反馈、重复五步闭环。
    - Action Ladder：10 分钟、1 小时、1 天、1 周行动阶梯。
 
@@ -108,8 +130,9 @@ example_desc: "适合承接 /html learn 选 1、system-study、KB 主题页和�
    - 正文用短段落、列表、表格、代码块、callout 组合。
    - 每节末尾给“本节可带走的东西”。
 
-6. Contrast Matrix / Example Lab / Feedback Test
+6. Contrast Matrix / Practice Matrix / Example Lab / Feedback Test
    - Contrast Matrix：概念、边界、易混点、反例、检验题。
+   - Practice Matrix：练习类型、难度、输出物、反馈方法、通过标准。
    - Example Lab：正例、反例、边界例，必须解释为什么。
    - Feedback Test：Recall Test、Boundary Test、Transfer Test、Production Test。
 

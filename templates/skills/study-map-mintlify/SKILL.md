@@ -24,6 +24,7 @@ example_desc: "Mintlify 文档风学习地图，适合知识库主题、路线�
 - 它是 `kb-study-material` 中 `Shape Snapshot` 的专门展开版。
 - 不默认加入自测题、行动阶梯、复习卡片、迁移任务；这些属于 `kb-study-material`。
 - 本模板里的矩阵必须叫 `Structure Matrix`，服务主题空间结构，不服务概念辨析训练。
+- 如果用户从完整 Learning Pack 继续要求“展开地图 / 展开 Shape Snapshot”，应复用 Learning Pack 的 3-7 个关键节点作为地图核心，再扩展 Mind Map、Concept Map、Learning Flow 和 Structure Matrix。
 
 【固定页面结构】
 必须严格按以下 7 个 section 依次输出，每个 section 都独立成卡片/区块，之间用大留白分隔：
@@ -56,6 +57,7 @@ example_desc: "Mintlify 文档风学习地图，适合知识库主题、路线�
    - 4-8 个步骤。
    - 每个步骤：编号、标题、一行说明。
    - 用 grid 排布，桌面 4 列，移动端单列。
+   - 只描述路线 / 顺序 / 依赖，不加入自测题或行动阶梯。
 
 6. **Structure Matrix**
    - 结构矩阵，4 个象限或 2-4 个维度，用来回答“这个领域怎么分区、概念怎么排列、先后顺序是什么”。
@@ -63,6 +65,7 @@ example_desc: "Mintlify 文档风学习地图，适合知识库主题、路线�
    - 用 2x2 grid 排布。
    - 象限背景色用柔和色区分，不用纯白。
    - 不要写成 `Contrast Matrix` / `Practice Matrix`；不要放检验题、自测题或行动优先级。
+   - 如果主题是“怎么学 X”，Structure Matrix 应表达阶段 / 能力维度 / 先修依赖；如果主题是“X 是什么”，Structure Matrix 应表达领域分区 / 概念位置 / 使用场景。
 
 7. **Sources / Notes**
    - 来源列表（知识库文章、公众号搜索摘要、网页）。
