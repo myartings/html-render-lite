@@ -586,8 +586,8 @@ def _short_text(text, limit=120):
 
 def _split_source_suffix(text):
     raw = _strip_inline(text)
-    m = re.match(r'^(.*?)（(.+?)）\s*$', raw)
-    if m:
+    m = re.match(r'^(.*)（([^（）]+)）\s*$', raw)
+    if m and re.search(r'(agent-memory|notes/|wiki/|raw/|source\.md|日报|Claude|OpenClaw)', m.group(2), re.I):
         return m.group(1).strip(), m.group(2).strip()
     return raw, "日报自动汇总"
 
@@ -613,7 +613,7 @@ def _parse_ai_work_daily_cards(section):
         heading = _strip_inline(lines[0])
         m = re.match(r'^(?:\d+[.)]\s*)?(.+)$', heading)
         label = m.group(1).strip() if m else heading
-        card = {'label': label, 'what': '', 'why': '', 'source': ''}
+        card = {'label': label, 'what': '', 'keywords': '', 'detail': '', 'why': '', 'source': ''}
         for line in lines[1:]:
             lm = re.match(r'^\s*[-*+]\s*\*\*([^*]+)：\*\*\s*(.*?)\s*$', line)
             if not lm:
@@ -621,13 +621,17 @@ def _parse_ai_work_daily_cards(section):
             if not lm:
                 continue
             key, val = lm.group(1).strip(), _strip_inline(lm.group(2))
-            if '发生' in key:
+            if '一句话' in key or '发生' in key:
                 card['what'] = val
+            elif '关键词' in key:
+                card['keywords'] = val
+            elif '详情' in key:
+                card['detail'] = val
             elif '为什么' in key or '重要' in key:
                 card['why'] = val
             elif '证据' in key or '来源' in key:
                 card['source'] = val
-        if card['what'] or card['why']:
+        if card['what'] or card['why'] or card['detail']:
             cards.append(card)
     return cards
 
@@ -698,10 +702,14 @@ def _render_ai_work_daily_visual(content, css, fallback_title=''):
         mainline = '今天暂无足够明确的 AI 工作记录'
     cards = _parse_ai_work_daily_cards(_section_text(content, '重点卡片'))
     if cards:
+        def card_keywords(value):
+            words = [w.strip() for w in re.split(r'[/,，、|]+', value or '') if w.strip()]
+            return ''.join(f'<span class="keyword">{_render_inline(w)}</span>' for w in words[:5])
         cards_html = ''.join(
             f'<article class="highlight-card"><div class="card-top"><span class="index">{i:02d}</span><span class="badge">{_render_inline(c["label"])}</span></div>'
-            f'<h3>{_render_inline(_short_text(c.get("what") or c.get("why") or c["label"], 42))}</h3>'
-            f'<p>{_render_inline(_short_text(c.get("what") or c.get("why") or "", 168))}</p>'
+            f'<h3>{_render_inline(_short_text(c.get("what") or c.get("detail") or c.get("why") or c["label"], 36))}</h3>'
+            f'<p class="keywords">{card_keywords(c.get("keywords")) or _render_inline(_short_text(c.get("why") or "", 56))}</p>'
+            f'<details><summary>详情</summary><p>{_render_inline(_short_text(c.get("detail") or c.get("why") or c.get("what") or "", 220))}</p></details>'
             f'<footer>{_esc(c.get("source") or "日报自动汇总")}</footer></article>'
             for i, c in enumerate(cards[:6], 1)
         )
@@ -732,6 +740,108 @@ def _render_ai_work_daily_visual(content, css, fallback_title=''):
             f'<article class="panel"><h3>建议下一步</h3>{_render_ai_daily_list((triage.get("建议下一步") or []) + (triage.get("仍在推进") or []))}</article></section>'
             f'<section class="section-title"><h2>详细记录</h2><p>需要追证据时再展开</p></section>'
             f'<section class="details">{details_html}</section><p class="outro">Generated from {_esc(source)} · OpenClaw daily report pipeline</p>'
+            f'</main></body></html>')
+
+def _parse_ai_work_done_items(section):
+    items = []
+    for raw in str(section or '').splitlines():
+        m = re.match(r'^\s*(?:[-*+]|\d+[.)])\s+(.+?)\s*$', raw)
+        if not m:
+            continue
+        text, source = _split_source_suffix(m.group(1))
+        text = _short_text(text, 120)
+        if not text or text == '暂无明确已办事项。':
+            continue
+        project = '其他'
+        pm = re.match(r'^([^:：]{2,32})[:：]\s*(.+)$', text)
+        if pm:
+            project = _strip_inline(pm.group(1)).strip()
+            text = pm.group(2).strip()
+        items.append({'project': project or '其他', 'text': text, 'source': source})
+    return items
+
+def _group_ai_work_done_items(items):
+    groups = []
+    index = {}
+    for item in items:
+        project = item.get('project') or '其他'
+        if project not in index:
+            index[project] = {'project': project, 'items': []}
+            groups.append(index[project])
+        index[project]['items'].append(item)
+    return groups
+
+def _render_ai_work_daily_checklist(content, css, fallback_title=''):
+    title = _doc_title(content, fallback_title or 'AI 工作日报')
+    m = re.search(r'(\d{4}-\d{2}-\d{2})', title)
+    day = m.group(1) if m else ''
+    clean_title = re.sub(r'[｜|—-]?\s*\d{4}-\d{2}-\d{2}', '', title).strip() or 'AI 工作日报'
+    intro = re.search(r'^>\s*(.+?)\s*$', str(content or ''), re.M)
+    lead = _strip_inline(intro.group(1)) if intro else '一眼看完成，细节需要时再展开。'
+    mainline_section = _section_text(content, '今日主线')
+    ml = re.search(r'(?:一句话主线：|\*\*一句话主线：\*\*)\s*(.+)', mainline_section)
+    mainline = _short_text(ml.group(1), 96) if ml else _short_text(_plain_text(mainline_section), 96)
+    if not mainline:
+        mainline = '今天暂无足够明确的 AI 工作记录'
+
+    done_items = _parse_ai_work_done_items(_section_text(content, '已办事项清单'))
+    groups = _group_ai_work_done_items(done_items)
+    total = len(done_items)
+    project_count = len(groups)
+    top_project = groups[0]['project'] if groups else '暂无'
+    details = _parse_ai_work_daily_details(_section_text(content, '详细记录'))
+    triage = _parse_ai_work_daily_triage(_section_text(content, '风险 / 决策 / 下一步'))
+    source_rows = _list_items(_section_text(content, '来源'))
+    source = source_rows[0].strip('`') if source_rows else 'source.md'
+
+    project_summary = ''.join(
+        f'<a class="project-pill" href="#project-{i}"><span>{_render_inline(g["project"])}</span><strong>{len(g["items"])}</strong></a>'
+        for i, g in enumerate(groups[:8], 1)
+    ) or '<span class="project-pill muted"><span>暂无项目</span><strong>0</strong></span>'
+
+    project_cards = []
+    for i, group in enumerate(groups, 1):
+        items_html = ''.join(
+            f'<li><span class="check"></span><div><p>{_render_inline(item["text"])}</p><small>{_esc(item.get("source") or "日报自动汇总")}</small></div></li>'
+            for item in group['items']
+        )
+        project_cards.append(
+            f'<article class="project-card" id="project-{i}">'
+            f'<header><div><span class="project-kicker">Project</span><h2>{_render_inline(group["project"])}</h2></div><strong>{len(group["items"])}</strong></header>'
+            f'<ul class="task-list">{items_html}</ul></article>'
+        )
+    if not project_cards:
+        project_cards.append('<article class="project-card empty-card"><header><div><span class="project-kicker">Project</span><h2>暂无明确项目</h2></div><strong>0</strong></header><p>今天没有足够明确的已办事项。</p></article>')
+
+    triage_html = ''.join(
+        f'<section class="mini-panel"><h3>{_render_inline(label)}</h3>{_render_ai_daily_list(triage.get(label), 4)}</section>'
+        for label in ('关键决策', '风险提醒', '建议下一步')
+    )
+    if not triage_html:
+        triage_html = '<section class="mini-panel"><h3>后续关注</h3><p class="empty">暂无明确记录。</p></section>'
+
+    details_html = ''.join(
+        f'<details><summary><span>{_render_inline(name)}</span><strong>{len(rows)}</strong></summary>{_render_ai_daily_list(rows, 28)}</details>'
+        for name, rows in details
+    ) or '<p class="empty">暂无详细记录。</p>'
+
+    return (f'<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">'
+            f'<meta name="viewport" content="width=device-width, initial-scale=1">'
+            f'<title>{_esc(clean_title + ("｜" + day if day else ""))}</title><style>{css}</style></head><body>'
+            f'<main class="page"><header class="hero"><div class="hero-meta"><span>AI Work Daily</span><time>{_esc(day)}</time></div>'
+            f'<div class="hero-grid"><section class="hero-main"><h1>{_render_inline(clean_title)}</h1><p>{_render_inline(lead)}</p>'
+            f'<div class="mainline"><span>今日主线</span><strong>{_render_inline(mainline)}</strong></div></section>'
+            f'<aside class="stats"><div><span>Done</span><strong>{total}</strong><small>已办事项</small></div>'
+            f'<div><span>Projects</span><strong>{project_count}</strong><small>项目分组</small></div>'
+            f'<div><span>Focus</span><strong>{_render_inline(top_project)}</strong><small>首要项目</small></div></aside></div>'
+            f'<nav class="project-strip">{project_summary}</nav></header>'
+            f'<section class="section-head"><h2>已办事项清单</h2><p>每件事一条，按项目分组。</p></section>'
+            f'<section class="projects">{"".join(project_cards)}</section>'
+            f'<section class="section-head"><h2>决策 / 风险 / 下一步</h2><p>会影响后续行动的内容。</p></section>'
+            f'<section class="mini-grid">{triage_html}</section>'
+            f'<section class="section-head"><h2>详细记录</h2><p>需要追证据时再展开。</p></section>'
+            f'<section class="evidence">{details_html}</section>'
+            f'<footer class="footer">Generated from {_esc(source)} · OpenClaw daily report pipeline</footer>'
             f'</main></body></html>')
 
 # ── decision / explainer / review renderers ──────────────────────────────────
@@ -999,6 +1109,8 @@ def render_fast(template_id, content, out=None, package=None, caller=None, title
         html = _render_annotated_review(content, css, title_str)
     elif renderer == 'ai-work-daily-visual':
         html = _render_ai_work_daily_visual(content, css, title_str)
+    elif renderer == 'ai-work-daily-checklist':
+        html = _render_ai_work_daily_checklist(content, css, title_str)
     else:  # markdown-page
         body = _parse_md(content)
         html = (f'<!doctype html>\n<html lang="zh-CN">\n<head>\n'

@@ -1,0 +1,14 @@
+{
+  "id": "ai-work-daily-checklist-fast",
+  "name": "AI Work Daily Checklist Fast",
+  "description": "Deterministic local checklist dashboard for daily AI work reports: project grouped done items, compact status board, and folded evidence.",
+  "category": "fast-local",
+  "aspectHint": "responsive checklist daily dashboard",
+  "recommended": true,
+  "renderer": "ai-work-daily-checklist",
+  "style": "style.css",
+  "title": "AI Work Daily",
+  "aliases": [
+    "ai-work-daily-checklist"
+  ]
+}
