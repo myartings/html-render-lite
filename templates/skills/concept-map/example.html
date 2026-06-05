@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>概念地图：三层五图法</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    :root{
+      --paper:#f7f3ea; --paper-2:#fbfaf7; --ink:#18324a; --muted:#637184;
+      --line:#d9cdbb; --green:#3f7d5a; --amber:#b8792f; --purple:#6d6286;
+      --blue:#426a8c; --card:#fffaf1; --shadow:0 18px 55px rgba(38,34,28,.10);
+      --radius:24px;
+    }
+    html,body{margin:0;min-height:100%;overflow-x:hidden;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","PingFang SC",sans-serif;line-height:1.55}
+    body{background:radial-gradient(circle at 18% 0%,rgba(184,121,47,.14),transparent 32%),radial-gradient(circle at 86% 8%,rgba(63,125,90,.12),transparent 30%),var(--paper)}
+    svg,img{max-width:100%;height:auto} p,li,h1,h2,h3,span,strong{overflow-wrap:anywhere}
+    .page{width:min(1220px,calc(100% - 40px));margin:0 auto;padding:36px 0 56px}
+    .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:26px;align-items:stretch;margin-bottom:24px}
+    .hero-main,.conclusion,.panel,.card,.example-card,.checklist{background:rgba(255,250,241,.86);border:1px solid rgba(217,205,187,.9);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .hero-main{padding:42px;position:relative;overflow:hidden}
+    .hero-main::after{content:"";position:absolute;right:-80px;top:-80px;width:240px;height:240px;border:1px solid rgba(24,50,74,.12);border-radius:50%}
+    .eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.18em;color:var(--amber);font-weight:800;margin-bottom:18px}
+    h1{font-size:clamp(36px,6vw,72px);line-height:.98;margin:0 0 18px;letter-spacing:-.06em}
+    .lead{font-size:20px;color:#34475d;max-width:660px;margin:0}
+    .conclusion{padding:28px;display:flex;flex-direction:column;justify-content:space-between;background:#18324a;color:#f8f1df}
+    .conclusion h2{margin:0 0 12px;font-size:20px;color:#fff4d7}
+    .formula{display:grid;gap:10px;margin-top:22px}
+    .formula span{display:block;padding:12px 14px;border:1px solid rgba(255,255,255,.18);border-radius:16px;background:rgba(255,255,255,.08);font-weight:700}
+    .section{margin-top:24px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin:0 0 14px}.section-head h2{margin:0;font-size:28px;letter-spacing:-.03em}.section-head p{margin:0;color:var(--muted)}
+    .overview{background:var(--paper-2);border:1px solid var(--line);border-radius:30px;padding:26px;box-shadow:var(--shadow)}
+    .layer-map{width:100%;min-height:440px;display:block}.node{fill:#fffaf1;stroke:#d5c7b2;stroke-width:2}.center{fill:#18324a;stroke:#18324a}.layer-visible{fill:#edf7ef;stroke:#88b596}.layer-internal{fill:#fff4df;stroke:#d9a45a}.layer-external{fill:#f0eef7;stroke:#a59bc1}.label{font-size:18px;font-weight:800;fill:#18324a}.small{font-size:13px;font-weight:650;fill:#56667a}.center-text{fill:#fffaf1;font-size:23px;font-weight:900}.arrow{stroke:#8e806d;stroke-width:2;fill:none;marker-end:url(#arrow)}
+    .cards{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}.card{padding:18px;min-width:0}.card h3{margin:0 0 8px;font-size:20px}.card .tag{font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.08em}.card p{font-size:14px;color:#43546a;margin:8px 0}.card dl{margin:12px 0 0;font-size:13px}.card dt{font-weight:900;color:var(--ink)}.card dd{margin:0 0 8px;color:var(--muted)}
+    .mini{height:128px;margin:12px 0;border-radius:18px;background:#fbf7ee;border:1px solid #e5d9c8;padding:10px}.mini text{font-size:12px;font-weight:800;fill:#18324a}.mini .muted{font-size:10px;fill:#637184}.mini .box{fill:#fff;stroke:#d6c8b6;stroke-width:1.4}.mini .green{fill:#edf7ef;stroke:#7faf90}.mini .amber{fill:#fff1d8;stroke:#d59a43}.mini .purple{fill:#f2eff8;stroke:#a197bd}.mini .dark{fill:#18324a;stroke:#18324a}.mini .dark-text{fill:#fffaf1}.mini .line{stroke:#8d806d;stroke-width:1.6;fill:none;marker-end:url(#miniArrow)}
+    .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}.panel{padding:22px}.panel h3{margin:0 0 10px;font-size:22px}.panel strong{display:inline-block;margin-bottom:10px}.panel ul{margin:12px 0 0;padding-left:18px;color:#47576c}.mechanism{border-top:5px solid var(--amber)}.environment{border-top:5px solid var(--purple)}
+    .examples{display:grid;grid-template-columns:1fr 1fr;gap:16px}.example-card{padding:22px}.example-card h3{margin:0 0 12px}.strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.strip div{border:1px solid var(--line);background:#fbf7ee;border-radius:16px;padding:12px}.strip b{display:block;color:var(--amber);margin-bottom:4px}.strip p{font-size:13px;margin:0;color:#4b5a6c}
+    .checklist{padding:24px}.checklist ul{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 18px;margin:0;padding:0;list-style:none}.checklist li{padding-left:28px;position:relative}.checklist li::before{content:"✓";position:absolute;left:0;top:0;color:var(--green);font-weight:900}.footer{margin-top:28px;color:var(--muted);font-size:13px;text-align:center}
+    @media (max-width:1080px){.cards{grid-template-columns:repeat(2,1fr)}.hero{grid-template-columns:1fr}.layer-map{min-height:360px}}
+    @media (max-width:768px){.page{width:min(100% - 24px,680px);padding:20px 0 36px}.hero-main,.conclusion,.overview,.panel,.card,.example-card,.checklist{border-radius:20px}.hero-main{padding:28px}.lead{font-size:17px}.section-head{display:block}.cards,.compare,.examples,.checklist ul{grid-template-columns:1fr}.strip{grid-template-columns:1fr}.overview{padding:14px}.layer-map{min-height:560px}.mini{height:auto}h1{letter-spacing:-.04em}}
+  </style>
+</head>
+<body>
+<main class="page">
+  <header class="hero">
+    <section class="hero-main">
+      <div class="eyebrow">Concept Map Template · 三层五图</div>
+      <h1>概念地图：三层五图法</h1>
+      <p class="lead">先让概念在现实中可见，再拆开它的组成与运作，最后把它放回更大的系统，理解它为什么存在。</p>
+    </section>
+    <aside class="conclusion">
+      <div>
+        <h2>30 秒结论</h2>
+        <p>理解概念不是背定义，而是建立一个可以观察、拆解、运行、定位和解释成因的心智模型。</p>
+      </div>
+      <div class="formula">
+        <span>看见它：现实中什么样</span>
+        <span>运行它：怎么用 + 怎么工作</span>
+        <span>放回世界：在哪 + 为什么存在</span>
+      </div>
+    </aside>
+  </header>
+
+  <section class="section overview" aria-labelledby="overview-title">
+    <div class="section-head">
+      <h2 id="overview-title">三层五图总览图</h2>
+      <p>中心是概念，三层分别回答外显、内部、外部问题。</p>
+    </div>
+    <svg class="layer-map" viewBox="0 0 1160 460" role="img" aria-label="三层五图总览图">
+      <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#8e806d"/></marker></defs>
+      <rect x="20" y="36" width="270" height="388" rx="26" class="layer-visible"/><text x="155" y="78" text-anchor="middle" class="label">外显层</text><text x="155" y="104" text-anchor="middle" class="small">现实中看起来像什么</text>
+      <rect x="445" y="36" width="270" height="388" rx="26" class="layer-internal"/><text x="580" y="78" text-anchor="middle" class="label">内部层</text><text x="580" y="104" text-anchor="middle" class="small">组成 + 运作机制</text>
+      <rect x="870" y="36" width="270" height="388" rx="26" class="layer-external"/><text x="1005" y="78" text-anchor="middle" class="label">外部层</text><text x="1005" y="104" text-anchor="middle" class="small">位置 + 环境动力</text>
+      <circle cx="580" cy="228" r="70" class="center"/><text x="580" y="238" text-anchor="middle" class="center-text">概念</text>
+      <rect x="78" y="184" width="154" height="70" rx="18" class="node"/><text x="155" y="214" text-anchor="middle" class="label">外显图</text><text x="155" y="238" text-anchor="middle" class="small">最小可见场景</text>
+      <rect x="496" y="138" width="168" height="66" rx="18" class="node"/><text x="580" y="167" text-anchor="middle" class="label">结构图</text><text x="580" y="190" text-anchor="middle" class="small">组件 / 边界</text>
+      <rect x="496" y="270" width="168" height="66" rx="18" class="node"/><text x="580" y="299" text-anchor="middle" class="label">动态机制图</text><text x="580" y="322" text-anchor="middle" class="small">输入→输出→反馈</text>
+      <rect x="928" y="138" width="154" height="66" rx="18" class="node"/><text x="1005" y="167" text-anchor="middle" class="label">位置图</text><text x="1005" y="190" text-anchor="middle" class="small">系统层级</text>
+      <rect x="928" y="270" width="154" height="66" rx="18" class="node"/><text x="1005" y="299" text-anchor="middle" class="label">环境动力图</text><text x="1005" y="322" text-anchor="middle" class="small">成因 / 张力 / 影响</text>
+      <path class="arrow" d="M232 219 C330 219 428 228 508 228"/><path class="arrow" d="M650 228 C748 226 820 170 928 170"/><path class="arrow" d="M650 228 C748 232 820 302 928 302"/>
+      <path class="arrow" d="M580 204 L580 270"/><path class="arrow" d="M580 270 L580 204"/>
+    </svg>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>五图卡片</h2><p>每张卡片都有独立小图，不能只写文字。</p></div>
+    <div class="cards">
+      <article class="card">
+        <div class="tag">Visible Layer</div><h3>外显图</h3>
+        <svg class="mini" viewBox="0 0 220 128" aria-label="外显图小图">
+          <defs><marker id="miniArrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#8d806d"/></marker></defs>
+          <circle cx="42" cy="44" r="20" class="green"/><text x="42" y="49" text-anchor="middle">人</text><path class="line" d="M62 44 H104"/><rect x="108" y="24" width="64" height="40" rx="12" class="box"/><text x="140" y="49" text-anchor="middle">场景</text><path class="line" d="M140 66 V96"/><text x="140" y="112" text-anchor="middle" class="muted">第一眼能看见</text>
+        </svg>
+        <p>现实中它长什么样，最小可观察场景是什么。</p>
+        <dl><dt>回答</dt><dd>别人如何观察到它？</dd><dt>误区</dt><dd>一上来堆定义。</dd></dl>
+      </article>
+      <article class="card">
+        <div class="tag">Internal Layer A</div><h3>结构图</h3>
+        <svg class="mini" viewBox="0 0 220 128" aria-label="结构图小图">
+          <rect x="78" y="12" width="64" height="28" rx="10" class="dark"/><text x="110" y="31" text-anchor="middle" class="dark-text">概念</text><path class="line" d="M110 40 V58"/><path class="line" d="M110 58 H48 V76"/><path class="line" d="M110 58 H110 V76"/><path class="line" d="M110 58 H172 V76"/><rect x="20" y="76" width="56" height="34" rx="10" class="green"/><rect x="82" y="76" width="56" height="34" rx="10" class="amber"/><rect x="144" y="76" width="56" height="34" rx="10" class="purple"/><text x="48" y="98" text-anchor="middle">组件</text><text x="110" y="98" text-anchor="middle">边界</text><text x="172" y="98" text-anchor="middle">依赖</text>
+        </svg>
+        <p>它由哪些部分组成，边界在哪里，哪些是外部依赖。</p>
+        <dl><dt>回答</dt><dd>核心组件如何排列？</dd><dt>误区</dt><dd>把例子当本体。</dd></dl>
+      </article>
+      <article class="card">
+        <div class="tag">Internal Layer B</div><h3>动态机制图</h3>
+        <svg class="mini" viewBox="0 0 220 128" aria-label="动态机制图小图">
+          <rect x="10" y="42" width="46" height="30" rx="10" class="green"/><text x="33" y="62" text-anchor="middle">输入</text><path class="line" d="M56 57 H84"/><rect x="86" y="34" width="50" height="46" rx="12" class="amber"/><text x="111" y="62" text-anchor="middle">转换</text><path class="line" d="M136 57 H164"/><rect x="166" y="42" width="46" height="30" rx="10" class="purple"/><text x="189" y="62" text-anchor="middle">输出</text><path class="line" d="M189 76 C170 108 54 108 33 76"/><text x="110" y="115" text-anchor="middle" class="muted">反馈 / 验证 / 修正</text>
+        </svg>
+        <p>“怎么用的”核心：如何调用它，以及它内部如何把输入变成输出。</p>
+        <dl><dt>回答</dt><dd>怎么跑起来？</dd><dt>误区</dt><dd>只写什么时候用。</dd></dl>
+      </article>
+      <article class="card">
+        <div class="tag">External Layer A</div><h3>位置图</h3>
+        <svg class="mini" viewBox="0 0 220 128" aria-label="位置图小图">
+          <rect x="70" y="8" width="80" height="26" rx="9" class="box"/><text x="110" y="26" text-anchor="middle">上位系统</text><path class="line" d="M110 34 V52"/><rect x="76" y="52" width="68" height="30" rx="10" class="dark"/><text x="110" y="72" text-anchor="middle" class="dark-text">当前概念</text><path class="line" d="M76 67 H42"/><path class="line" d="M144 67 H178"/><rect x="4" y="52" width="38" height="30" rx="9" class="green"/><rect x="178" y="52" width="38" height="30" rx="9" class="purple"/><text x="23" y="72" text-anchor="middle">相邻</text><text x="197" y="72" text-anchor="middle">相邻</text><path class="line" d="M110 82 V104"/><text x="110" y="121" text-anchor="middle" class="muted">下位分支 / 应用层</text>
+        </svg>
+        <p>它在更大体系中的层级、相邻概念和解决的问题层。</p>
+        <dl><dt>回答</dt><dd>它属于哪个系统？</dd><dt>误区</dt><dd>孤立解释概念。</dd></dl>
+      </article>
+      <article class="card">
+        <div class="tag">External Layer B</div><h3>环境动力图</h3>
+        <svg class="mini" viewBox="0 0 220 128" aria-label="环境动力图小图">
+          <rect x="8" y="22" width="44" height="32" rx="10" class="green"/><text x="30" y="43" text-anchor="middle">成因</text><path class="line" d="M52 38 H78"/><rect x="80" y="22" width="44" height="32" rx="10" class="amber"/><text x="102" y="43" text-anchor="middle">张力</text><path class="line" d="M124 38 H150"/><rect x="152" y="22" width="60" height="32" rx="10" class="dark"/><text x="182" y="43" text-anchor="middle" class="dark-text">概念出现</text><path class="line" d="M182 56 V82"/><rect x="78" y="84" width="92" height="30" rx="10" class="purple"/><text x="124" y="104" text-anchor="middle">系统变化</text>
+        </svg>
+        <p>它为什么出现，被什么推动，又反过来改变了什么。</p>
+        <dl><dt>回答</dt><dd>外部张力是什么？</dd><dt>误区</dt><dd>画成内部流程。</dd></dl>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>两种“动态”必须分开</h2><p>一个讲内部工作，一个讲外部成因。</p></div>
+    <div class="compare">
+      <article class="panel mechanism"><h3>动态机制图</h3><strong>概念内部如何工作</strong><p>关注使用方式和运作机制：人/系统如何调用它，关键组件如何协作，输入如何变成输出，如何反馈、验证、修正。</p><ul><li>输入 → 处理 → 输出</li><li>组件交互</li><li>反馈闭环</li></ul></article>
+      <article class="panel environment"><h3>环境动力图</h3><strong>概念为什么存在</strong><p>关注外部环境：什么需求、技术、成本、风险或历史条件推动它出现，它解决了什么张力，又推动了什么系统变化。</p><ul><li>外部驱动力</li><li>矛盾 / 张力</li><li>系统影响</li></ul></article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>示例带</h2><p>每个概念用三层压缩，不展开成长文。</p></div>
+    <div class="examples">
+      <article class="example-card"><h3>vibe coding</h3><div class="strip"><div><b>外显</b><p>人用自然语言提需求，AI 改代码、跑命令、产出功能。</p></div><div><b>内部</b><p>LLM、上下文、工具、测试、反馈循环共同构成工作流。</p></div><div><b>外部</b><p>LLM 代码能力提升与开发成本压力共同推动范式出现。</p></div></div></article>
+      <article class="example-card"><h3>存在主义</h3><div class="strip"><div><b>外显</b><p>人面对选择，没有外部说明书替他决定。</p></div><div><b>内部</b><p>无预设意义 → 自由 → 选择 → 行动 → 责任。</p></div><div><b>外部</b><p>现代性危机和意义秩序崩塌，推动人重新追问如何活。</p></div></div></article>
+    </div>
+  </section>
+
+  <section class="section checklist">
+    <div class="section-head"><h2>使用 Checklist</h2><p>解释任何概念前先过一遍。</p></div>
+    <ul>
+      <li>有没有先画出现实里的“什么样”？</li>
+      <li>结构图是否说明组成、边界和外部依赖？</li>
+      <li>动态机制图是否解释怎么用、怎么工作？</li>
+      <li>有没有避免把“怎么用”降级成“什么时候用”？</li>
+      <li>位置图是否说明它在更大系统哪一层？</li>
+      <li>环境动力图是否说明成因、张力和影响？</li>
+      <li>是否区分内部动态和外部动力？</li>
+      <li>最后能否压缩成一句可复述的心智模型？</li>
+    </ul>
+  </section>
+  <footer class="footer">Based on <code>concept-map</code> template / 三层五图概念理解法 · Markdown/YAML 是真源，HTML 是复习与展示层。</footer>
+</main>
+</body>
+</html>

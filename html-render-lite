@@ -97,6 +97,16 @@ def validate_html(html_path, template_id=None):
             warnings.append(f"⚠️ deck 只有 {slide_count} 页，内容可能不够")
     if re.search(r'src=["\']https?://(?!cdn\.tailwindcss|fonts\.googleapis|cdnjs\.cloudflare|unpkg)', html):
         warnings.append("⚠️ 包含外部图片引用，可能无法离线打开")
+    if template_id == "concept-map":
+        required_labels = ["外显图", "结构图", "动态机制图", "位置图", "环境动力图"]
+        missing = [label for label in required_labels if label not in html]
+        if missing:
+            warnings.append(f"⚠️ concept-map 缺少五图标签: {', '.join(missing)}")
+        mini_count = len(re.findall(r'class=["\'][^"\']*\bmini\b', html))
+        if mini_count < 5:
+            warnings.append(f"⚠️ concept-map 五图卡片需要至少 5 个 .mini 小图，当前 {mini_count} 个")
+        if "动态机制图" in html and "环境动力图" in html and not ("内部如何" in html or "内部" in html):
+            warnings.append("⚠️ concept-map 可能没有明确说明动态机制图是内部工作机制")
     return warnings
 
 def load_shared_directives():
@@ -558,6 +568,172 @@ def _render_deck_xhs_knowledge(content, css, opts=None):
             f'<title>{_esc(source_title)}</title><style>{css}</style></head>'
             f'<body><main class="deck">\n{"".join(pages_html)}\n</main></body></html>')
 
+# ── AI work daily visual renderer ─────────────────────────────────────────────
+
+def _strip_inline(md):
+    text = str(md or '')
+    text = re.sub(r'`([^`]+)`', r'\1', text)
+    text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)
+    text = re.sub(r'\*([^*]+)\*', r'\1', text)
+    text = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', text)
+    return text.strip()
+
+def _short_text(text, limit=120):
+    text = re.sub(r'\s+', ' ', _strip_inline(text)).strip()
+    if len(text) <= limit:
+        return text
+    return text[: max(0, limit - 1)].rstrip("，。；、,. ") + "…"
+
+def _split_source_suffix(text):
+    raw = _strip_inline(text)
+    m = re.match(r'^(.*?)（(.+?)）\s*$', raw)
+    if m:
+        return m.group(1).strip(), m.group(2).strip()
+    return raw, "日报自动汇总"
+
+def _parse_table_rows(section):
+    rows = []
+    for line in str(section or '').splitlines():
+        line = line.strip()
+        if not line.startswith('|') or re.match(r'^\|\s*-', line):
+            continue
+        cells = [c.strip() for c in line.strip('|').split('|')]
+        if len(cells) >= 3 and cells[0] != '指标':
+            rows.append({'label': _strip_inline(cells[0]), 'value': _strip_inline(cells[1]), 'note': _strip_inline(cells[2])})
+    return rows
+
+def _parse_ai_work_daily_cards(section):
+    cards = []
+    parts = re.split(r'^###\s+', str(section or ''), flags=re.M)
+    for part in parts:
+        part = part.strip()
+        if not part:
+            continue
+        lines = part.splitlines()
+        heading = _strip_inline(lines[0])
+        m = re.match(r'^(?:\d+[.)]\s*)?(.+)$', heading)
+        label = m.group(1).strip() if m else heading
+        card = {'label': label, 'what': '', 'why': '', 'source': ''}
+        for line in lines[1:]:
+            lm = re.match(r'^\s*[-*+]\s*\*\*([^*]+)：\*\*\s*(.*?)\s*$', line)
+            if not lm:
+                lm = re.match(r'^\s*[-*+]\s*([^:：]+)[:：]\s*(.*?)\s*$', line)
+            if not lm:
+                continue
+            key, val = lm.group(1).strip(), _strip_inline(lm.group(2))
+            if '发生' in key:
+                card['what'] = val
+            elif '为什么' in key or '重要' in key:
+                card['why'] = val
+            elif '证据' in key or '来源' in key:
+                card['source'] = val
+        if card['what'] or card['why']:
+            cards.append(card)
+    return cards
+
+def _parse_ai_work_daily_triage(section):
+    data = {}
+    current = None
+    for raw in str(section or '').splitlines():
+        h = re.match(r'^###\s+(.+?)\s*$', raw.strip())
+        if h:
+            current = _strip_inline(h.group(1))
+            data[current] = []
+            continue
+        m = re.match(r'^\s*[-*+]\s+(.+?)\s*$', raw)
+        if m and current:
+            text, source = _split_source_suffix(m.group(1))
+            if text and text != '暂无明确记录。':
+                data[current].append((text, source))
+    return data
+
+def _parse_ai_work_daily_details(section):
+    details = []
+    current = None
+    rows = []
+    for raw in str(section or '').splitlines():
+        h = re.match(r'^###\s+(.+?)\s*$', raw.strip())
+        if h:
+            if current is not None:
+                details.append((current, rows))
+            current = _strip_inline(h.group(1))
+            rows = []
+            continue
+        m = re.match(r'^\s*[-*+]\s+(.+?)\s*$', raw)
+        if m and current:
+            text, source = _split_source_suffix(m.group(1))
+            if text and text != '暂无明确记录。':
+                rows.append((text, source))
+    if current is not None:
+        details.append((current, rows))
+    return details
+
+def _render_ai_daily_list(rows, limit=4):
+    rows = (rows or [])[:limit]
+    if not rows:
+        return '<p class="empty">暂无明确记录。</p>'
+    return '<ul>' + ''.join(
+        f'<li><span>{_render_inline(_short_text(text, 128))}</span><small>{_esc(source or "日报自动汇总")}</small></li>'
+        for text, source in rows
+    ) + '</ul>'
+
+def _render_ai_work_daily_visual(content, css, fallback_title=''):
+    title = _doc_title(content, fallback_title or 'AI 工作日报')
+    m = re.search(r'(\d{4}-\d{2}-\d{2})', title)
+    day = m.group(1) if m else ''
+    clean_title = re.sub(r'[｜|—-]?\s*\d{4}-\d{2}-\d{2}', '', title).strip() or 'AI 工作日报'
+    intro = re.search(r'^>\s*(.+?)\s*$', str(content or ''), re.M)
+    lead = _strip_inline(intro.group(1)) if intro else '先看重点，再看证据。给别人看时，不需要翻长日志，也能快速理解今天完成了什么、踩了什么坑、下一步是什么。'
+    board = _parse_table_rows(_section_text(content, '今日看板'))
+    metric_tones = ['total', 'finish', 'decision', 'risk', 'next']
+    metric_html = ''.join(
+        f'<article class="metric metric-{_esc(metric_tones[i] if i < len(metric_tones) else "total")}">'
+        f'<span>{_render_inline(row["label"])}</span><strong>{_esc(row["value"])}</strong><p>{_render_inline(row["note"])}</p></article>'
+        for i, row in enumerate(board[:5])
+    )
+    mainline_section = _section_text(content, '今日主线')
+    ml = re.search(r'(?:一句话主线：|\*\*一句话主线：\*\*)\s*(.+)', mainline_section)
+    mainline = _short_text(ml.group(1), 72) if ml else _short_text(_plain_text(mainline_section), 72)
+    if not mainline:
+        mainline = '今天暂无足够明确的 AI 工作记录'
+    cards = _parse_ai_work_daily_cards(_section_text(content, '重点卡片'))
+    if cards:
+        cards_html = ''.join(
+            f'<article class="highlight-card"><div class="card-top"><span class="index">{i:02d}</span><span class="badge">{_render_inline(c["label"])}</span></div>'
+            f'<h3>{_render_inline(_short_text(c.get("what") or c.get("why") or c["label"], 42))}</h3>'
+            f'<p>{_render_inline(_short_text(c.get("what") or c.get("why") or "", 168))}</p>'
+            f'<footer>{_esc(c.get("source") or "日报自动汇总")}</footer></article>'
+            for i, c in enumerate(cards[:6], 1)
+        )
+    else:
+        cards_html = '<article class="highlight-card"><h3>暂无明确重点</h3><p>今天没有足够明确的记录可生成重点卡片。</p></article>'
+    triage = _parse_ai_work_daily_triage(_section_text(content, '风险 / 决策 / 下一步'))
+    details = _parse_ai_work_daily_details(_section_text(content, '详细记录'))
+    details_html = ''.join(
+        f'<details><summary>{_render_inline(name)}<span>{len(rows)}</span></summary>{_render_ai_daily_list(rows, 20)}</details>'
+        for name, rows in details
+    ) or '<p class="empty">暂无详细记录。</p>'
+    source_rows = _list_items(_section_text(content, '来源'))
+    source = source_rows[0].strip('`') if source_rows else 'source.md'
+    return (f'<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">'
+            f'<meta name="viewport" content="width=device-width, initial-scale=1">'
+            f'<title>{_esc(clean_title + ("｜" + day if day else ""))}</title><style>{css}</style></head><body>'
+            f'<main class="wrap"><section class="hero"><div class="hero-main"><div class="eyebrow">AI Work Daily / Visual Briefing</div>'
+            f'<h1>{_render_inline(clean_title)}</h1><div class="date-mark">{_esc(day)}</div><p class="lead">{_render_inline(lead)}</p></div>'
+            f'<aside class="hero-side"><h2>今日主线</h2><p class="mainline">{_render_inline(mainline)}</p><p class="source">Source: {_esc(source)}</p></aside></section>'
+            f'<section class="metrics" aria-label="今日看板">{metric_html}</section>'
+            f'<section class="section-title"><h2>30 秒看懂</h2><p>完成 / 决策 / 风险 / 资产 / 下一步</p></section>'
+            f'<section class="highlights">{cards_html}</section>'
+            f'<section class="section-title"><h2>工作流</h2><p>这份日报如何从记录变成可分享汇报</p></section>'
+            f'<section class="flow"><div>收集证据</div><div>提炼重点</div><div>归类风险</div><div>生成 HTML</div><div>发布 Artifact</div></section>'
+            f'<section class="section-title"><h2>风险 / 决策 / 下一步</h2><p>先看会影响后续行动的部分</p></section>'
+            f'<section class="triage"><article class="panel"><h3>关键决策</h3>{_render_ai_daily_list(triage.get("关键决策"))}</article>'
+            f'<article class="panel"><h3>风险提醒</h3>{_render_ai_daily_list(triage.get("风险提醒"))}</article>'
+            f'<article class="panel"><h3>建议下一步</h3>{_render_ai_daily_list((triage.get("建议下一步") or []) + (triage.get("仍在推进") or []))}</article></section>'
+            f'<section class="section-title"><h2>详细记录</h2><p>需要追证据时再展开</p></section>'
+            f'<section class="details">{details_html}</section><p class="outro">Generated from {_esc(source)} · OpenClaw daily report pipeline</p>'
+            f'</main></body></html>')
+
 # ── decision / explainer / review renderers ──────────────────────────────────
 
 def _section_text(md, name):
@@ -821,6 +997,8 @@ def render_fast(template_id, content, out=None, package=None, caller=None, title
         html = _render_feature_explainer(content, css, title_str)
     elif renderer == 'annotated-review':
         html = _render_annotated_review(content, css, title_str)
+    elif renderer == 'ai-work-daily-visual':
+        html = _render_ai_work_daily_visual(content, css, title_str)
     else:  # markdown-page
         body = _parse_md(content)
         html = (f'<!doctype html>\n<html lang="zh-CN">\n<head>\n'
