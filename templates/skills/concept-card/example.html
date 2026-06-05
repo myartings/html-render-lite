@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>概念卡片：PMF</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    :root{--bg:#f7f3ea;--card:#fffaf1;--ink:#18324a;--muted:#657389;--line:#ded2bf;--amber:#b8792f;--green:#3f7d5a;--purple:#6d6286;--shadow:0 24px 80px rgba(35,30,22,.14)}
+    html,body{margin:0;min-height:100%;overflow-x:hidden;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","PingFang SC",sans-serif;line-height:1.55}
+    body{background:radial-gradient(circle at 18% 0%,rgba(184,121,47,.16),transparent 34%),radial-gradient(circle at 86% 10%,rgba(63,125,90,.13),transparent 30%),var(--bg)}
+    p,h1,h2,h3,li,span,strong{overflow-wrap:anywhere}
+    .wrap{width:min(960px,calc(100% - 36px));margin:0 auto;padding:42px 0 54px}
+    .card{background:rgba(255,250,241,.92);border:1px solid var(--line);border-radius:34px;box-shadow:var(--shadow);overflow:hidden}
+    .hero{padding:42px 44px 34px;background:linear-gradient(135deg,#fffaf1 0%,#f4ead9 100%);border-bottom:1px solid var(--line);position:relative}
+    .hero:after{content:"PMF";position:absolute;right:28px;top:14px;font-weight:900;font-size:96px;letter-spacing:-.08em;color:rgba(24,50,74,.06)}
+    .eyebrow{display:inline-flex;gap:8px;align-items:center;padding:7px 12px;border:1px solid rgba(184,121,47,.28);border-radius:999px;color:var(--amber);font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;background:rgba(255,255,255,.45)}
+    h1{font-size:clamp(38px,7vw,76px);line-height:.95;letter-spacing:-.07em;margin:22px 0 14px}
+    .definition{font-size:22px;color:#2f4257;max-width:760px;margin:0;font-weight:650}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:22px}
+    .panel{border:1px solid var(--line);background:#fbf7ee;border-radius:24px;padding:22px;min-width:0}
+    .panel h2{margin:0 0 14px;font-size:20px;letter-spacing:-.02em}.panel p{margin:0;color:#44566d}.panel ul{margin:0;padding-left:18px;color:#44566d}.panel li+li{margin-top:8px}
+    .boundary{display:grid;gap:10px}.pill{padding:12px 14px;border-radius:16px;border:1px solid #dfd1be;background:#fffdf8}.pill b{display:block;color:var(--ink);margin-bottom:4px}.pill.is{border-left:5px solid var(--green)}.pill.not{border-left:5px solid var(--amber)}
+    .analogy{background:#18324a;color:#f8efd9}.analogy h2{color:#fff4d7}.analogy p{color:#e8dcc9}.quote{font-size:24px;font-weight:850;line-height:1.28;margin-bottom:10px!important}
+    .examples{display:grid;grid-template-columns:1fr 1fr;gap:12px}.example{padding:14px;border-radius:18px;background:#fffdf8;border:1px solid #dfd1be}.example b{display:block;margin-bottom:6px}.example.good b{color:var(--green)}.example.bad b{color:var(--amber)}
+    .adjacent{display:grid;gap:10px}.adj{display:flex;gap:10px;align-items:flex-start}.dot{width:9px;height:9px;border-radius:50%;background:var(--purple);margin-top:8px;flex:0 0 auto}.adj strong{display:block}.adj span{color:var(--muted);font-size:14px}
+    .action{margin:0 22px 22px;padding:24px;border-radius:26px;background:linear-gradient(135deg,#eaf5ed,#fff5df);border:1px solid #d8cbb8}.action h2{margin:0 0 8px}.action p{margin:0;color:#374b61;font-size:18px;font-weight:650}
+    .footer{padding:18px 24px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;text-align:center;background:rgba(255,255,255,.32)}
+    code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:rgba(24,50,74,.08);padding:2px 5px;border-radius:6px}
+    @media (max-width:760px){.wrap{width:min(100% - 22px,620px);padding:20px 0 34px}.card{border-radius:24px}.hero{padding:30px 24px}.hero:after{font-size:58px;right:16px}.definition{font-size:18px}.grid,.examples{grid-template-columns:1fr}.grid{padding:14px}.panel{border-radius:20px;padding:18px}.action{margin:0 14px 14px;padding:20px}h1{letter-spacing:-.05em}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <article class="card">
+      <header class="hero">
+        <div class="eyebrow">Concept Card · 商业概念</div>
+        <h1>PMF</h1>
+        <p class="definition">Product-Market Fit 是产品真正匹配一群人的强需求，以至于用户愿意持续使用、推荐、付费，增长开始不再完全依赖硬推。</p>
+      </header>
+      <section class="grid">
+        <div class="panel"><h2>关键边界</h2><div class="boundary"><div class="pill is"><b>它是</b>产品价值和市场需求之间的强匹配。</div><div class="pill not"><b>它不是</b>一次爆款传播、短期下载量、融资故事或创始人的自我感觉良好。</div><div class="pill"><b>判断方式</b>看持续行为，而不是只看口头喜欢。</div></div></div>
+        <div class="panel analogy"><h2>类比</h2><p class="quote">像钥匙和锁真正咬合。</p><p>不是钥匙长得漂亮，而是它能稳定打开那把锁。</p></div>
+        <div class="panel"><h2>正反例</h2><div class="examples"><div class="example good"><b>例子</b><p>独立 App 用户主动推荐给同类朋友，并且在没有补贴的情况下持续付费续订。</p></div><div class="example bad"><b>反例</b><p>上线首周靠广告冲到下载榜，但留存很差，没人愿意二次打开。</p></div></div></div>
+        <div class="panel"><h2>相邻概念</h2><div class="adjacent"><div class="adj"><i class="dot"></i><div><strong>Problem-Solution Fit</strong><span>问题和方案初步对上了，但未必形成市场拉力。</span></div></div><div class="adj"><i class="dot"></i><div><strong>Growth</strong><span>增长是放大器；没有 PMF 时只是在放大流失。</span></div></div><div class="adj"><i class="dot"></i><div><strong>Retention</strong><span>留存是关键证据之一，但不能单独等同于 PMF。</span></div></div></div></div>
+      </section>
+      <section class="action"><h2>对 myartings 的行动价值</h2><p>做独立 App 时，先找持续使用和主动推荐的证据，再扩大开发和投放；不要用一次性下载量误判产品已经成了。</p></section>
+      <footer class="footer">需要深度理解时，用 <code>/html concept</code> 或 <code>concept-map</code> 升级为三层五图。</footer>
+    </article>
+  </main>
+</body>
+</html>
