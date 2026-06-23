@@ -3,7 +3,7 @@ name: concept-map
 zh_name: "概念地图"
 en_name: "Concept Map"
 emoji: "🧠"
-description: "图解型三层五图概念地图：用现实场景图、机制流程图、体系定位图、案例 walkthrough 和边界反例图，把抽象概念做成具体可见的视觉说明书。"
+description: "图解型概念地图：先用三层五图建立具体心智模型，再用外显场景、对比矩阵和练习题验证理解。"
 category: doc
 scenario: learning
 aspect_hint: "desktop visual explainer 1280×900+; mobile stacked learning cards"
@@ -17,15 +17,14 @@ example_desc: "中心是概念，向外展开外显层、内部层、外部层�
 ---
 
 【模板: 概念地图 / Concept Map】
-【定位】把一个抽象概念或概念理解方法论做成已经验证过的 **Stripe Diagram Concrete Concept Page**：用一个真实场景贯穿 Hero、case setup、五图、walkthrough、边界和压缩心智模型。它不是普通文章页、不是 PPT、不是纯思维导图，也不是空间隐喻地图。重点是让用户一眼看到：概念在现实里如何出现、内部如何运作、外部为何存在，以及它不是什么。
+【定位】把一个抽象概念或概念理解方法论做成 **html learn / learn concept** 页面：用一个真实场景贯穿 Study Header、五图、walkthrough、边界、理解验证和压缩心智模型。它不是普通文章页、不是 PPT、不是纯思维导图，也不是空间隐喻地图。重点是让用户一眼看到：概念在现实里如何出现、内部如何运作、外部为何存在、它不是什么，以及用户是否真的理解了它。
 
 ## 核心目标
 
-输出一份**自包含单文件 HTML**，用清晰图形表达“三层五图”：
+输出一份**自包含单文件 HTML**，用清晰图形表达“五图入门 + 双图一练验证”：
 
-1. **外显层**：外显图，现实中它看起来像什么。
-2. **内部层**：结构图 + 动态机制图，概念内部由什么组成、如何运作起来。
-3. **外部层**：位置图 + 环境动力图，概念在大体系中的位置、为什么存在、又影响什么。
+1. **五图入门**：外显图、结构图、动态机制图、位置图、环境动力图，帮助用户建立第一版心智模型。
+2. **双图一练验证**：外显场景识别图、相邻概念对比矩阵、3–5 个残缺填空 / 场景判断题，帮助用户检查自己是否真的理解。
 
 页面必须能同时用于：
 
@@ -36,14 +35,17 @@ example_desc: "中心是概念，向外展开外显层、内部层、外部层�
 
 ## 视觉签名（固定）
 
-默认固定使用 **Stripe Diagram Concrete Concept Page**，不要再退回普通 concept cards 页面：
+默认固定使用 **html learn workbench / 现代学习工作台**，并与 `kb-study-material` 保持同一套视觉语言。不要再退回普通 concept cards 页面，也不要使用旧的紫蓝 Stripe 风格。
 
-- 风格：Stripe / Framer 式高级视觉说明书；白色/浅蓝画布、深 navy 文字、紫蓝渐变线、浮层卡片、精致阴影、克制圆角。
-- 背景：浅色 canvas，可使用淡紫/淡蓝径向光斑与细网格，但不得依赖外部图片或 CDN。
-- 主色：深墨蓝 `#0b1230` / `#18324a`，强调色 `#635bff`、`#00d4ff`、`#7c3aed`。
-- 真实场景：每个页面先选一个具体可观察案例；不要只展示抽象概念名。
-- 图形：Hero 场景 + case setup + 五张不同形态的 SVG 图 + walkthrough + boundary。图形语言要包含场景卡、剖面图、反馈环、**分层分类体系位置图**、因果链，不能五张图长得一样。
-- 内容密度：短句、卡片、图形标签为主；每个图形节点使用具体名词和动作，不要只写抽象词。
+- 产品气质：高级、清爽、学习工作台、interactive study notebook；信息密度高但不压迫。
+- 背景：暖白 canvas `#F6F5F2` / `#FAFAF7`，细边框与浅阴影；不得使用装饰光球、bokeh、无意义背景图、大面积渐变。
+- 主文字：`#1B1B19` / `#1F1F1F`；次文字：`#5C5A55` / `#6E6C67`；弱文字：`#8C8A84`。
+- 主 accent：克制蓝 `#3C5A8C`；辅助 accent：绿色 `#4F9772`、琥珀 `#B0883E`、风险红 `#9A4F42`。不要满屏蓝色，不要大面积紫色。
+- 字体：只用系统字体和系统等宽字体。禁止 Google Fonts、外部字体、CDN。本模板覆盖共享约束中“可引入 Tailwind / Google Fonts”的旧规则。
+- 组件语言：Study Header、Learning Rail、Insight Card、Diagram Panel、Practice Block、Source Strip、Review Footer。`concept-map` 和 `kb-study-material` 的 header、section 标题、标签、图表容器、练习区必须像同一个产品。
+- 布局：桌面端为 sticky header + 可选左侧 Learning Rail + 主内容列；移动端 rail 变成顶部紧凑进度导航或直接隐藏，正文自然单列。
+- 图形：Hero 场景 + 五张不同形态的 Diagram Panel + walkthrough + boundary + understanding check。图形语言要包含场景图、结构图、反馈环、**分层分类体系位置图**、因果链、对比矩阵和练习卡，不能五张图长得一样。
+- 内容密度：短句、图形标签和具体节点为主；每个图形节点使用具体名词和动作，不要只写抽象词。
 
 ## 固定页面结构
 
@@ -53,7 +55,7 @@ example_desc: "中心是概念，向外展开外显层、内部层、外部层�
    - 标题：具体概念名 + 一句有张力的解释，例如“存在主义：没有说明书时，仍要选择并负责”。
    - 副标题：一句话说明这个概念在真实处境里解决什么张力。
    - 30 秒结论卡片。
-   - **必须有 Stripe 风格首屏场景图**：用浮层卡片画出人物/系统、输入动作、内部机制、输出/后果，作为“外显层”的第一入口。
+   - **必须有学习工作台风格首屏场景图**：用 diagram panel 画出人物/系统、输入动作、内部机制、输出/后果，作为“外显层”的第一入口。
 
 2. **Case Setup / 真实案例设定**
    - 给出项目/处境、角色、约束、验收条件或后果。
@@ -84,21 +86,27 @@ example_desc: "中心是概念，向外展开外显层、内部层、外部层�
    - 至少列出 3 个“相邻但不是它”的概念。
    - 每个反例给一句边界判断，避免用户把概念与近邻混淆。
 
-7. **Internal vs External Dynamics / 两种“动态”区分**
+7. **Understanding Check / 理解验证：双图一练**
+   - 外显场景识别图：复用同一个案例，要求用户看图判断概念发生在哪里。
+   - 对比矩阵图：当前概念 vs 2–4 个相邻概念；列出核心问题、机制、输出、常见误解和边界。
+   - 小练习：3–5 个残缺填空 / 判断 / 场景应用题，答案可折叠或放在下方。
+   - 练习题不要只考标题回忆，要测试机制、边界和应用判断。
+
+8. **Internal vs External Dynamics / 两种“动态”区分**
    - 对比 `动态机制图` 和 `环境动力图`。
    - 必须明确：
      - 动态机制图：概念内部如何工作。
      - 环境动力图：概念在环境中为什么存在、被什么推动、又推动什么。
 
-8. **Compressed Mental Model / 压缩心智模型**
+9. **Compressed Mental Model / 压缩心智模型**
    - 用一句话压缩这个概念的机制与边界。
    - 必须保留“真实处境 + 内部机制 + 责任/后果/输出”的链条，不要只给 slogan。
 
-9. **Usage Checklist / 使用 checklist**
+10. **Usage Checklist / 使用 checklist**
    - 解释一个概念前的 6–8 条检查项。
    - 强调不要只给定义，不要只讲什么时候用。
 
-10. **Footer / Source Note**
+11. **Footer / Source Note**
    - 标注：Based on `concept-map` skill / 三层五图概念理解法。
 
 ## 内容输入格式
@@ -166,6 +174,7 @@ example_desc: "中心是概念，向外展开外显层、内部层、外部层�
 - 一个 `动态机制图 vs 环境动力图` 的对比小图。
 - 一个具体案例 walkthrough 图。
 - 一个边界 / 反例图。
+- 一个 `理解验证 / Understanding Check` 区块：包含一张 focused scene 图、一张 comparison matrix 图、3–5 个 cloze/judgement prompts。
 - 一个简短示例流程图，展示 `vibe coding` 或 `存在主义` 的三层压缩。
 
 图形可以是 SVG、CSS 卡片与箭头组合，但不能只用普通 Markdown 列表。
@@ -206,13 +215,16 @@ example_desc: "中心是概念，向外展开外显层、内部层、外部层�
 - 五个 `<svg class="mini">` / `.mini` 图形容器用于五图卡片
 - `<section class="walkthrough">`
 - `<section class="boundary">`
+- `<section class="understanding-check">`
+- `<section class="comparison-matrix">`
+- `<section class="practice-prompts">`
 - `<section class="dynamic-compare">`
 - `<section class="mental-model">`
 - `<section class="checklist">`
 
 ## 标准示例文件
 
-模板目录应包含，并以已验证的 `存在主义` Stripe Diagram 页面作为标准视觉样例：
+模板目录应包含，并以已验证的 `存在主义` html learn workbench 页面作为标准视觉样例：
 
 - `example.md`：标准输入样例，展示 Markdown source 应该如何表达三层五图。
 - `example.html`：标准视觉样例，作为 `html-render-lite` 组装上下文时的视觉参考。
@@ -238,3 +250,6 @@ example_desc: "中心是概念，向外展开外显层、内部层、外部层�
 8. 页面是否比 Markdown 更适合第一次理解和复习？
 9. 手机端是否无横向溢出？
 10. 是否保留了 skill 的方法论价值，而不是只做漂亮图？
+11. 是否包含双图一练验证区？
+12. 对比矩阵是否区分了相邻概念，而不是泛泛比较？
+13. 练习题是否测试边界、机制和应用，而不是只考术语？

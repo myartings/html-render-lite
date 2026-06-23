@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;}
+  ::selection{background:#D6E0EF;}
+  a{text-decoration:none;}
+</style>
+</helmet>
+
+<!--
+  ============================================================
+  html learn · 通用骨架模板
+  ------------------------------------------------------------
+  用法：复制本文件，替换占位内容即可生成新的 concept / topic 页。
+  设计 token（全系统统一，勿改）：
+    底色 #F6F5F2 · 卡片 #FFFFFF · 描边 #E6E4DF · 主文 #1B1B19 · 次文 #5C5A55 · 弱文 #8C8A84
+    主色（墨蓝）#3C5A8C  · 语义：绿 #4F9772 / 琥珀 #C9A24B / 红 #9A4F42
+    字体：标题正文 IBM Plex Sans，标签图注 IBM Plex Mono(uppercase, letter-spacing .08em)
+    卡片：圆角 10–14px，1px hairline 描边，无重投影
+  下面每个『▸ COMPONENT』注释块即一个可独立复制的共享组件。
+  ============================================================
+-->
+
+<div style="min-height:100vh; background:#F6F5F2; font-family:'IBM Plex Sans',sans-serif; color:#1B1B19; -webkit-font-smoothing:antialiased; overflow-x:hidden;">
+
+  <!-- ▸ STUDY HEADER ▸ 名 / 类型徽章 / 时长·难度·标签 / 进度条 -->
+  <header style="position:sticky; top:0; z-index:30; background:rgba(246,245,242,.86); backdrop-filter:blur(10px); border-bottom:1px solid #E6E4DF;">
+    <div style="max-width:1180px; margin:0 auto; padding:13px 28px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;">
+      <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+        <a href="Learn Home.dc.html" style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#8C8A84; flex:none;" title="返回入口">←</a>
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em; color:#3C5A8C; border:1px solid #C9D4E6; background:#F2F6FB; border-radius:5px; padding:3px 8px;">CONCEPT / TOPIC</span>
+        <span style="font-size:16px; font-weight:600; letter-spacing:-.01em;">概念 / 主题名</span>
+        <span style="font-size:13px; color:#8C8A84; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">一句话副标题</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.06em; color:#8C8A84;">
+        <span>00 MIN</span><span style="color:#D8D6D0;">·</span><span>LEVEL</span><span style="color:#D8D6D0;">·</span><span>标签</span>
+      </div>
+    </div>
+    <div style="height:2px; background:#ECEAE5;"><div style="{{ progressStyle }}"></div></div>
+  </header>
+
+  <div style="max-width:1180px; margin:0 auto; padding:0 28px; display:flex; align-items:flex-start; gap:40px;">
+
+    <!-- ▸ LEARNING RAIL ▸ sticky section 导航，滚动高亮当前 section；≥900px 才显示 -->
+    <nav style="position:sticky; top:104px; flex:none; width:208px; padding:32px 0; display:none;" data-rail>
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; color:#A7A59F; padding:0 10px 12px;">ON THIS PAGE</div>
+      <div style="display:flex; flex-direction:column; gap:2px;">
+        <button style="{{ rail.a }}" onClick="{{ navA }}"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.6;">01</span> Section 一</button>
+        <button style="{{ rail.b }}" onClick="{{ navB }}"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.6;">02</span> Section 二</button>
+        <button style="{{ rail.c }}" onClick="{{ navC }}"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.6;">03</span> Section 三</button>
+        <button style="{{ rail.d }}" onClick="{{ navD }}"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.6;">04</span> Section 四</button>
+      </div>
+    </nav>
+
+    <main style="flex:1; min-width:0; max-width:840px; padding:40px 0 96px; display:flex; flex-direction:column; gap:44px;">
+
+      <!-- ▸ SECTION 标题样式 ▸ 每个 section 头：mono 编号 + mono eyebrow + H2 + 引导句 -->
+      <section id="sec-a" data-screen-label="Section A" style="scroll-margin-top:100px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:#8C8A84;">Eyebrow · 概念 / 主题英文名</div>
+        <h1 style="font-size:42px; font-weight:700; letter-spacing:-.02em; line-height:1.08; margin:10px 0 0;">页面主标题</h1>
+        <p style="font-size:18px; line-height:1.55; color:#5C5A55; margin:14px 0 0; max-width:640px;">一句话定义占位文本，用 <strong style="color:#1B1B19; font-weight:600;">加粗</strong> 标记关键词。控制在两行内。</p>
+
+        <!-- ▸ DIAGRAM PANEL ▸ 所有图解唯一容器：FIG 编号 + 标注层名 + 图注。流程/矩阵/taxonomy/场景都用它 -->
+        <figure style="margin:24px 0 0; border:1px solid #E6E4DF; border-radius:12px; background:#fff; overflow:hidden;">
+          <figcaption style="padding:11px 16px; border-bottom:1px solid #F0EEE9; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.07em; color:#5C5A55;">FIG.01 · 图层名 · 这张图说明什么</span>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#C2C0BA;">LAYER</span>
+          </figcaption>
+          <div style="padding:24px 22px; display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;">
+            <div style="border:1px solid #DEDCD6; border-radius:8px; padding:9px 13px; font-size:12.5px; color:#3A3A36; background:#fff;">节点 A</div>
+            <span style="font-size:15px; color:#C2C0BA;">→</span>
+            <div style="border:1px solid #C9D4E6; border-radius:8px; padding:9px 13px; font-size:12.5px; color:#33476B; background:#F4F7FB;">节点 B（强调）</div>
+            <span style="font-size:15px; color:#C2C0BA;">→</span>
+            <div style="border:1px solid #DEDCD6; border-radius:8px; padding:9px 13px; font-size:12.5px; color:#3A3A36; background:#fff;">节点 C</div>
+          </div>
+          <div style="padding:10px 16px; border-top:1px solid #F0EEE9; background:#FAFAF8; font-size:12.5px; color:#8C8A84; line-height:1.5;">图注：一句话解释这张图的要点（移动端流程图请改纵向堆叠）。</div>
+        </figure>
+      </section>
+
+      <!-- ▸ SECTION 二 ▸ -->
+      <section id="sec-b" data-screen-label="Section B" style="scroll-margin-top:100px;">
+        <div><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; color:#3C5A8C;">02</span> <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:#8C8A84;">Section Eyebrow</span></div>
+        <h2 style="font-size:25px; font-weight:700; letter-spacing:-.01em; line-height:1.2; margin:8px 0 0;">小节标题</h2>
+        <p style="font-size:15px; line-height:1.7; color:#5C5A55; margin:14px 0 0; max-width:680px;">正文段落占位。正文列宽固定 ≤680，行高 1.7，关键词用加粗而非变色。</p>
+
+        <!-- ▸ INSIGHT CARD ▸ 关键结论卡片，每 section ≤1。左侧主色细条 -->
+        <div style="margin-top:18px; border:1px solid #E6E4DF; border-left:3px solid #3C5A8C; border-radius:10px; background:#FAFBFD; padding:18px 20px; max-width:680px;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em; color:#3C5A8C; margin-bottom:8px;">KEY INSIGHT</div>
+          <div style="font-size:16px; line-height:1.6; color:#2A2A27; font-weight:500;">这里写一句必须记住的核心结论，是全 section 的"金句"。</div>
+        </div>
+
+        <!-- ▸ SOURCE STRIP ▸ 来源/证据摘要（topic 常用）。类型徽章 + 描述 + 可信度 -->
+        <div style="margin-top:18px; border:1px solid #E6E4DF; border-radius:12px; background:#fff; overflow:hidden; max-width:680px;">
+          <div style="display:flex; gap:14px; padding:14px 16px; border-bottom:1px solid #F0EEE9; align-items:center;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#7A5B2E; background:#FBF6EC; border:1px solid #E6D7BD; border-radius:4px; padding:2px 7px; flex:none;">来源类型</span>
+            <span style="flex:1; font-size:14px; color:#3A3A36;">来源描述占位</span>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#4F9772; flex:none;">可信度 ●●●○</span>
+          </div>
+          <div style="padding:12px 16px; background:#FAFAF8; font-size:12.5px; color:#8C8A84;">覆盖范围：A · B · C（不含 …）</div>
+        </div>
+      </section>
+
+      <!-- ▸ SECTION 三 ▸ 各类结构块 -->
+      <section id="sec-c" data-screen-label="Section C" style="scroll-margin-top:100px;">
+        <div><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; color:#3C5A8C;">03</span> <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:#8C8A84;">结构块库</span></div>
+        <h2 style="font-size:25px; font-weight:700; letter-spacing:-.01em; line-height:1.2; margin:8px 0 18px;">可复用结构块</h2>
+
+        <!-- 块A：Stepper（walkthrough / learning path 通用） -->
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#A7A59F; margin-bottom:10px;">▸ STEPPER · 走查 / 路径</div>
+        <ol style="list-style:none; margin:0 0 24px; padding:0;">
+          <li style="display:flex; gap:16px;">
+            <div style="flex:none; display:flex; flex-direction:column; align-items:center;"><span style="width:30px; height:30px; border-radius:50%; border:1.5px solid #3C5A8C; color:#3C5A8C; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:12px; background:#F2F6FB;">1</span><span style="flex:1; width:1.5px; background:#E6E4DF;"></span></div>
+            <div style="padding-bottom:18px;"><div style="font-size:15px; font-weight:600;">步骤标题</div><div style="font-size:14px; color:#5C5A55; line-height:1.6; margin-top:2px;">步骤说明占位。</div></div>
+          </li>
+          <li style="display:flex; gap:16px;">
+            <div style="flex:none; display:flex; flex-direction:column; align-items:center;"><span style="width:30px; height:30px; border-radius:50%; border:1.5px solid #4F9772; color:#4F9772; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:12px; background:#F3F9F5;">✓</span></div>
+            <div><div style="font-size:15px; font-weight:600;">结果</div><div style="font-size:14px; color:#5C5A55; line-height:1.6; margin-top:2px;">结果说明占位。</div></div>
+          </li>
+        </ol>
+
+        <!-- 块B：对比卡组（boundary / tensions 通用，可换琥珀边表示争议） -->
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#A7A59F; margin-bottom:10px;">▸ 对比卡组 · 边界 / 争议（争议改 border-left:3px solid #C9A24B + 米底）</div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
+          <div style="border:1px solid #E6E4DF; border-radius:10px; background:#fff; padding:16px;"><div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#9A4F42; margin-bottom:6px;">≠ 邻居</div><div style="font-size:14px; font-weight:600; margin-bottom:4px;">对照项</div><div style="font-size:13px; color:#6E6C67; line-height:1.55;">区别说明占位。</div></div>
+          <div style="border:1px solid #E6E4DF; border-radius:10px; background:#fff; padding:16px;"><div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#B0883E; margin-bottom:6px;">≈ 邻居</div><div style="font-size:14px; font-weight:600; margin-bottom:4px;">对照项</div><div style="font-size:13px; color:#6E6C67; line-height:1.55;">区别说明占位。</div></div>
+        </div>
+      </section>
+
+      <!-- ▸ SECTION 四 ▸ 练习 + 心智模型 + 复习 -->
+      <section id="sec-d" data-screen-label="Section D" style="scroll-margin-top:100px;">
+        <div><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; color:#3C5A8C;">04</span> <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:#8C8A84;">理解验证</span></div>
+        <h2 style="font-size:25px; font-weight:700; letter-spacing:-.01em; line-height:1.2; margin:8px 0 0;">练习与复习</h2>
+
+        <!-- ▸ PRACTICE BLOCK · 选择题（接 logic：onPick / pSel*/ pFeed*） -->
+        <div style="margin-top:18px; border:1px solid #E6E4DF; border-radius:12px; background:#FAFAF8; padding:18px 20px;">
+          <div style="display:flex; gap:10px; align-items:baseline;"><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#3C5A8C;">Q1</span><span style="font-size:15px; font-weight:500; color:#1B1B19; line-height:1.5;">题干占位——哪个选项正确？</span></div>
+          <div style="display:flex; flex-direction:column; gap:8px; margin-top:14px;">
+            <button onClick="{{ onPickA }}" style="text-align:left; min-height:44px; border:1px solid #D9D7D2; background:#fff; border-radius:8px; cursor:pointer; font:inherit; font-size:13.5px; color:#3A3A36; padding:10px 14px; display:flex; gap:8px; line-height:1.5;" style-hover="border-color:#3C5A8C;"><span style="font-family:'IBM Plex Mono',monospace; color:#A7A59F;"><sc-if value="{{ selA }}" hint-placeholder-val="{{ false }}"><span style="color:#3C5A8C;">●</span></sc-if><sc-if value="{{ notA }}" hint-placeholder-val="{{ true }}">A</sc-if></span>选项 A（错误项）</button>
+            <button onClick="{{ onPickB }}" style="text-align:left; min-height:44px; border:1px solid #D9D7D2; background:#fff; border-radius:8px; cursor:pointer; font:inherit; font-size:13.5px; color:#3A3A36; padding:10px 14px; display:flex; gap:8px; line-height:1.5;" style-hover="border-color:#3C5A8C;"><span style="font-family:'IBM Plex Mono',monospace; color:#A7A59F;"><sc-if value="{{ selB }}" hint-placeholder-val="{{ false }}"><span style="color:#3C5A8C;">●</span></sc-if><sc-if value="{{ notB }}" hint-placeholder-val="{{ true }}">B</sc-if></span>选项 B（正确项）</button>
+          </div>
+          <sc-if value="{{ answered }}" hint-placeholder-val="{{ false }}"><div style="{{ feedStyle }}">{{ feedText }}</div></sc-if>
+        </div>
+
+        <!-- ▸ PRACTICE BLOCK · 填空 / 显示答案 -->
+        <div style="margin-top:12px; border:1px solid #E6E4DF; border-radius:12px; background:#FAFAF8; padding:18px 20px;">
+          <div style="display:flex; gap:10px; align-items:baseline;"><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#3C5A8C;">Q2</span><span style="font-size:15px; font-weight:500; color:#1B1B19; line-height:1.5;">填空题：关键术语是 <span style="border-bottom:1.5px dashed #A7A59F; padding:0 18px;"></span>。</span></div>
+          <button onClick="{{ onReveal }}" style="margin-top:14px; min-height:44px; border:1px solid #3C5A8C; background:#fff; color:#3C5A8C; border-radius:8px; cursor:pointer; font:inherit; font-size:13.5px; padding:0 16px;" style-hover="background:#F2F6FB;">显示答案</button>
+          <sc-if value="{{ revealed }}" hint-placeholder-val="{{ false }}"><div style="margin-top:12px; padding:12px 14px; border-radius:8px; background:#ECF4EF; border:1px solid #CDE5D8; color:#3C6E52; font-size:14px; line-height:1.55;"><strong>答案占位</strong>。简短解释。</div></sc-if>
+        </div>
+
+        <!-- ▸ MENTAL MODEL ▸ 深色一句话压缩卡 -->
+        <div style="margin-top:24px; border-radius:14px; background:#1B1B19; color:#fff; padding:28px 30px;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; color:#7E7C76; margin-bottom:12px;">ONE-LINE MENTAL MODEL</div>
+          <div style="font-size:20px; line-height:1.5; font-weight:500; letter-spacing:-.01em;">一句话压缩模型——用 <span style="color:#9FC7AF;">绿色</span> 和 <span style="color:#A7C0E0;">蓝色</span> 点出关键名词。</div>
+        </div>
+
+        <!-- ▸ REVIEW FOOTER ▸ 复习问题 + 下一步 -->
+        <div style="margin-top:24px; border-top:1px solid #E6E4DF; padding-top:20px; display:flex; flex-wrap:wrap; gap:24px; justify-content:space-between;">
+          <div style="max-width:420px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em; color:#A7A59F; margin-bottom:10px;">REVIEW · 复习问题</div>
+            <ul style="margin:0; padding-left:18px; font-size:14px; color:#5C5A55; line-height:1.8;"><li>复习问题一</li><li>复习问题二</li><li>复习问题三</li></ul>
+          </div>
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em; color:#A7A59F; margin-bottom:10px;">NEXT</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <a href="#" style="display:inline-flex; align-items:center; gap:8px; font-size:14px; color:#3C5A8C;">→ 下一步阅读一</a>
+              <a href="#" style="display:inline-flex; align-items:center; gap:8px; font-size:14px; color:#3C5A8C;">→ 下一步阅读二</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: 1180, &quot;height&quot;: 800 }
+}">
+class Component extends DCLogic {
+  // 通用骨架逻辑：Learning Rail 高亮 + 顶部进度 + Practice Block 状态。
+  // 新页面照搬本类，按需增删 section id 与练习项即可。
+  state = { active: 'a', progress: 0, pick: null, revealed: false };
+
+  componentDidMount() {
+    this.sections = ['a', 'b', 'c', 'd'];   // ← 改这里同步 section id（sec-<id>）与 rail
+    this.onScroll = () => {
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - doc.clientHeight;
+      const p = max > 0 ? Math.min(1, Math.max(0, doc.scrollTop / max)) : 0;
+      const mid = window.innerHeight * 0.32;
+      let act = this.sections[0];
+      for (const id of this.sections) {
+        const el = document.getElementById('sec-' + id);
+        if (el && el.getBoundingClientRect().top <= mid) act = id;
+      }
+      if (act !== this.state.active || Math.abs(p - this.state.progress) > 0.004) {
+        this.setState({ active: act, progress: p });
+      }
+    };
+    this._showRail = () => {
+      const nav = document.querySelector('[data-rail]');
+      if (nav) nav.style.display = window.innerWidth >= 900 ? 'block' : 'none';
+    };
+    window.addEventListener('scroll', this.onScroll, { passive: true });
+    window.addEventListener('resize', this._showRail);
+    this._showRail();
+    this.onScroll();
+  }
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this.onScroll);
+    window.removeEventListener('resize', this._showRail);
+  }
+  go(id) {
+    const el = document.getElementById('sec-' + id);
+    if (el) window.scrollTo({ top: el.offsetTop - 88, behavior: 'smooth' });
+  }
+
+  renderVals() {
+    const accent = '#3C5A8C';
+    const s = this.state;
+
+    const base = { display:'flex', alignItems:'center', gap:'8px', width:'100%', textAlign:'left',
+      background:'none', border:'none', cursor:'pointer', padding:'8px 10px', borderRadius:'6px',
+      font:'inherit', fontSize:'13px', color:'#8C8A84', borderLeft:'2px solid transparent' };
+    const on = { ...base, color:'#1B1B19', fontWeight:600, background:'#F1EFEA', borderLeft:'2px solid ' + accent };
+    const mk = id => (s.active === id ? on : base);
+    const rail = { a:mk('a'), b:mk('b'), c:mk('c'), d:mk('d') };
+
+    const progressStyle = { width: Math.round(s.progress * 100) + '%', height:'100%',
+      background: accent, borderRadius:'2px', transition:'width .12s linear' };
+
+    const feedBase = { marginTop:'14px', padding:'11px 14px', borderRadius:'8px', fontSize:'13.5px', lineHeight:1.55 };
+    const ok = { ...feedBase, background:'#ECF4EF', border:'1px solid #CDE5D8', color:'#3C6E52' };
+    const no = { ...feedBase, background:'#F6ECEA', border:'1px solid #ECCFC9', color:'#9A4F42' };
+    const correct = s.pick === 'b';   // ← 正确答案设这里
+
+    return {
+      progressStyle, rail,
+      navA:()=>this.go('a'), navB:()=>this.go('b'), navC:()=>this.go('c'), navD:()=>this.go('d'),
+
+      onPickA:()=>this.setState({pick:'a'}), onPickB:()=>this.setState({pick:'b'}),
+      selA:s.pick==='a', selB:s.pick==='b', notA:s.pick!=='a', notB:s.pick!=='b',
+      answered: s.pick !== null,
+      feedStyle: correct ? ok : no,
+      feedText: correct ? '✓ 正确反馈占位。' : '✗ 错误反馈占位，解释为什么。',
+
+      onReveal:()=>this.setState({revealed:true}),
+      revealed: s.revealed
+    };
+  }
+}
+</script>
+</body>
+</html>

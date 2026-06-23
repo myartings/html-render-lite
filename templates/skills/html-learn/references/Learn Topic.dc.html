@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;}
+  ::selection{background:#D6E0EF;}
+</style>
+</helmet>
+
+<div style="min-height:100vh; background:#F6F5F2; font-family:'IBM Plex Sans',sans-serif; color:#1B1B19; -webkit-font-smoothing:antialiased; overflow-x:hidden;">
+
+  <!-- ===================== STUDY HEADER ===================== -->
+  <header style="position:sticky; top:0; z-index:30; background:rgba(246,245,242,.86); backdrop-filter:blur(10px); border-bottom:1px solid #E6E4DF;">
+    <div style="max-width:1180px; margin:0 auto; padding:13px 28px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;">
+      <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+        <a href="Learn Home.dc.html" style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#8C8A84; text-decoration:none; flex:none;" title="返回入口">←</a>
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em; color:#7A5B2E; border:1px solid #E6D7BD; background:#FBF6EC; border-radius:5px; padding:3px 8px;">TOPIC</span>
+        <span style="font-size:16px; font-weight:600; letter-spacing:-.01em;">Vibe Coding 方法论</span>
+        <span style="font-size:13px; color:#8C8A84; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">用自然语言驱动开发的工作方式</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.06em; color:#8C8A84;">
+        <span>35 MIN</span>
+        <span style="color:#D8D6D0;">·</span>
+        <span>4 SOURCES</span>
+        <span style="color:#D8D6D0;">·</span>
+        <span>3 GOALS</span>
+      </div>
+    </div>
+    <sc-if value="{{ showProgress }}" hint-placeholder-val="{{ true }}">
+      <div style="height:2px; background:#ECEAE5;"><div style="{{ progressStyle }}"></div></div>
+    </sc-if>
+  </header>
+
+  <!-- ===================== BODY: RAIL + CONTENT ===================== -->
+  <div style="max-width:1180px; margin:0 auto; padding:0 28px; display:flex; align-items:flex-start; gap:40px;">
+
+    <!-- ---------- LEARNING RAIL ---------- -->
+    <nav style="position:sticky; top:104px; flex:none; width:208px; padding:32px 0; display:none;" data-rail>
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; color:#A7A59F; padding:0 10px 12px;">ON THIS PAGE</div>
+      <div style="display:flex; flex-direction:column; gap:2px;">
+        <button style="{{ rail.hero }}" onClick="{{ navHero }}"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.6;">00</span> 学习地图</button>
+        <button style="{{ rail.source }}" onClick="{{ navSource }}"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.6;">01</span> 来源摘要</button>
+        <button style="{{ rail.backbone }}" onClick="{{ navBackbone }}"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.6;">02</span> 概念骨架</button>
+        <button style="{{ rail.path }}" onClick="{{ navPath }}"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.6;">03</span> 学习路径</button>
+        <button style="{{ rail.tensions }}" onClick="{{ navTensions }}"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.6;">04</span> 关键争议</button>
+        <button style="{{ rail.playbook }}" onClick="{{ navPlaybook }}"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.6;">05</span> 行动清单</button>
+        <button style="{{ rail.minimap }}" onClick="{{ navMinimap }}"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.6;">06</span> 核心概念图</button>
+        <button style="{{ rail.review }}" onClick="{{ navReview }}"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.6;">07</span> 复习与练习</button>
+      </div>
+    </nav>
+
+    <!-- ---------- MAIN CONTENT ---------- -->
+    <main style="flex:1; min-width:0; max-width:840px; padding:40px 0 96px; display:flex; flex-direction:column; gap:44px;">
+
+      <!-- ===== HERO + LEARNING MAP ===== -->
+      <section id="sec-hero" data-screen-label="Hero" style="scroll-margin-top:100px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:#8C8A84;">Topic Study Pack · 资料包</div>
+        <h1 style="font-size:40px; font-weight:700; letter-spacing:-.02em; line-height:1.1; margin:10px 0 0;">Vibe Coding 方法论</h1>
+        <p style="font-size:17px; line-height:1.55; color:#5C5A55; margin:14px 0 0; max-width:640px;">不再逐行写代码，而是用自然语言描述意图、让 AI 生成、由你<strong style="color:#1B1B19; font-weight:600;">审校与把关</strong>的开发方式。这份资料包带你从「听过」到「能用、知道边界」。</p>
+
+        <!-- learning goals + map -->
+        <div style="margin-top:24px; display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+          <div style="border:1px solid #E6E4DF; border-radius:12px; background:#fff; padding:18px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em; color:#8C8A84; margin-bottom:12px;">学习目标 · 学完你能</div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <div style="display:flex; gap:10px; align-items:flex-start;"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#3C5A8C; margin-top:2px;">01</span><span style="font-size:13.5px; color:#3A3A36; line-height:1.5;">说清 vibe coding 适合 / 不适合的场景</span></div>
+              <div style="display:flex; gap:10px; align-items:flex-start;"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#3C5A8C; margin-top:2px;">02</span><span style="font-size:13.5px; color:#3A3A36; line-height:1.5;">建立一套自己的 prompt → 审校 → 迭代节奏</span></div>
+              <div style="display:flex; gap:10px; align-items:flex-start;"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#3C5A8C; margin-top:2px;">03</span><span style="font-size:13.5px; color:#3A3A36; line-height:1.5;">识别它的技术债与质量风险并提前防范</span></div>
+            </div>
+          </div>
+          <div style="border:1px solid #E6E4DF; border-radius:12px; background:#fff; padding:18px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em; color:#8C8A84; margin-bottom:12px;">学习地图 · 七段旅程</div>
+            <div style="display:flex; flex-direction:column; gap:7px;">
+              <div style="display:flex; align-items:center; gap:8px;"><span style="width:18px; height:18px; flex:none; border-radius:50%; background:#F2F6FB; border:1px solid #C9D4E6; color:#3C5A8C; font-family:'IBM Plex Mono',monospace; font-size:9px; display:flex; align-items:center; justify-content:center;">A</span><span style="font-size:12.5px; color:#5C5A55;">来源摘要 → 概念骨架</span></div>
+              <div style="display:flex; align-items:center; gap:8px;"><span style="width:18px; height:18px; flex:none; border-radius:50%; background:#F2F6FB; border:1px solid #C9D4E6; color:#3C5A8C; font-family:'IBM Plex Mono',monospace; font-size:9px; display:flex; align-items:center; justify-content:center;">B</span><span style="font-size:12.5px; color:#5C5A55;">学习路径 → 关键争议</span></div>
+              <div style="display:flex; align-items:center; gap:8px;"><span style="width:18px; height:18px; flex:none; border-radius:50%; background:#F2F6FB; border:1px solid #C9D4E6; color:#3C5A8C; font-family:'IBM Plex Mono',monospace; font-size:9px; display:flex; align-items:center; justify-content:center;">C</span><span style="font-size:12.5px; color:#5C5A55;">行动清单 → 概念图 → 复习</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SOURCE DIGEST ===== -->
+      <section id="sec-source" data-screen-label="Source Digest" style="scroll-margin-top:100px;">
+        <div><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; color:#3C5A8C;">01</span> <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:#8C8A84;">来源摘要</span></div>
+        <h2 style="font-size:25px; font-weight:700; letter-spacing:-.01em; line-height:1.2; margin:8px 0 0;">这份资料从哪来、可信吗</h2>
+        <p style="font-size:15px; line-height:1.7; color:#5C5A55; margin:12px 0 18px; max-width:680px;">先看清证据基础，再决定怎么用——避免把博客观点当成定论。</p>
+
+        <div style="border:1px solid #E6E4DF; border-radius:12px; background:#fff; overflow:hidden;">
+          <div style="display:flex; flex-direction:column;">
+            <div style="display:flex; gap:14px; padding:14px 16px; border-bottom:1px solid #F0EEE9; align-items:center;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#7A5B2E; background:#FBF6EC; border:1px solid #E6D7BD; border-radius:4px; padding:2px 7px; flex:none;">原始提出</span>
+              <span style="flex:1; font-size:14px; color:#3A3A36;">Andrej Karpathy 关于 vibe coding 的原始论述</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#4F9772; flex:none;">可信度 ●●●●</span>
+            </div>
+            <div style="display:flex; gap:14px; padding:14px 16px; border-bottom:1px solid #F0EEE9; align-items:center;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#33476B; background:#F2F6FB; border:1px solid #C9D4E6; border-radius:4px; padding:2px 7px; flex:none;">实践报告</span>
+              <span style="flex:1; font-size:14px; color:#3A3A36;">独立开发者的多篇上手实战与复盘</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#4F9772; flex:none;">可信度 ●●●○</span>
+            </div>
+            <div style="display:flex; gap:14px; padding:14px 16px; border-bottom:1px solid #F0EEE9; align-items:center;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#33476B; background:#F2F6FB; border:1px solid #C9D4E6; border-radius:4px; padding:2px 7px; flex:none;">工具文档</span>
+              <span style="flex:1; font-size:14px; color:#3A3A36;">主流 AI 编码工具的官方使用指南</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#4F9772; flex:none;">可信度 ●●●●</span>
+            </div>
+            <div style="display:flex; gap:14px; padding:14px 16px; align-items:center;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#9A4F42; background:#F9EFED; border:1px solid #ECCFC9; border-radius:4px; padding:2px 7px; flex:none;">观点博客</span>
+              <span style="flex:1; font-size:14px; color:#3A3A36;">社区对其质量风险的批评与争论</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#B0883E; flex:none;">可信度 ●●○○</span>
+            </div>
+          </div>
+          <div style="padding:12px 16px; border-top:1px solid #F0EEE9; background:#FAFAF8; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+            <span style="font-size:12.5px; color:#8C8A84;">覆盖范围：理念 · 工作流 · 工具 · 风险（<strong style="color:#5C5A55;">不含</strong>大规模团队工程实践）</span>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#A7A59F;">4 SOURCES</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== CONCEPT BACKBONE ===== -->
+      <section id="sec-backbone" data-screen-label="Concept Backbone" style="scroll-margin-top:100px;">
+        <div><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; color:#3C5A8C;">02</span> <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:#8C8A84;">概念骨架</span></div>
+        <h2 style="font-size:25px; font-weight:700; letter-spacing:-.01em; line-height:1.2; margin:8px 0 0;">这个主题的核心概念</h2>
+        <p style="font-size:15px; line-height:1.7; color:#5C5A55; margin:12px 0 18px; max-width:680px;">五个支柱概念，撑起整个 vibe coding 的认知地图。</p>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div style="border:1px solid #E6E4DF; border-radius:10px; background:#fff; padding:16px;"><div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#3C5A8C; margin-bottom:6px;">C1</div><div style="font-size:14.5px; font-weight:600; margin-bottom:4px;">意图优先</div><div style="font-size:13px; color:#6E6C67; line-height:1.55;">描述「要什么」而非「怎么写」，把实现交给模型。</div></div>
+          <div style="border:1px solid #E6E4DF; border-radius:10px; background:#fff; padding:16px;"><div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#3C5A8C; margin-bottom:6px;">C2</div><div style="font-size:14.5px; font-weight:600; margin-bottom:4px;">生成—审校循环</div><div style="font-size:13px; color:#6E6C67; line-height:1.55;">AI 出码、人审校、再迭代，是核心工作单元。</div></div>
+          <div style="border:1px solid #E6E4DF; border-radius:10px; background:#fff; padding:16px;"><div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#3C5A8C; margin-bottom:6px;">C3</div><div style="font-size:14.5px; font-weight:600; margin-bottom:4px;">上下文工程</div><div style="font-size:13px; color:#6E6C67; line-height:1.55;">喂给模型的代码库/约束/示例，决定产出质量。</div></div>
+          <div style="border:1px solid #E6E4DF; border-radius:10px; background:#fff; padding:16px;"><div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#3C5A8C; margin-bottom:6px;">C4</div><div style="font-size:14.5px; font-weight:600; margin-bottom:4px;">信任边界</div><div style="font-size:13px; color:#6E6C67; line-height:1.55;">哪些代码可以盲信、哪些必须逐行核验。</div></div>
+          <div style="border:1px solid #E6E4DF; border-radius:10px; background:#fff; padding:16px; grid-column:1 / -1;"><div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#3C5A8C; margin-bottom:6px;">C5</div><div style="font-size:14.5px; font-weight:600; margin-bottom:4px;">技术债治理</div><div style="font-size:13px; color:#6E6C67; line-height:1.55;">高速生成会累积理解债与维护债，需要主动重构与测试兜底。</div></div>
+        </div>
+      </section>
+
+      <!-- ===== LEARNING PATH ===== -->
+      <section id="sec-path" data-screen-label="Learning Path" style="scroll-margin-top:100px;">
+        <div><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; color:#3C5A8C;">03</span> <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:#8C8A84;">学习路径</span></div>
+        <h2 style="font-size:25px; font-weight:700; letter-spacing:-.01em; line-height:1.2; margin:8px 0 0;">建议的学习顺序</h2>
+        <p style="font-size:15px; line-height:1.7; color:#5C5A55; margin:12px 0 20px; max-width:680px;">三个阶段，从建立直觉到形成可复用的工作流。</p>
+
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="border:1px solid #E6E4DF; border-radius:12px; background:#fff; padding:18px; display:flex; gap:16px;">
+            <div style="flex:none; text-align:center;"><div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#3C5A8C;">STAGE</div><div style="font-size:24px; font-weight:700; color:#3C5A8C; line-height:1;">1</div></div>
+            <div style="flex:1; border-left:1px solid #F0EEE9; padding-left:16px;"><div style="font-size:15px; font-weight:600;">建立直觉 · 约 10 分钟</div><div style="font-size:13.5px; color:#6E6C67; line-height:1.6; margin-top:4px;">读「意图优先」与「生成—审校循环」，跑通一个小 demo，体会节奏。</div><div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#5C5A55; background:#F1EFEA; border-radius:4px; padding:2px 7px;">C1</span><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#5C5A55; background:#F1EFEA; border-radius:4px; padding:2px 7px;">C2</span></div></div>
+          </div>
+          <div style="border:1px solid #E6E4DF; border-radius:12px; background:#fff; padding:18px; display:flex; gap:16px;">
+            <div style="flex:none; text-align:center;"><div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#3C5A8C;">STAGE</div><div style="font-size:24px; font-weight:700; color:#3C5A8C; line-height:1;">2</div></div>
+            <div style="flex:1; border-left:1px solid #F0EEE9; padding-left:16px;"><div style="font-size:15px; font-weight:600;">提升质量 · 约 15 分钟</div><div style="font-size:13.5px; color:#6E6C67; line-height:1.6; margin-top:4px;">学「上下文工程」与「信任边界」，给一个真实项目设计审校清单。</div><div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#5C5A55; background:#F1EFEA; border-radius:4px; padding:2px 7px;">C3</span><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#5C5A55; background:#F1EFEA; border-radius:4px; padding:2px 7px;">C4</span></div></div>
+          </div>
+          <div style="border:1px solid #E6E4DF; border-radius:12px; background:#fff; padding:18px; display:flex; gap:16px;">
+            <div style="flex:none; text-align:center;"><div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#3C5A8C;">STAGE</div><div style="font-size:24px; font-weight:700; color:#3C5A8C; line-height:1;">3</div></div>
+            <div style="flex:1; border-left:1px solid #F0EEE9; padding-left:16px;"><div style="font-size:15px; font-weight:600;">规模化 · 约 10 分钟</div><div style="font-size:13.5px; color:#6E6C67; line-height:1.6; margin-top:4px;">面对「技术债治理」，建立测试与重构兜底，知道何时该停手手写。</div><div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#5C5A55; background:#F1EFEA; border-radius:4px; padding:2px 7px;">C5</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== KEY TENSIONS ===== -->
+      <section id="sec-tensions" data-screen-label="Key Tensions" style="scroll-margin-top:100px;">
+        <div><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; color:#3C5A8C;">04</span> <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:#8C8A84;">关键争议</span></div>
+        <h2 style="font-size:25px; font-weight:700; letter-spacing:-.01em; line-height:1.2; margin:8px 0 0;">争议、误区与易混点</h2>
+        <p style="font-size:15px; line-height:1.7; color:#5C5A55; margin:12px 0 20px; max-width:680px;">这是资料里最值得停下来想的地方——大多数翻车都源于这几条。</p>
+
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="border:1px solid #E6E4DF; border-left:3px solid #C9A24B; border-radius:10px; background:#FCFAF5; padding:16px 18px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#8A6A2E; margin-bottom:6px;">争议 · 速度 vs 可维护</div>
+            <div style="font-size:14px; color:#3A3A36; line-height:1.6;">vibe coding 让原型飞快，但生成代码常缺乏一致结构。<strong style="color:#1B1B19;">分歧点</strong>：它该停在原型，还是能进生产？</div>
+          </div>
+          <div style="border:1px solid #E6E4DF; border-left:3px solid #C9A24B; border-radius:10px; background:#FCFAF5; padding:16px 18px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#8A6A2E; margin-bottom:6px;">误区 · 「不用懂代码了」</div>
+            <div style="font-size:14px; color:#3A3A36; line-height:1.6;">恰恰相反——<strong style="color:#1B1B19;">越是 vibe coding，越需要读得懂、审得动</strong>，否则无法把关质量与安全。</div>
+          </div>
+          <div style="border:1px solid #E6E4DF; border-left:3px solid #C9A24B; border-radius:10px; background:#FCFAF5; padding:16px 18px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#8A6A2E; margin-bottom:6px;">易混 · vs AI 辅助补全</div>
+            <div style="font-size:14px; color:#3A3A36; line-height:1.6;">补全是「我写、AI 帮」；vibe coding 是「AI 写、我审」——主导权与责任边界完全不同。</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== APPLIED PLAYBOOK ===== -->
+      <section id="sec-playbook" data-screen-label="Applied Playbook" style="scroll-margin-top:100px;">
+        <div><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; color:#3C5A8C;">05</span> <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:#8C8A84;">行动清单</span></div>
+        <h2 style="font-size:25px; font-weight:700; letter-spacing:-.01em; line-height:1.2; margin:8px 0 0;">怎么用起来</h2>
+        <p style="font-size:15px; line-height:1.7; color:#5C5A55; margin:12px 0 18px; max-width:680px;">把方法论落成可执行的动作——勾掉它们，你就完成了一次合格的 vibe coding 循环。</p>
+
+        <div style="border:1px solid #E6E4DF; border-radius:12px; background:#fff; padding:8px 4px;">
+          <button onClick="{{ onTask0 }}" style="{{ taskBtn }}"><span style="{{ taskBox0 }}"><sc-if value="{{ t0 }}" hint-placeholder-val="{{ false }}">✓</sc-if></span><span style="font-size:14px; color:#3A3A36; line-height:1.5;">写需求前，先列出本次的<strong>意图与验收标准</strong></span></button>
+          <button onClick="{{ onTask1 }}" style="{{ taskBtn }}"><span style="{{ taskBox1 }}"><sc-if value="{{ t1 }}" hint-placeholder-val="{{ false }}">✓</sc-if></span><span style="font-size:14px; color:#3A3A36; line-height:1.5;">给模型<strong>足够上下文</strong>：相关文件、约束、风格示例</span></button>
+          <button onClick="{{ onTask2 }}" style="{{ taskBtn }}"><span style="{{ taskBox2 }}"><sc-if value="{{ t2 }}" hint-placeholder-val="{{ false }}">✓</sc-if></span><span style="font-size:14px; color:#3A3A36; line-height:1.5;">生成后<strong>逐段审校</strong>，对关键逻辑要求模型解释</span></button>
+          <button onClick="{{ onTask3 }}" style="{{ taskBtn }}"><span style="{{ taskBox3 }}"><sc-if value="{{ t3 }}" hint-placeholder-val="{{ false }}">✓</sc-if></span><span style="font-size:14px; color:#3A3A36; line-height:1.5;">用<strong>测试</strong>钉住行为，再让 AI 重构</span></button>
+          <button onClick="{{ onTask4 }}" style="{{ taskBtnLast }}"><span style="{{ taskBox4 }}"><sc-if value="{{ t4 }}" hint-placeholder-val="{{ false }}">✓</sc-if></span><span style="font-size:14px; color:#3A3A36; line-height:1.5;">定期<strong>记录技术债</strong>，安排重构窗口</span></button>
+        </div>
+        <div style="margin-top:10px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8C8A84;">已完成 {{ taskDone }} / 5</div>
+      </section>
+
+      <!-- ===== MINI CONCEPT MAP ===== -->
+      <section id="sec-minimap" data-screen-label="Mini Concept Map" style="scroll-margin-top:100px;">
+        <div><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; color:#3C5A8C;">06</span> <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:#8C8A84;">核心概念图</span></div>
+        <h2 style="font-size:25px; font-weight:700; letter-spacing:-.01em; line-height:1.2; margin:8px 0 0;">放大一个核心概念</h2>
+        <p style="font-size:15px; line-height:1.7; color:#5C5A55; margin:12px 0 18px; max-width:680px;">整个主题里最值得吃透的是「<strong style="color:#1B1B19;">生成—审校循环</strong>」——这里给它一张小地图，想深挖可展开为完整 concept。</p>
+
+        <figure style="margin:0; border:1px solid #E6E4DF; border-radius:12px; background:#fff; overflow:hidden;">
+          <figcaption style="padding:11px 16px; border-bottom:1px solid #F0EEE9; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.07em; color:#5C5A55;">MINI MAP · 生成—审校循环</span>
+            <a href="Learn Concept.dc.html" style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#3C5A8C; text-decoration:none; border:1px solid #C9D4E6; border-radius:5px; padding:3px 8px; background:#F2F6FB;">展开为完整 concept →</a>
+          </figcaption>
+          <div style="padding:24px 22px; display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;">
+            <div style="border:1px solid #DEDCD6; border-radius:8px; padding:9px 13px; font-size:12.5px; color:#3A3A36; background:#fff;">意图描述</div>
+            <span style="font-size:15px; color:#C2C0BA;">→</span>
+            <div style="border:1px solid #C9D4E6; border-radius:8px; padding:9px 13px; font-size:12.5px; color:#33476B; background:#F4F7FB;">AI 生成</div>
+            <span style="font-size:15px; color:#C2C0BA;">→</span>
+            <div style="border:1px solid #DEDCD6; border-radius:8px; padding:9px 13px; font-size:12.5px; color:#3A3A36; background:#fff;">人审校</div>
+            <span style="font-size:15px; color:#C2C0BA;">↻</span>
+          </div>
+          <div style="padding:10px 16px; border-top:1px solid #F0EEE9; background:#FAFAF8; font-size:12.5px; color:#8C8A84; line-height:1.5;">这里只放单概念簇，不展开成完整五图——保持 topic 页的广度节奏。</div>
+        </figure>
+      </section>
+
+      <!-- ===== REVIEW & PRACTICE ===== -->
+      <section id="sec-review" data-screen-label="Review" style="scroll-margin-top:100px;">
+        <div><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; color:#3C5A8C;">07</span> <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:#8C8A84;">复习与练习</span></div>
+        <h2 style="font-size:25px; font-weight:700; letter-spacing:-.01em; line-height:1.2; margin:8px 0 0;">检验与下一步</h2>
+
+        <!-- scenario practice -->
+        <div style="margin-top:18px; border:1px solid #E6E4DF; border-radius:12px; background:#FAFAF8; padding:18px 20px;">
+          <div style="display:flex; gap:10px; align-items:baseline;"><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#3C5A8C;">应用题</span><span style="font-size:15px; font-weight:500; color:#1B1B19; line-height:1.5;">团队要做一个对安全要求很高的支付模块，最该采用哪种姿态？</span></div>
+          <div style="display:flex; flex-direction:column; gap:8px; margin-top:14px;">
+            <button onClick="{{ onPA }}" style="text-align:left; min-height:44px; border:1px solid #D9D7D2; background:#fff; border-radius:8px; cursor:pointer; font:inherit; font-size:13.5px; color:#3A3A36; padding:10px 14px; display:flex; gap:8px; line-height:1.5;" style-hover="border-color:#3C5A8C;"><span style="font-family:'IBM Plex Mono',monospace; color:#A7A59F;"><sc-if value="{{ pSelA }}" hint-placeholder-val="{{ false }}"><span style="color:#3C5A8C;">●</span></sc-if><sc-if value="{{ pNotA }}" hint-placeholder-val="{{ true }}">A</sc-if></span>全程 vibe coding，追求最快交付。</button>
+            <button onClick="{{ onPB }}" style="text-align:left; min-height:44px; border:1px solid #D9D7D2; background:#fff; border-radius:8px; cursor:pointer; font:inherit; font-size:13.5px; color:#3A3A36; padding:10px 14px; display:flex; gap:8px; line-height:1.5;" style-hover="border-color:#3C5A8C;"><span style="font-family:'IBM Plex Mono',monospace; color:#A7A59F;"><sc-if value="{{ pSelB }}" hint-placeholder-val="{{ false }}"><span style="color:#3C5A8C;">●</span></sc-if><sc-if value="{{ pNotB }}" hint-placeholder-val="{{ true }}">B</sc-if></span>用它出原型，但核心逻辑收紧信任边界、逐行核验加测试。</button>
+            <button onClick="{{ onPC }}" style="text-align:left; min-height:44px; border:1px solid #D9D7D2; background:#fff; border-radius:8px; cursor:pointer; font:inherit; font-size:13.5px; color:#3A3A36; padding:10px 14px; display:flex; gap:8px; line-height:1.5;" style-hover="border-color:#3C5A8C;"><span style="font-family:'IBM Plex Mono',monospace; color:#A7A59F;"><sc-if value="{{ pSelC }}" hint-placeholder-val="{{ false }}"><span style="color:#3C5A8C;">●</span></sc-if><sc-if value="{{ pNotC }}" hint-placeholder-val="{{ true }}">C</sc-if></span>完全禁用 AI，全部手写。</button>
+          </div>
+          <sc-if value="{{ pAnswered }}" hint-placeholder-val="{{ false }}"><div style="{{ pFeedStyle }}">{{ pFeedText }}</div></sc-if>
+        </div>
+
+        <!-- review footer -->
+        <div style="margin-top:24px; border-top:1px solid #E6E4DF; padding-top:20px; display:flex; flex-wrap:wrap; gap:24px; justify-content:space-between;">
+          <div style="max-width:420px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em; color:#A7A59F; margin-bottom:10px;">REVIEW · 三个复习问题</div>
+            <ul style="margin:0; padding-left:18px; font-size:14px; color:#5C5A55; line-height:1.8;">
+              <li>vibe coding 和 AI 补全的主导权差别是什么？</li>
+              <li>「信任边界」具体怎么划？</li>
+              <li>哪些信号说明你该停手、转回手写？</li>
+            </ul>
+          </div>
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em; color:#A7A59F; margin-bottom:10px;">NEXT · 下一步阅读</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <a href="#" style="display:inline-flex; align-items:center; gap:8px; font-size:14px; color:#3C5A8C; text-decoration:none;">→ 上下文工程实践指南</a>
+              <a href="#" style="display:inline-flex; align-items:center; gap:8px; font-size:14px; color:#3C5A8C; text-decoration:none;">→ AI 代码审校清单模板</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;showProgress&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot; }
+}">
+class Component extends DCLogic {
+  state = { active:'hero', progress:0, tasks:[false,false,false,false,false], p:null };
+
+  componentDidMount() {
+    this.sections = ['hero','source','backbone','path','tensions','playbook','minimap','review'];
+    this.onScroll = () => {
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - doc.clientHeight;
+      const p = max > 0 ? Math.min(1, Math.max(0, doc.scrollTop / max)) : 0;
+      const mid = window.innerHeight * 0.32;
+      let act = this.sections[0];
+      for (const id of this.sections) {
+        const el = document.getElementById('sec-' + id);
+        if (el && el.getBoundingClientRect().top <= mid) act = id;
+      }
+      if (act !== this.state.active || Math.abs(p - this.state.progress) > 0.004) {
+        this.setState({ active: act, progress: p });
+      }
+    };
+    this._showRail = () => {
+      const nav = document.querySelector('[data-rail]');
+      if (nav) nav.style.display = window.innerWidth >= 900 ? 'block' : 'none';
+    };
+    window.addEventListener('scroll', this.onScroll, { passive: true });
+    window.addEventListener('resize', this._showRail);
+    this._showRail();
+    this.onScroll();
+  }
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this.onScroll);
+    window.removeEventListener('resize', this._showRail);
+  }
+  go(id) {
+    const el = document.getElementById('sec-' + id);
+    if (el) window.scrollTo({ top: el.offsetTop - 88, behavior: 'smooth' });
+  }
+  toggle(i) {
+    this.setState(s => { const t = s.tasks.slice(); t[i] = !t[i]; return { tasks: t }; });
+  }
+
+  renderVals() {
+    const accent = '#3C5A8C';
+    const s = this.state;
+
+    const base = { display:'flex', alignItems:'center', gap:'8px', width:'100%', textAlign:'left',
+      background:'none', border:'none', cursor:'pointer', padding:'8px 10px', borderRadius:'6px',
+      font:'inherit', fontSize:'13px', color:'#8C8A84', borderLeft:'2px solid transparent' };
+    const on = { ...base, color:'#1B1B19', fontWeight:600, background:'#F1EFEA', borderLeft:'2px solid ' + accent };
+    const mk = id => (s.active === id ? on : base);
+    const rail = { hero:mk('hero'), source:mk('source'), backbone:mk('backbone'), path:mk('path'),
+      tensions:mk('tensions'), playbook:mk('playbook'), minimap:mk('minimap'), review:mk('review') };
+
+    const progressStyle = { width: Math.round(s.progress * 100) + '%', height:'100%',
+      background: accent, borderRadius:'2px', transition:'width .12s linear' };
+
+    const taskBtn = { display:'flex', gap:'12px', alignItems:'flex-start', width:'100%', textAlign:'left',
+      background:'none', border:'none', borderBottom:'1px solid #F0EEE9', cursor:'pointer', font:'inherit',
+      padding:'13px 14px' };
+    const taskBtnLast = { ...taskBtn, borderBottom:'none' };
+    const boxOff = { flex:'none', width:'20px', height:'20px', marginTop:'1px', borderRadius:'5px',
+      border:'1.5px solid #C7C5BF', display:'flex', alignItems:'center', justifyContent:'center',
+      fontSize:'12px', color:'#fff', background:'#fff' };
+    const boxOn = { ...boxOff, border:'1.5px solid ' + accent, background: accent };
+    const box = i => (s.tasks[i] ? boxOn : boxOff);
+
+    const feedBase = { marginTop:'14px', padding:'11px 14px', borderRadius:'8px', fontSize:'13.5px', lineHeight:1.55 };
+    const ok = { ...feedBase, background:'#ECF4EF', border:'1px solid #CDE5D8', color:'#3C6E52' };
+    const nope = { ...feedBase, background:'#F6ECEA', border:'1px solid #ECCFC9', color:'#9A4F42' };
+    const pCorrect = s.p === 'b';
+
+    return {
+      showProgress: this.props.showProgress ?? true,
+      rail, progressStyle,
+      navHero:()=>this.go('hero'), navSource:()=>this.go('source'), navBackbone:()=>this.go('backbone'),
+      navPath:()=>this.go('path'), navTensions:()=>this.go('tensions'), navPlaybook:()=>this.go('playbook'),
+      navMinimap:()=>this.go('minimap'), navReview:()=>this.go('review'),
+
+      taskBtn, taskBtnLast,
+      taskBox0:box(0), taskBox1:box(1), taskBox2:box(2), taskBox3:box(3), taskBox4:box(4),
+      t0:s.tasks[0], t1:s.tasks[1], t2:s.tasks[2], t3:s.tasks[3], t4:s.tasks[4],
+      onTask0:()=>this.toggle(0), onTask1:()=>this.toggle(1), onTask2:()=>this.toggle(2),
+      onTask3:()=>this.toggle(3), onTask4:()=>this.toggle(4),
+      taskDone: s.tasks.filter(Boolean).length,
+
+      onPA:()=>this.setState({p:'a'}), onPB:()=>this.setState({p:'b'}), onPC:()=>this.setState({p:'c'}),
+      pSelA:s.p==='a', pSelB:s.p==='b', pSelC:s.p==='c',
+      pNotA:s.p!=='a', pNotB:s.p!=='b', pNotC:s.p!=='c',
+      pAnswered: s.p !== null,
+      pFeedStyle: pCorrect ? ok : nope,
+      pFeedText: pCorrect
+        ? '✓ B 对。高风险模块要收紧信任边界——用它加速但逐行核验、用测试兜底。'
+        : (s.p==='a' ? '✗ 支付这种高风险场景盲目追快，正是 vibe coding 最危险的误用。' : '✗ 完全禁用就放弃了它的加速价值；关键在分清信任边界，而非一刀切。')
+    };
+  }
+}
+</script>
+</body>
+</html>
