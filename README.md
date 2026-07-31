@@ -32,6 +32,7 @@ ln -s $(pwd)/html-render-lite ~/.local/bin/html-render-lite  # 或加入 PATH
 html-render-lite --list
 
 # 生成 HTML（agent 写入 --out 路径）
+html-render-lite --template html-learn -i source.md --out /tmp/learn.html
 html-render-lite --template doc-kami-parchment -i source.md --out /tmp/page.html
 html-render-lite --template decision-matrix -i source.md --out /tmp/decision.html
 html-render-lite --template feature-explainer -i source.md --out /tmp/explainer.html
@@ -63,6 +64,23 @@ html-render-lite --fast --template annotated-review-fast -i source.md --out /tmp
 - `example.html`：视觉参考（如存在，前 80 行作为 context）
 
 共享设计约束在 `templates/shared.md`。
+
+### HTML Learn
+
+`html-learn` 是学习类统一入口，一次生成三页学习包：
+
+- `index.html` / `output.html`：统一学习入口页。
+- `concept-map.html`：`learn concept`，用于学懂一个概念，默认结构是五图入门 + 双图一练验证。
+- `topic.html`：`learn topic`，用于学完一个主题 / 资料包，默认结构是来源摘要、概念骨架、学习路径、关键争议、行动清单和复习练习。
+
+内部只保留两种子模式：
+
+- `learn concept`：对应 `concept-map`，用于学懂一个概念，默认结构是五图入门 + 双图一练验证。
+- `learn topic`：对应 `kb-study-material`，用于学完一个主题 / 资料包，默认结构是来源摘要、概念骨架、学习路径、关键争议、行动清单和复习练习。
+
+路由规则：单个术语、概念解释、概念地图请求默认走 `concept-map`；多来源、知识库主题、资料包、系统学习请求走 `kb-study-material`。不确定时默认走更轻的 `concept-map`。
+
+这三个模板必须保持同一套 `html learn workbench` 视觉语言：暖白背景、克制蓝、系统字体、Study Header、Learning Rail、Diagram Panel、Practice Block。它们禁止 Tailwind CDN、Google Fonts、Design Compiler runtime、`support.js`、`{{ }}`、`sc-if`、`style-hover`。
 
 Fast templates 在 `templates/fast/`，每个包含：
 - `template.json`：模板 id、renderer、alias

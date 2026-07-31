@@ -5,8 +5,8 @@ en_name: "KB Study Material"
 emoji: "📚"
 description: "把知识库主题页、调研材料和争议整理成可行动、可反馈、可复习的系统学习 HTML"
 category: doc
-scenario: education
-aspect_hint: "桌面长页面 / 左侧导航"
+scenario: learning
+aspect_hint: "html learn topic / 桌面长页面 / 左侧导航 / mobile stacked study page"
 featured: 53
 recommended: 7
 tags: ["kb", "study", "learning", "knowledge-base", "系统学习", "教程"]
@@ -162,13 +162,15 @@ example_desc: "适合承接 /html learn 选 1、system-study、KB 主题页和�
    - 至少给一个 Transfer Task：把本主题迁移到用户项目、学习、产品或知识库场景。
 
 【视觉签名】
-- 背景: `#FAFAF7`，侧栏 `#F2F2EC`，卡片 `#FFFFFF`。
-- 主文字: `#1F1F1F`，次文字 `#4A4A48`，弱文字 `#6B6B68`。
-- 主 accent: `#2563EB`，但不要满屏蓝色。
-- 中文字体优先: `-apple-system`, `PingFang SC`, `Hiragino Sans GB`, `Microsoft YaHei`, sans-serif。
-- 代码字体: `SF Mono`, `JetBrains Mono`, `Menlo`, monospace。
+- 固定使用 **html learn workbench / 现代学习工作台**，并与 `concept-map` 保持同一套视觉语言。`kb-study-material` 是 `html learn topic`，不是一套独立风格。
+- 背景: 暖白 canvas `#F6F5F2` / `#FAFAF7`；侧栏或 rail `#EFEEE8` / `#F2F2EC`；卡片 `#FFFFFF`。
+- 主文字: `#1B1B19` / `#1F1F1F`；次文字 `#5C5A55` / `#4A4A48`；弱文字 `#8C8A84` / `#6B6B68`。
+- 主 accent: 克制蓝 `#3C5A8C`；topic 辅助 accent 可用低饱和棕 `#7A5B2E`，但仍以蓝色作为统一产品识别。不要满屏蓝色，不要大面积紫色。
+- 状态色: 绿色 `#4F9772` 表示 insight / done，琥珀 `#B0883E` 表示 tension / warning，红褐 `#9A4F42` 表示 risk / anti-pattern。
+- 字体: 只用系统字体和系统等宽字体。禁止 Google Fonts、外部字体、CDN。本模板覆盖共享约束中“可引入 Tailwind / Google Fonts”的旧规则。
 - 行宽: 中文段落不要超过 38-44 个汉字的视觉宽度。
-- 使用温和边框和浅底，不要霓虹、强渐变、玻璃拟态。
+- 组件语言：Study Header、Learning Rail、Insight Card、Diagram Panel、Practice Block、Source Strip、Review Footer。Header、section 标题、标签、图表容器、练习区要和 `concept-map` 像同一个产品。
+- 使用温和边框、浅底、克制阴影；不要霓虹、强渐变、玻璃拟态、装饰光球、bokeh。
 
 【导航与交互】
 - 左侧 TOC 点击跳转。

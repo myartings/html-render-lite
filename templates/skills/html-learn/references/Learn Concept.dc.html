@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;}
+  ::selection{background:#D6E0EF;}
+</style>
+</helmet>
+
+<div style="min-height:100vh; background:#F6F5F2; font-family:'IBM Plex Sans',sans-serif; color:#1B1B19; -webkit-font-smoothing:antialiased; overflow-x:hidden;">
+
+  <!-- ===================== STUDY HEADER ===================== -->
+  <header style="position:sticky; top:0; z-index:30; background:rgba(246,245,242,.86); backdrop-filter:blur(10px); border-bottom:1px solid #E6E4DF;">
+    <div style="max-width:1180px; margin:0 auto; padding:13px 28px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;">
+      <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+        <a href="Learn Home.dc.html" style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#8C8A84; text-decoration:none; flex:none;" title="返回入口">←</a>
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em; color:#3C5A8C; border:1px solid #C9D4E6; background:#F2F6FB; border-radius:5px; padding:3px 8px;">CONCEPT</span>
+        <span style="font-size:16px; font-weight:600; letter-spacing:-.01em;">RLHF</span>
+        <span style="font-size:13px; color:#8C8A84; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">用人类偏好对齐语言模型</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.06em; color:#8C8A84;">
+        <span>12 MIN</span>
+        <span style="color:#D8D6D0;">·</span>
+        <span>INTERMEDIATE</span>
+        <span style="color:#D8D6D0;">·</span>
+        <span>对齐 · ALIGNMENT</span>
+      </div>
+    </div>
+    <sc-if value="{{ showProgress }}" hint-placeholder-val="{{ true }}">
+      <div style="height:2px; background:#ECEAE5;"><div style="{{ progressStyle }}"></div></div>
+    </sc-if>
+  </header>
+
+  <!-- ===================== BODY: RAIL + CONTENT ===================== -->
+  <div style="max-width:1180px; margin:0 auto; padding:0 28px; display:flex; align-items:flex-start; gap:40px;">
+
+    <!-- ---------- LEARNING RAIL ---------- -->
+    <nav style="position:sticky; top:104px; flex:none; width:208px; padding:32px 0; display:none;" data-rail>
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; color:#A7A59F; padding:0 10px 12px;">ON THIS PAGE</div>
+      <div style="display:flex; flex-direction:column; gap:2px;">
+        <button style="{{ rail.hero }}" onClick="{{ navHero }}"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.6;">00</span> 真实场景</button>
+        <button style="{{ rail.why }}" onClick="{{ navWhy }}"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.6;">01</span> 为什么重要</button>
+        <button style="{{ rail.diagrams }}" onClick="{{ navDiagrams }}"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.6;">02</span> 三层五图</button>
+        <button style="{{ rail.walkthrough }}" onClick="{{ navWalkthrough }}"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.6;">03</span> 实例走查</button>
+        <button style="{{ rail.boundary }}" onClick="{{ navBoundary }}"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.6;">04</span> 边界反例</button>
+        <button style="{{ rail.check }}" onClick="{{ navCheck }}"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.6;">05</span> 理解验证</button>
+        <button style="{{ rail.model }}" onClick="{{ navModel }}"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.6;">06</span> 心智模型</button>
+      </div>
+    </nav>
+
+    <!-- ---------- MAIN CONTENT ---------- -->
+    <main style="flex:1; min-width:0; max-width:840px; padding:40px 0 96px; display:flex; flex-direction:column; gap:44px;">
+
+      <!-- ===== HERO ===== -->
+      <section id="sec-hero" data-screen-label="Hero" style="scroll-margin-top:100px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:#8C8A84;">Reinforcement Learning from Human Feedback</div>
+        <h1 style="font-size:42px; font-weight:700; letter-spacing:-.02em; line-height:1.08; margin:10px 0 0;">RLHF</h1>
+        <p style="font-size:18px; line-height:1.55; color:#5C5A55; margin:14px 0 0; max-width:640px;">用人类对回答的<strong style="color:#1B1B19; font-weight:600;">相对偏好</strong>，把一个「会说话」的模型，调成一个「会给出人想要的回答」的模型。</p>
+
+        <!-- real scene panel -->
+        <div style="margin-top:24px; border:1px solid #E6E4DF; border-radius:12px; background:#fff; overflow:hidden;">
+          <div style="padding:12px 16px; border-bottom:1px solid #F0EEE9; display:flex; align-items:center; justify-content:space-between;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em; color:#8C8A84;">真实场景 · 你早就在做的事</span>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#C2C0BA;">SCENE</span>
+          </div>
+          <div style="padding:20px;">
+            <div style="display:inline-block; background:#F1EFEA; border:1px solid #E6E4DF; border-radius:8px; padding:8px 12px; font-size:13px; color:#5C5A55;">“帮我把这封道歉邮件写得更真诚一点。”</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px;">
+              <div style="border:1px solid #E0DED8; border-radius:8px; padding:12px;">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#A7A59F; margin-bottom:6px;">回答 A</div>
+                <div style="font-size:13px; line-height:1.55; color:#6E6C67;">“抱歉给你带来不便，已按要求处理。”</div>
+              </div>
+              <div style="border:1.5px solid #9FC7AF; border-radius:8px; padding:12px; background:#F3F9F5; position:relative;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#4F9772;">回答 B</span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#3C6E52; background:#E1F0E7; border-radius:4px; padding:2px 6px;">✓ 人更喜欢</span>
+                </div>
+                <div style="font-size:13px; line-height:1.55; color:#3A4A40;">“这次确实是我们的疏忽，给你添麻烦了。我已经……，并会……，避免再发生。”</div>
+              </div>
+            </div>
+            <div style="margin-top:14px; font-size:13px; color:#8C8A84; line-height:1.55;">你做的这个动作——<span style="color:#3C5A8C;">在两个回答里挑更好的那个</span>——就是 RLHF 的全部起点。</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== WHY IT MATTERS ===== -->
+      <section id="sec-why" data-screen-label="Why" style="scroll-margin-top:100px;">
+        <div><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; color:#3C5A8C;">01</span> <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:#8C8A84;">为什么重要</span></div>
+        <h2 style="font-size:25px; font-weight:700; letter-spacing:-.01em; line-height:1.2; margin:8px 0 0;">它解决的认知困惑</h2>
+        <p style="font-size:15px; line-height:1.7; color:#5C5A55; margin:14px 0 0; max-width:680px;">预训练模型「会说话」，但不知道什么是「<strong style="color:#1B1B19; font-weight:600;">好</strong>回答」。监督微调（SFT）能教它<strong style="color:#1B1B19; font-weight:600;">模仿</strong>示范答案，却无法表达「A 比 B 更好」这种<strong style="color:#1B1B19; font-weight:600;">相对</strong>判断——而人的偏好恰恰是相对的。</p>
+
+        <!-- insight card -->
+        <div style="margin-top:18px; border:1px solid #E6E4DF; border-left:3px solid #3C5A8C; border-radius:10px; background:#FAFBFD; padding:18px 20px; max-width:680px;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em; color:#3C5A8C; margin-bottom:8px;">KEY INSIGHT</div>
+          <div style="font-size:16px; line-height:1.6; color:#2A2A27; font-weight:500;">RLHF 把「人类的相对偏好」变成一个<strong style="color:#1B1B19;">可优化的奖励信号</strong>，于是模型能朝「人更想要」的方向被持续推动，而不只是模仿一份标准答案。</div>
+        </div>
+      </section>
+
+      <!-- ===== FIVE DIAGRAMS ===== -->
+      <section id="sec-diagrams" data-screen-label="Five Diagrams" style="scroll-margin-top:100px;">
+        <div><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; color:#3C5A8C;">02</span> <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:#8C8A84;">三层五图</span></div>
+        <h2 style="font-size:25px; font-weight:700; letter-spacing:-.01em; line-height:1.2; margin:8px 0 0;">从「看得见」到「为什么动」</h2>
+        <p style="font-size:15px; line-height:1.7; color:#5C5A55; margin:12px 0 22px; max-width:680px;">五张图按理解的深度递进：你看到什么 → 由什么组成 → 怎么运转 → 它在哪 → 什么在推拉它。</p>
+
+        <div style="display:flex; flex-direction:column; gap:18px;">
+
+          <!-- FIG 01 — surface (pairwise pick) -->
+          <figure style="margin:0; border:1px solid #E6E4DF; border-radius:12px; background:#fff; overflow:hidden;">
+            <figcaption style="padding:11px 16px; border-bottom:1px solid #F0EEE9; display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.07em; color:#5C5A55;">FIG.01 · 外显层 · 你直接看到的</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#C2C0BA;">SURFACE</span>
+            </figcaption>
+            <div style="padding:22px; display:flex; flex-direction:column; align-items:center; gap:10px;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8C8A84;">一个问题，两个回答</div>
+              <div style="display:flex; gap:14px; align-items:center; flex-wrap:wrap; justify-content:center;">
+                <div style="border:1px solid #E0DED8; border-radius:8px; padding:10px 14px; font-size:13px; color:#6E6C67; background:#FAFAF8;">回答 A</div>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#A7A59F;">vs</span>
+                <div style="border:1.5px solid #9FC7AF; border-radius:8px; padding:10px 14px; font-size:13px; color:#3A4A40; background:#F3F9F5;">回答 B ✓</div>
+                <span style="font-size:18px; color:#C2C0BA;">→</span>
+                <div style="border:1px dashed #C9C7C2; border-radius:8px; padding:10px 14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#5C5A55;">人选 B 更好</div>
+              </div>
+            </div>
+            <sc-if value="{{ showCaptions }}" hint-placeholder-val="{{ true }}"><div style="padding:10px 16px; border-top:1px solid #F0EEE9; background:#FAFAF8; font-size:12.5px; color:#8C8A84; line-height:1.5;">现象：人对成对回答表达偏好。RLHF 的一切都从这个可观察动作开始。</div></sc-if>
+          </figure>
+
+          <!-- FIG 02 — structure (component cluster) -->
+          <figure style="margin:0; border:1px solid #E6E4DF; border-radius:12px; background:#fff; overflow:hidden;">
+            <figcaption style="padding:11px 16px; border-bottom:1px solid #F0EEE9; display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.07em; color:#5C5A55;">FIG.02 · 结构层 · 由什么组成</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#C2C0BA;">STRUCTURE</span>
+            </figcaption>
+            <div style="padding:24px 22px; display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;">
+              <div style="text-align:center;">
+                <div style="border:1px solid #DEDCD6; border-radius:8px; padding:12px 14px; background:#fff; min-width:120px;"><div style="font-size:13px; font-weight:600; color:#3A3A36;">偏好数据集</div><div style="font-size:11px; color:#8C8A84; margin-top:2px;">成对回答 + 人选</div></div>
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:center; color:#8C8A84;"><span style="font-family:'IBM Plex Mono',monospace; font-size:9px;">训练</span><span style="font-size:16px; color:#C2C0BA;">→</span></div>
+              <div style="text-align:center;">
+                <div style="border:1px solid #C9D4E6; border-radius:8px; padding:12px 14px; background:#F4F7FB; min-width:120px;"><div style="font-size:13px; font-weight:600; color:#33476B;">奖励模型 RM</div><div style="font-size:11px; color:#6E84AB; margin-top:2px;">给回答打分</div></div>
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:center; color:#8C8A84;"><span style="font-family:'IBM Plex Mono',monospace; font-size:9px;">打分</span><span style="font-size:16px; color:#C2C0BA;">→</span></div>
+              <div style="text-align:center;">
+                <div style="border:1px solid #DEDCD6; border-radius:8px; padding:12px 14px; background:#fff; min-width:120px;"><div style="font-size:13px; font-weight:600; color:#3A3A36;">策略模型</div><div style="font-size:11px; color:#8C8A84; margin-top:2px;">被优化的 LLM</div></div>
+              </div>
+            </div>
+            <sc-if value="{{ showCaptions }}" hint-placeholder-val="{{ true }}"><div style="padding:10px 16px; border-top:1px solid #F0EEE9; background:#FAFAF8; font-size:12.5px; color:#8C8A84; line-height:1.5;">三个部件：偏好数据集喂养奖励模型，奖励模型给策略模型打分。</div></sc-if>
+          </figure>
+
+          <!-- FIG 03 — mechanism (cycle) -->
+          <figure style="margin:0; border:1px solid #E6E4DF; border-radius:12px; background:#fff; overflow:hidden;">
+            <figcaption style="padding:11px 16px; border-bottom:1px solid #F0EEE9; display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.07em; color:#5C5A55;">FIG.03 · 机制层 · 怎么运转</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#C2C0BA;">MECHANISM</span>
+            </figcaption>
+            <div style="padding:24px 22px;">
+              <div style="display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;">
+                <div style="border:1px solid #DEDCD6; border-radius:8px; padding:8px 12px; font-size:12.5px; color:#3A3A36; background:#fff;">采样回答</div>
+                <span style="font-size:15px; color:#C2C0BA;">→</span>
+                <div style="border:1px solid #C9D4E6; border-radius:8px; padding:8px 12px; font-size:12.5px; color:#33476B; background:#F4F7FB;">RM 打分</div>
+                <span style="font-size:15px; color:#C2C0BA;">→</span>
+                <div style="border:1px solid #DEDCD6; border-radius:8px; padding:8px 12px; font-size:12.5px; color:#3A3A36; background:#fff;">PPO 更新策略</div>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:8px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#A7A59F;"><span style="font-size:14px;">↻</span> 循环往复，策略不断逼近高分回答</div>
+            </div>
+            <sc-if value="{{ showCaptions }}" hint-placeholder-val="{{ true }}"><div style="padding:10px 16px; border-top:1px solid #F0EEE9; background:#FAFAF8; font-size:12.5px; color:#8C8A84; line-height:1.5;">一个闭环：生成 → 打分 → 更新，反复迭代提高「人会喜欢」的概率。</div></sc-if>
+          </figure>
+
+          <!-- FIG 04 — position (pipeline track) -->
+          <figure style="margin:0; border:1px solid #E6E4DF; border-radius:12px; background:#fff; overflow:hidden;">
+            <figcaption style="padding:11px 16px; border-bottom:1px solid #F0EEE9; display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.07em; color:#5C5A55;">FIG.04 · 定位层 · 它在哪</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#C2C0BA;">POSITION</span>
+            </figcaption>
+            <div style="padding:24px 22px;">
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                <div style="flex:1; min-width:80px; text-align:center; border:1px solid #E6E4DF; border-radius:8px; padding:10px 6px; font-size:12px; color:#8C8A84; background:#FAFAF8;">预训练</div>
+                <span style="font-size:13px; color:#C2C0BA;">›</span>
+                <div style="flex:1; min-width:80px; text-align:center; border:1px solid #E6E4DF; border-radius:8px; padding:10px 6px; font-size:12px; color:#8C8A84; background:#FAFAF8;">监督微调<br>SFT</div>
+                <span style="font-size:13px; color:#C2C0BA;">›</span>
+                <div style="flex:1.2; min-width:90px; text-align:center; border:1.5px solid #3C5A8C; border-radius:8px; padding:10px 6px; font-size:12.5px; font-weight:600; color:#2C4470; background:#F2F6FB;">RLHF<br><span style="font-weight:400; font-size:10px;">← 你在这</span></div>
+                <span style="font-size:13px; color:#C2C0BA;">›</span>
+                <div style="flex:1; min-width:80px; text-align:center; border:1px solid #E6E4DF; border-radius:8px; padding:10px 6px; font-size:12px; color:#8C8A84; background:#FAFAF8;">部署</div>
+              </div>
+              <div style="margin-top:16px; display:flex; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#A7A59F;">
+                <span>模仿示范</span>
+                <div style="flex:1; height:1px; background:linear-gradient(90deg,#E6E4DF,#3C5A8C);"></div>
+                <span style="color:#3C5A8C;">偏好对齐</span>
+              </div>
+            </div>
+            <sc-if value="{{ showCaptions }}" hint-placeholder-val="{{ true }}"><div style="padding:10px 16px; border-top:1px solid #F0EEE9; background:#FAFAF8; font-size:12.5px; color:#8C8A84; line-height:1.5;">位置：在 SFT 之后、部署之前。它把训练目标从「模仿」推向「对齐偏好」。</div></sc-if>
+          </figure>
+
+          <!-- FIG 05 — environment (force field) -->
+          <figure style="margin:0; border:1px solid #E6E4DF; border-radius:12px; background:#fff; overflow:hidden;">
+            <figcaption style="padding:11px 16px; border-bottom:1px solid #F0EEE9; display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.07em; color:#5C5A55;">FIG.05 · 动力层 · 什么在推拉它</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#C2C0BA;">DYNAMICS</span>
+            </figcaption>
+            <div style="padding:24px 22px; display:flex; flex-direction:column; align-items:center; gap:10px;">
+              <div style="text-align:center;"><div style="border:1px solid #C9D4E6; border-radius:6px; padding:6px 10px; font-size:12px; color:#33476B; background:#F4F7FB; display:inline-block;">奖励信号（人类偏好）</div><div style="font-size:14px; color:#4F9772; margin-top:2px;">↓ 拉向高分</div></div>
+              <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap; justify-content:center;">
+                <div style="text-align:right;"><div style="border:1px solid #E6E4DF; border-radius:6px; padding:6px 10px; font-size:12px; color:#5C5A55; background:#FAFAF8;">KL 约束（缰绳）</div><div style="font-size:10px; color:#8C8A84; margin-top:2px;">别偏离原模型 →</div></div>
+                <div style="border:1.5px solid #3A3A36; border-radius:10px; padding:14px 18px; font-size:14px; font-weight:600; color:#1B1B19; background:#fff;">策略模型</div>
+                <div style="text-align:left;"><div style="border:1px solid #ECCFC9; border-radius:6px; padding:6px 10px; font-size:12px; color:#9A4F42; background:#F9EFED;">reward hacking</div><div style="font-size:10px; color:#8C8A84; margin-top:2px;">← 钻奖励空子</div></div>
+              </div>
+            </div>
+            <sc-if value="{{ showCaptions }}" hint-placeholder-val="{{ true }}"><div style="padding:10px 16px; border-top:1px solid #F0EEE9; background:#FAFAF8; font-size:12.5px; color:#8C8A84; line-height:1.5;">三股力：奖励信号往高分拉，KL 约束拽住别跑偏，reward hacking 是要防的反作用力。</div></sc-if>
+          </figure>
+
+        </div>
+      </section>
+
+      <!-- ===== WALKTHROUGH ===== -->
+      <section id="sec-walkthrough" data-screen-label="Walkthrough" style="scroll-margin-top:100px;">
+        <div><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; color:#3C5A8C;">03</span> <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:#8C8A84;">实例走查</span></div>
+        <h2 style="font-size:25px; font-weight:700; letter-spacing:-.01em; line-height:1.2; margin:8px 0 0;">一条 prompt 的完整旅程</h2>
+        <p style="font-size:15px; line-height:1.7; color:#5C5A55; margin:12px 0 20px; max-width:680px;">沿用上面那封道歉邮件，看它在 RLHF 训练里从触发走到结果。</p>
+
+        <ol style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0;">
+          <li style="display:flex; gap:16px;">
+            <div style="flex:none; display:flex; flex-direction:column; align-items:center;"><span style="width:30px; height:30px; border-radius:50%; border:1.5px solid #3C5A8C; color:#3C5A8C; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:12px; background:#F2F6FB;">1</span><span style="flex:1; width:1.5px; background:#E6E4DF;"></span></div>
+            <div style="padding-bottom:18px;"><div style="font-size:15px; font-weight:600;">触发</div><div style="font-size:14px; color:#5C5A55; line-height:1.6; margin-top:2px;">用户给出 prompt：「把道歉邮件写得更真诚」。</div></div>
+          </li>
+          <li style="display:flex; gap:16px;">
+            <div style="flex:none; display:flex; flex-direction:column; align-items:center;"><span style="width:30px; height:30px; border-radius:50%; border:1.5px solid #3C5A8C; color:#3C5A8C; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:12px; background:#F2F6FB;">2</span><span style="flex:1; width:1.5px; background:#E6E4DF;"></span></div>
+            <div style="padding-bottom:18px;"><div style="font-size:15px; font-weight:600;">生成</div><div style="font-size:14px; color:#5C5A55; line-height:1.6; margin-top:2px;">策略模型产出多个候选回答（含 A、B）。</div></div>
+          </li>
+          <li style="display:flex; gap:16px;">
+            <div style="flex:none; display:flex; flex-direction:column; align-items:center;"><span style="width:30px; height:30px; border-radius:50%; border:1.5px solid #3C5A8C; color:#3C5A8C; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:12px; background:#F2F6FB;">3</span><span style="flex:1; width:1.5px; background:#E6E4DF;"></span></div>
+            <div style="padding-bottom:18px;"><div style="font-size:15px; font-weight:600;">打分</div><div style="font-size:14px; color:#5C5A55; line-height:1.6; margin-top:2px;">奖励模型按「人会多喜欢」给每个回答打分——B 高于 A。</div></div>
+          </li>
+          <li style="display:flex; gap:16px;">
+            <div style="flex:none; display:flex; flex-direction:column; align-items:center;"><span style="width:30px; height:30px; border-radius:50%; border:1.5px solid #3C5A8C; color:#3C5A8C; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:12px; background:#F2F6FB;">4</span><span style="flex:1; width:1.5px; background:#E6E4DF;"></span></div>
+            <div style="padding-bottom:18px;"><div style="font-size:15px; font-weight:600;">更新 + 缰绳</div><div style="font-size:14px; color:#5C5A55; line-height:1.6; margin-top:2px;">PPO 调整策略提高高分回答的概率，同时 KL 约束确保它别偏离原模型太远。</div></div>
+          </li>
+          <li style="display:flex; gap:16px;">
+            <div style="flex:none; display:flex; flex-direction:column; align-items:center;"><span style="width:30px; height:30px; border-radius:50%; border:1.5px solid #4F9772; color:#4F9772; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:12px; background:#F3F9F5;">✓</span></div>
+            <div><div style="font-size:15px; font-weight:600;">结果</div><div style="font-size:14px; color:#5C5A55; line-height:1.6; margin-top:2px;">模型更稳定地给出像 B 那样、人类偏好的回答。</div></div>
+          </li>
+        </ol>
+      </section>
+
+      <!-- ===== BOUNDARY ===== -->
+      <section id="sec-boundary" data-screen-label="Boundary" style="scroll-margin-top:100px;">
+        <div><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; color:#3C5A8C;">04</span> <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:#8C8A84;">边界反例</span></div>
+        <h2 style="font-size:25px; font-weight:700; letter-spacing:-.01em; line-height:1.2; margin:8px 0 0;">它不是什么</h2>
+        <p style="font-size:15px; line-height:1.7; color:#5C5A55; margin:12px 0 20px; max-width:680px;">最容易和 RLHF 混淆的三个邻居——看清区别才算真懂。</p>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+          <div style="border:1px solid #E6E4DF; border-radius:10px; background:#fff; padding:16px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#9A4F42; margin-bottom:6px;">≠ SFT</div>
+            <div style="font-size:14px; font-weight:600; margin-bottom:6px;">监督微调</div>
+            <div style="font-size:13px; color:#6E6C67; line-height:1.55;">只模仿单一示范答案，学不到「A 比 B 好」的相对偏好。</div>
+          </div>
+          <div style="border:1px solid #E6E4DF; border-radius:10px; background:#fff; padding:16px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#9A4F42; margin-bottom:6px;">≠ 纯 RL</div>
+            <div style="font-size:14px; font-weight:600; margin-bottom:6px;">环境奖励强化学习</div>
+            <div style="font-size:13px; color:#6E6C67; line-height:1.55;">奖励来自环境/规则；RLHF 的奖励来自人类偏好训练出的模型。</div>
+          </div>
+          <div style="border:1px solid #E6E4DF; border-radius:10px; background:#fff; padding:16px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#B0883E; margin-bottom:6px;">≈ DPO</div>
+            <div style="font-size:14px; font-weight:600; margin-bottom:6px;">直接偏好优化</div>
+            <div style="font-size:13px; color:#6E6C67; line-height:1.55;">同样用偏好数据，但跳过显式奖励模型与 RL——目标相近，机制不同。</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== UNDERSTANDING CHECK (PRACTICE BLOCK) ===== -->
+      <section id="sec-check" data-screen-label="Understanding Check" style="scroll-margin-top:100px;">
+        <div><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; color:#3C5A8C;">05</span> <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:#8C8A84;">理解验证</span></div>
+        <h2 style="font-size:25px; font-weight:700; letter-spacing:-.01em; line-height:1.2; margin:8px 0 0;">检验你是否真的学懂了</h2>
+
+        <!-- mini practice: contrast matrix first -->
+        <div style="margin-top:18px; border:1px solid #E6E4DF; border-radius:12px; background:#fff; overflow:hidden;">
+          <div style="padding:11px 16px; border-bottom:1px solid #F0EEE9; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.07em; color:#5C5A55;">对比矩阵 · 它和邻居的坐标</div>
+          <div style="padding:20px; overflow-x:auto;">
+            <div style="display:grid; grid-template-columns:120px 1fr 1fr; gap:0; min-width:420px; font-size:12.5px;">
+              <div style="padding:8px 10px;"></div>
+              <div style="padding:8px 10px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#8C8A84; border-bottom:1px solid #E6E4DF;">用相对偏好</div>
+              <div style="padding:8px 10px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#8C8A84; border-bottom:1px solid #E6E4DF;">只用单一示范</div>
+              <div style="padding:10px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#8C8A84; border-right:1px solid #E6E4DF;">有奖励模型</div>
+              <div style="padding:10px; border-bottom:1px solid #F0EEE9; border-right:1px solid #F0EEE9; background:#F2F6FB; color:#2C4470; font-weight:600;">RLHF</div>
+              <div style="padding:10px; border-bottom:1px solid #F0EEE9; color:#A7A59F;">—</div>
+              <div style="padding:10px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#8C8A84; border-right:1px solid #E6E4DF;">无奖励模型</div>
+              <div style="padding:10px; border-right:1px solid #F0EEE9; color:#6E6C67;">DPO</div>
+              <div style="padding:10px; color:#6E6C67;">SFT</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q1 — true/false -->
+        <div style="margin-top:14px; border:1px solid #E6E4DF; border-radius:12px; background:#FAFAF8; padding:18px 20px;">
+          <div style="display:flex; gap:10px; align-items:baseline;"><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#3C5A8C;">Q1</span><span style="font-size:15px; font-weight:500; color:#1B1B19; line-height:1.5;">「收集人类对成对回答的偏好，训练一个能给回答打分的模型」——这一步属于 RLHF 吗？</span></div>
+          <div style="display:flex; gap:10px; margin-top:14px;">
+            <button onClick="{{ onQ1Yes }}" style="flex:1; min-height:44px; border:1px solid #D9D7D2; background:#fff; border-radius:8px; cursor:pointer; font:inherit; font-size:14px; color:#3A3A36; display:flex; align-items:center; justify-content:center; gap:8px;" style-hover="border-color:#3C5A8C;"><sc-if value="{{ q1SelYes }}" hint-placeholder-val="{{ false }}"><span style="color:#3C5A8C;">●</span></sc-if>是</button>
+            <button onClick="{{ onQ1No }}" style="flex:1; min-height:44px; border:1px solid #D9D7D2; background:#fff; border-radius:8px; cursor:pointer; font:inherit; font-size:14px; color:#3A3A36; display:flex; align-items:center; justify-content:center; gap:8px;" style-hover="border-color:#3C5A8C;"><sc-if value="{{ q1SelNo }}" hint-placeholder-val="{{ false }}"><span style="color:#3C5A8C;">●</span></sc-if>不是</button>
+          </div>
+          <sc-if value="{{ q1Answered }}" hint-placeholder-val="{{ false }}"><div style="{{ q1FeedStyle }}">{{ q1FeedText }}</div></sc-if>
+        </div>
+
+        <!-- Q2 — scenario MCQ -->
+        <div style="margin-top:12px; border:1px solid #E6E4DF; border-radius:12px; background:#FAFAF8; padding:18px 20px;">
+          <div style="display:flex; gap:10px; align-items:baseline;"><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#3C5A8C;">Q2</span><span style="font-size:15px; font-weight:500; color:#1B1B19; line-height:1.5;">下面哪个场景才是 RLHF？</span></div>
+          <div style="display:flex; flex-direction:column; gap:8px; margin-top:14px;">
+            <button onClick="{{ onQ2A }}" style="text-align:left; min-height:44px; border:1px solid #D9D7D2; background:#fff; border-radius:8px; cursor:pointer; font:inherit; font-size:13.5px; color:#3A3A36; padding:10px 14px; display:flex; gap:8px; line-height:1.5;" style-hover="border-color:#3C5A8C;"><span style="font-family:'IBM Plex Mono',monospace; color:#A7A59F;"><sc-if value="{{ q2SelA }}" hint-placeholder-val="{{ false }}"><span style="color:#3C5A8C;">●</span></sc-if><sc-if value="{{ q2NotA }}" hint-placeholder-val="{{ true }}">A</sc-if></span>给模型看大量「问题→标准答案」让它模仿。</button>
+            <button onClick="{{ onQ2B }}" style="text-align:left; min-height:44px; border:1px solid #D9D7D2; background:#fff; border-radius:8px; cursor:pointer; font:inherit; font-size:13.5px; color:#3A3A36; padding:10px 14px; display:flex; gap:8px; line-height:1.5;" style-hover="border-color:#3C5A8C;"><span style="font-family:'IBM Plex Mono',monospace; color:#A7A59F;"><sc-if value="{{ q2SelB }}" hint-placeholder-val="{{ false }}"><span style="color:#3C5A8C;">●</span></sc-if><sc-if value="{{ q2NotB }}" hint-placeholder-val="{{ true }}">B</sc-if></span>让模型对同一问题生成多个回答，人排序，再用偏好训练打分模型去优化策略。</button>
+            <button onClick="{{ onQ2C }}" style="text-align:left; min-height:44px; border:1px solid #D9D7D2; background:#fff; border-radius:8px; cursor:pointer; font:inherit; font-size:13.5px; color:#3A3A36; padding:10px 14px; display:flex; gap:8px; line-height:1.5;" style-hover="border-color:#3C5A8C;"><span style="font-family:'IBM Plex Mono',monospace; color:#A7A59F;"><sc-if value="{{ q2SelC }}" hint-placeholder-val="{{ false }}"><span style="color:#3C5A8C;">●</span></sc-if><sc-if value="{{ q2NotC }}" hint-placeholder-val="{{ true }}">C</sc-if></span>用更多网页文本继续预测下一个词。</button>
+          </div>
+          <sc-if value="{{ q2Answered }}" hint-placeholder-val="{{ false }}"><div style="{{ q2FeedStyle }}">{{ q2FeedText }}</div></sc-if>
+        </div>
+
+        <!-- Q3 — fill-in / reveal -->
+        <div style="margin-top:12px; border:1px solid #E6E4DF; border-radius:12px; background:#FAFAF8; padding:18px 20px;">
+          <div style="display:flex; gap:10px; align-items:baseline;"><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#3C5A8C;">Q3</span><span style="font-size:15px; font-weight:500; color:#1B1B19; line-height:1.5;">RLHF 用 PPO 优化策略时，会加一个 <span style="border-bottom:1.5px dashed #A7A59F; padding:0 18px;"></span> 约束，防止模型偏离原模型太远、避免 reward hacking。</span></div>
+          <button onClick="{{ onRevealQ3 }}" style="margin-top:14px; min-height:44px; border:1px solid #3C5A8C; background:#fff; color:#3C5A8C; border-radius:8px; cursor:pointer; font:inherit; font-size:13.5px; padding:0 16px;" style-hover="background:#F2F6FB;">显示答案</button>
+          <sc-if value="{{ q3Revealed }}" hint-placeholder-val="{{ false }}"><div style="margin-top:12px; padding:12px 14px; border-radius:8px; background:#ECF4EF; border:1px solid #CDE5D8; color:#3C6E52; font-size:14px; line-height:1.55;"><strong>KL 散度（KL divergence）</strong>。它像缰绳，让优化后的策略不会为了刷高分而离原模型太远。</div></sc-if>
+        </div>
+      </section>
+
+      <!-- ===== MENTAL MODEL ===== -->
+      <section id="sec-model" data-screen-label="Mental Model" style="scroll-margin-top:100px;">
+        <div><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; color:#3C5A8C;">06</span> <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:#8C8A84;">心智模型</span></div>
+        <div style="margin-top:14px; border-radius:14px; background:#1B1B19; color:#fff; padding:28px 30px;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; color:#7E7C76; margin-bottom:12px;">ONE-LINE MENTAL MODEL</div>
+          <div style="font-size:20px; line-height:1.5; font-weight:500; letter-spacing:-.01em;">把人类的<span style="color:#9FC7AF;">相对偏好</span>蒸馏成一把尺子（<span style="color:#A7C0E0;">奖励模型</span>），用它把模型往人想要的方向推，同时用 <span style="color:#A7C0E0;">KL 缰绳</span>拽住——别为了高分跑偏。</div>
+        </div>
+
+        <!-- review footer -->
+        <div style="margin-top:24px; border-top:1px solid #E6E4DF; padding-top:20px; display:flex; flex-wrap:wrap; gap:24px; justify-content:space-between;">
+          <div style="max-width:420px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em; color:#A7A59F; margin-bottom:10px;">REVIEW · 三个复习问题</div>
+            <ul style="margin:0; padding-left:18px; font-size:14px; color:#5C5A55; line-height:1.8;">
+              <li>奖励模型和策略模型分别学的是什么？</li>
+              <li>没有 KL 约束会发生什么？</li>
+              <li>RLHF 和 DPO 的核心区别在哪一步？</li>
+            </ul>
+          </div>
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em; color:#A7A59F; margin-bottom:10px;">NEXT</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <a href="#" style="display:inline-flex; align-items:center; gap:8px; font-size:14px; color:#3C5A8C; text-decoration:none;">→ Reward Model 怎么训练</a>
+              <a href="#" style="display:inline-flex; align-items:center; gap:8px; font-size:14px; color:#3C5A8C; text-decoration:none;">→ DPO：跳过 RL 的偏好优化</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;showProgress&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot; },
+  &quot;showFigureCaptions&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot; }
+}">
+class Component extends DCLogic {
+  state = { active: 'hero', progress: 0, q1: null, q2: null, q3: false };
+
+  componentDidMount() {
+    this.sections = ['hero','why','diagrams','walkthrough','boundary','check','model'];
+    this.onScroll = () => {
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - doc.clientHeight;
+      const p = max > 0 ? Math.min(1, Math.max(0, doc.scrollTop / max)) : 0;
+      const mid = window.innerHeight * 0.32;
+      let act = this.sections[0];
+      for (const id of this.sections) {
+        const el = document.getElementById('sec-' + id);
+        if (el && el.getBoundingClientRect().top <= mid) act = id;
+      }
+      if (act !== this.state.active || Math.abs(p - this.state.progress) > 0.004) {
+        this.setState({ active: act, progress: p });
+      }
+    };
+    this._showRail = () => {
+      const nav = document.querySelector('[data-rail]');
+      if (nav) nav.style.display = window.innerWidth >= 900 ? 'block' : 'none';
+    };
+    window.addEventListener('scroll', this.onScroll, { passive: true });
+    window.addEventListener('resize', this._showRail);
+    this._showRail();
+    this.onScroll();
+  }
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this.onScroll);
+    window.removeEventListener('resize', this._showRail);
+  }
+
+  go(id) {
+    const el = document.getElementById('sec-' + id);
+    if (el) window.scrollTo({ top: el.offsetTop - 88, behavior: 'smooth' });
+  }
+
+  renderVals() {
+    const accent = '#3C5A8C';
+    const s = this.state;
+
+    const base = { display:'flex', alignItems:'center', gap:'8px', width:'100%', textAlign:'left',
+      background:'none', border:'none', cursor:'pointer', padding:'8px 10px', borderRadius:'6px',
+      font:'inherit', fontSize:'13px', color:'#8C8A84', borderLeft:'2px solid transparent' };
+    const on = { ...base, color:'#1B1B19', fontWeight:600, background:'#F1EFEA', borderLeft:'2px solid ' + accent };
+    const mk = id => (s.active === id ? on : base);
+    const rail = { hero:mk('hero'), why:mk('why'), diagrams:mk('diagrams'),
+      walkthrough:mk('walkthrough'), boundary:mk('boundary'), check:mk('check'), model:mk('model') };
+
+    const progressStyle = { width: Math.round(s.progress * 100) + '%', height:'100%',
+      background: accent, borderRadius:'2px', transition:'width .12s linear' };
+
+    const feedBase = { marginTop:'14px', padding:'11px 14px', borderRadius:'8px', fontSize:'13.5px', lineHeight:1.55 };
+    const ok = { ...feedBase, background:'#ECF4EF', border:'1px solid #CDE5D8', color:'#3C6E52' };
+    const no = { ...feedBase, background:'#F6ECEA', border:'1px solid #ECCFC9', color:'#9A4F42' };
+
+    const q1Answered = s.q1 !== null;
+    const q1Correct = s.q1 === 'yes';
+    const q2Answered = s.q2 !== null;
+    const q2Correct = s.q2 === 'b';
+
+    return {
+      showProgress: this.props.showProgress ?? true,
+      showCaptions: this.props.showFigureCaptions ?? true,
+      rail, progressStyle,
+
+      navHero: () => this.go('hero'),
+      navWhy: () => this.go('why'),
+      navDiagrams: () => this.go('diagrams'),
+      navWalkthrough: () => this.go('walkthrough'),
+      navBoundary: () => this.go('boundary'),
+      navCheck: () => this.go('check'),
+      navModel: () => this.go('model'),
+
+      onQ1Yes: () => this.setState({ q1: 'yes' }),
+      onQ1No: () => this.setState({ q1: 'no' }),
+      q1SelYes: s.q1 === 'yes',
+      q1SelNo: s.q1 === 'no',
+      q1Answered,
+      q1FeedStyle: q1Correct ? ok : no,
+      q1FeedText: q1Correct
+        ? '✓ 对。这正是 reward model 的训练，是 RLHF 的核心一环。'
+        : '✗ 再想想——这恰恰是 reward model 的训练步骤，属于 RLHF。',
+
+      onQ2A: () => this.setState({ q2: 'a' }),
+      onQ2B: () => this.setState({ q2: 'b' }),
+      onQ2C: () => this.setState({ q2: 'c' }),
+      q2SelA: s.q2 === 'a', q2SelB: s.q2 === 'b', q2SelC: s.q2 === 'c',
+      q2NotA: s.q2 !== 'a', q2NotB: s.q2 !== 'b', q2NotC: s.q2 !== 'c',
+      q2Answered,
+      q2FeedStyle: q2Correct ? ok : no,
+      q2FeedText: q2Correct
+        ? '✓ 正是 B：成对偏好 → 训练奖励模型 → 优化策略，这就是 RLHF。'
+        : (s.q2 === 'a' ? '✗ A 是 SFT（模仿示范），不是 RLHF。' : '✗ C 是预训练，不是 RLHF。'),
+
+      onRevealQ3: () => this.setState({ q3: true }),
+      q3Revealed: s.q3
+    };
+  }
+}
+</script>
+</body>
+</html>

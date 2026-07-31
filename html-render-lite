@@ -95,6 +95,31 @@ def validate_html(html_path, template_id=None):
         slide_count = html.count('<section class="slide')
         if needs_js and slide_count < 3:
             warnings.append(f"⚠️ deck 只有 {slide_count} 页，内容可能不够")
+    if template_id in {"html-learn", "concept-map", "kb-study-material"}:
+        forbidden = [
+            ("cdn.tailwindcss.com", "Tailwind CDN"),
+            ("fonts.googleapis.com", "Google Fonts"),
+            ("fonts.gstatic.com", "Google Fonts"),
+            ("support.js", "Design Compiler support.js"),
+            ("<sc-", "Design Compiler sc-* runtime tags"),
+            ("{{", "unresolved template binding"),
+            ("style-hover", "Design Compiler style-hover attribute"),
+            ("unpkg.com/@babel", "remote Babel runtime"),
+            ("unpkg.com/react", "remote React runtime"),
+        ]
+        for token, label in forbidden:
+            if token in html:
+                warnings.append(f"⚠️ {template_id} 不应包含 {label}")
+        guard_checks = [
+            ("box-sizing:border-box", "缺少 box-sizing 移动端护栏"),
+            ("overflow-x:hidden", "缺少全局 overflow-x:hidden 护栏"),
+            ("max-width:100%", "缺少媒体元素/容器 max-width 护栏"),
+            ("overflow-wrap:anywhere", "缺少长文本断行护栏"),
+        ]
+        compact = re.sub(r"\s+", "", html)
+        for token, label in guard_checks:
+            if token not in compact:
+                warnings.append(f"⚠️ {template_id} {label}")
     if re.search(r'src=["\']https?://(?!cdn\.tailwindcss|fonts\.googleapis|cdnjs\.cloudflare|unpkg)', html):
         warnings.append("⚠️ 包含外部图片引用，可能无法离线打开")
     if template_id == "concept-map":
@@ -107,6 +132,15 @@ def validate_html(html_path, template_id=None):
             warnings.append(f"⚠️ concept-map 五图卡片需要至少 5 个 .mini 小图，当前 {mini_count} 个")
         if "动态机制图" in html and "环境动力图" in html and not ("内部如何" in html or "内部" in html):
             warnings.append("⚠️ concept-map 可能没有明确说明动态机制图是内部工作机制")
+        has_understanding_check = any(token in html for token in ["Understanding Check", "理解验证", "双图一练"])
+        if not has_understanding_check:
+            warnings.append("⚠️ concept-map 缺少 Understanding Check / 理解验证区")
+        has_comparison = any(token in html for token in ["对比矩阵", "comparison-matrix", "Comparison Matrix"])
+        if not has_comparison:
+            warnings.append("⚠️ concept-map 缺少相邻概念对比矩阵")
+        has_practice = any(token in html for token in ["残缺填空", "practice-prompts", "小练习", "练习题", "Cloze"])
+        if not has_practice:
+            warnings.append("⚠️ concept-map 缺少残缺填空 / 场景判断练习")
     return warnings
 
 def load_shared_directives():
@@ -1062,8 +1096,9 @@ def _render_annotated_review(content, css, fallback_title=''):
         loc = ''
         if f.get('file'):
             loc = f.get('file','') + ((':' + f.get('line')) if f.get('line') else '')
+        loc_html = f'<code class="loc">{_esc(loc)}</code>' if loc else ''
         findings_html += (f'<article class="finding {_esc(sev)}"><div class="finding-head"><div><h3>{_render_inline(f["title"])}</h3>'
-                          f'{f"<code class=\"loc\">{_esc(loc)}</code>" if loc else ""}</div><span class="sev {_esc(sev)}">{_render_inline(sev)}</span></div>'
+                          f'{loc_html}</div><span class="sev {_esc(sev)}">{_render_inline(sev)}</span></div>'
                           f'<p>{_render_inline(f.get("problem",""))}</p><div class="recommend"><strong>Recommendation: </strong>{_render_inline(f.get("recommendation",""))}</div></article>')
     gaps = '<ul>' + ''.join(f'<li>{_render_inline(x)}</li>' for x in data['test_gaps']) + '</ul>'
     steps = '<ul>' + ''.join(f'<li>{_render_inline(x)}</li>' for x in data['next_steps']) + '</ul>'
@@ -1197,6 +1232,23 @@ def assemble(template_id, content, format="markdown", out=None, package=None, ca
 
     fm, body = parse_skill_md(smd)
     shared = load_shared_directives()
+    if template_id in {"html-learn", "concept-map", "kb-study-material"}:
+        filtered = []
+        for line in shared.splitlines():
+            if any(token in line for token in [
+                "Tailwind v3 Play",
+                "cdn.tailwindcss.com",
+                "Google Fonts",
+                "jsdelivr CDN",
+                "Noto Sans SC",
+                "Noto Serif SC",
+                "Inter",
+                "Manrope",
+                "transition-all",
+            ]):
+                continue
+            filtered.append(line)
+        shared = "\n".join(filtered)
 
     example_snippet = ""
     if os.path.exists(ex_html):
@@ -1206,6 +1258,26 @@ def assemble(template_id, content, format="markdown", out=None, package=None, ca
         example_snippet = "\n".join(lines[:80])
         if len(lines) > 80:
             example_snippet += "\n  ... (以下略)"
+    if template_id == "html-learn":
+        ref_dir = os.path.join(tdir, "references")
+        ref_parts = []
+        for label, fname in [
+            ("Learn Home / 统一入口页", "Learn Home.dc.html"),
+            ("Learn Concept / concept-map 子页", "Learn Concept.dc.html"),
+            ("Learn Topic / topic 子页", "Learn Topic.dc.html"),
+            ("Learn Template / 通用学习模板", "Learn Template.dc.html"),
+        ]:
+            ref_path = os.path.join(ref_dir, fname)
+            if os.path.exists(ref_path):
+                with open(ref_path) as f:
+                    ref_text = f.read()
+                ref_lines = ref_text.splitlines()
+                snippet = "\n".join(ref_lines[:120])
+                if len(ref_lines) > 120:
+                    snippet += "\n  ... (以下略)"
+                ref_parts.append(f"--- {label}: {fname} ---\n{snippet}")
+        if ref_parts:
+            example_snippet = "\n\n".join(ref_parts)
 
     name = fm.get("zh_name") or fm.get("en_name") or fm.get("name") or template_id
     emoji = fm.get("emoji", "📄")
@@ -1234,13 +1306,51 @@ ID: {template_id}
         out_html = os.path.join(package, "output.html")
         src_md   = os.path.join(package, "source.md")
         meta_json = os.path.join(package, "meta.json")
+        is_html_learn = template_id == "html-learn"
         meta = {
             "template": template_id,
             "generator": "html-render-lite",
             "caller": caller or "unknown",
             "title": title or "",
-            "created": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "created": datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
+        if is_html_learn:
+            meta.update({
+                "entry": "index.html",
+                "multi_page": True,
+                "pages": [
+                    {"file": "index.html", "role": "learn-index", "template": "html-learn"},
+                    {"file": "concept-map.html", "role": "learn-concept", "template": "concept-map"},
+                    {"file": "topic.html", "role": "learn-topic", "template": "kb-study-material"},
+                ],
+            })
+            index_html = os.path.join(package, "index.html")
+            concept_html = os.path.join(package, "concept-map.html")
+            topic_html = os.path.join(package, "topic.html")
+            ctx += f"""
+=== 输出指令（html-learn 三页 package 模式）===
+请完成以下步骤：
+1. 创建目录（如不存在）: {package}
+2. 生成三份完整自包含 HTML：
+   - 统一学习入口页: {index_html}
+   - learn concept 子页: {concept_html}
+   - learn topic 子页: {topic_html}
+3. 统一学习入口页必须是一个真实可读的 HTML 页面，不是空跳转页。它要说明本次学习对象，并提供到 concept-map.html 与 topic.html 的清晰入口。
+4. learn concept 子页使用 `concept-map` 信息架构和 html learn workbench 视觉语言。
+5. learn topic 子页使用 `kb-study-material` 信息架构和 html learn workbench 视觉语言。
+6. 为兼容 Artifact Library 旧入口，将与 index.html 相同的入口页内容也写入: {out_html}
+7. 用 Write 工具将以下 JSON 写入 {meta_json}:
+   {json.dumps(meta, ensure_ascii=False, indent=2)}
+8. 用 Write 工具将原始用户内容写入: {src_md}
+9. 运行验证:
+   html-render-lite --validate {index_html} --template html-learn
+   html-render-lite --validate {concept_html} --template concept-map
+   html-render-lite --validate {topic_html} --template kb-study-material
+   html-render-lite --validate {out_html} --template html-learn
+10. 如有问题，对对应文件运行: html-render-lite --fix <file> --template <template>
+11. 报告: index.html、concept-map.html、topic.html、output.html 路径 + 文件大小 + validate 结果
+"""
+            return ctx
         ctx += f"""
 === 输出指令（package 模式）===
 请完成以下步骤：
@@ -1254,6 +1364,28 @@ ID: {template_id}
 7. 报告: 各文件路径 + output.html 大小 + validate 结果
 """
     elif out:
+        if template_id == "html-learn":
+            base, ext = os.path.splitext(out)
+            ext = ext or ".html"
+            concept_out = f"{base}-concept{ext}"
+            topic_out = f"{base}-topic{ext}"
+            ctx += f"""
+=== 输出指令（html-learn 三页 out 模式）===
+1. 生成三份完整自包含 HTML：
+   - 统一学习入口页: {out}
+   - learn concept 子页: {concept_out}
+   - learn topic 子页: {topic_out}
+2. 统一学习入口页必须是一个真实可读的 HTML 页面，不是空跳转页。它要说明本次学习对象，并提供到 {os.path.basename(concept_out)} 与 {os.path.basename(topic_out)} 的清晰入口。
+3. learn concept 子页使用 `concept-map` 信息架构和 html learn workbench 视觉语言。
+4. learn topic 子页使用 `kb-study-material` 信息架构和 html learn workbench 视觉语言。
+5. 运行验证:
+   html-render-lite --validate {out} --template html-learn
+   html-render-lite --validate {concept_out} --template concept-map
+   html-render-lite --validate {topic_out} --template kb-study-material
+6. 如有问题，对对应文件运行: html-render-lite --fix <file> --template <template>
+7. 报告: 三个文件路径 + 文件大小 + validate 结果
+"""
+            return ctx
         ctx += f"""
 === 输出指令 ===
 1. 用 Write 工具将完整 HTML 写入: {out}
