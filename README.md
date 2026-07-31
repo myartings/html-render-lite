@@ -1,5 +1,9 @@
 # html-render-lite
 
+> Archived implementation as of 2026-07-31. The CLI, templates, and tests have
+> moved to `myartings/html-anything`. Use the `html-anything` command. This
+> repository remains read-only during the migration observation period.
+
 本地模板（SKILL.md + 设计约束 + example.html）拼成结构化上下文，当前 LLM 直接在同一进程内写 HTML。另有 fast templates 可确定性本地渲染。无服务依赖，无网络请求。
 
 ## 原理
