@@ -1,3 +1,15 @@
+# Archived repository — maintenance moved
+
+As of 2026-10-19 this repository is archived and retained for historical reference.
+
+**Maintained replacement: [https://github.com/myartings-lab/html-anything](https://github.com/myartings-lab/html-anything)**
+
+HTML generation, templates and CLI are maintained in HTML Anything.
+
+Do not install from this repository for current use. Archiving preserves source, releases and history; it does not uninstall or stop existing deployments.
+
+---
+
 # html-render-lite
 
 > Archived implementation as of 2026-07-31. The CLI, templates, and tests have
